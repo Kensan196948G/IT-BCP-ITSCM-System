@@ -346,6 +346,92 @@ export interface IncidentCommandDashboard {
   rto_statuses: RTOStatus[];
 }
 
+// ---- Reports (Phase 2) ----
+
+export interface SystemReadinessDetail {
+  system_name: string;
+  rto_target_hours: number;
+  rpo_target_hours: number;
+  last_test_rto_hours?: number;
+  rto_achieved: boolean;
+  tested: boolean;
+  has_fallback: boolean;
+  readiness_score: number;
+}
+
+export interface ReadinessReport {
+  report_id: string;
+  report_type: string;
+  generated_at: string;
+  overall_score: number;
+  total_systems: number;
+  tested_systems: number;
+  rto_met_systems: number;
+  system_readiness: SystemReadinessDetail[];
+  untested_systems: string[];
+  recommendations: string[];
+}
+
+export interface SystemComplianceDetail {
+  system_name: string;
+  rto_target_hours: number;
+  rto_actual_hours?: number;
+  deviation_hours?: number;
+  compliant: boolean;
+  trend: string;
+}
+
+export interface RTOComplianceReport {
+  report_id: string;
+  report_type: string;
+  generated_at: string;
+  compliance_rate: number;
+  total_systems: number;
+  compliant_systems: number;
+  system_compliance: SystemComplianceDetail[];
+  overdue_systems: string[];
+}
+
+export interface YearlyTrendEntry {
+  year: number;
+  exercise_count: number;
+  completed: number;
+  pass_count: number;
+  achievement_rate: number;
+}
+
+export interface ExerciseTrendReport {
+  report_id: string;
+  report_type: string;
+  generated_at: string;
+  total_exercises: number;
+  yearly_trends: YearlyTrendEntry[];
+  common_issues: Record<string, number>;
+  total_improvements: number;
+  completed_improvements: number;
+  improvement_completion_rate: number;
+}
+
+export interface ChecklistItemResult {
+  id: string;
+  requirement: string;
+  category: string;
+  compliant: boolean;
+  evidence: string;
+}
+
+export interface ISO20000Report {
+  report_id: string;
+  report_type: string;
+  generated_at: string;
+  compliance_rate: number;
+  total_items: number;
+  compliant_items: number;
+  checklist_results: ChecklistItemResult[];
+  non_compliant_items: ChecklistItemResult[];
+  next_audit_actions: string[];
+}
+
 // API response wrapper
 export interface ApiResponse<T> {
   data: T;
