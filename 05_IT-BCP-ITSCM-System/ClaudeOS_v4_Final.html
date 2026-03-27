@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClaudeOS v4 × 8プロジェクト 09:00〜17:00 開発計画 完全版</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+:root {
+  --bg:#f0f6ff; --sf:#fff; --sf2:#f7faff; --bd:#dde3f4; --bd2:#c5d0ed;
+  --bl:#2563eb; --bl-l:#dbeafe; --bl-m:#93c5fd; --bl-d:#1d4ed8;
+  --cy:#0891b2; --cy-l:#cffafe;
+  --pu:#7c3aed; --pu-l:#ede9fe;
+  --gr:#059669; --gr-l:#d1fae5;
+  --am:#d97706; --am-l:#fef3c7;
+  --re:#dc2626; --re-l:#fee2e2;
+  --or:#ea580c; --or-l:#ffedd5;
+  --in:#4338ca; --in-l:#e0e7ff;
+  --te:#0d9488; --te-l:#ccfbf1;
+  --ro:#e11d48; --ro-l:#ffe4e6;
+  --tx:#1e293b; --tx2:#475569; --tx3:#94a3b8;
+  --mono:'JetBrains Mono',monospace;
+  --s0:0 1px 4px rgba(30,41,59,.07);
+  --s1:0 4px 16px rgba(30,41,59,.09);
+  --s2:0 8px 28px rgba(30,41,59,.12);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--tx);font-family:'Noto Sans JP',sans-serif;line-height:1.75;font-size:15px;}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);
+  border-bottom:1.5px solid var(--bd);padding:.5rem 1.8rem;
+  display:flex;align-items:center;gap:1rem;flex-wrap:wrap;box-shadow:var(--s0);}
+.nb{font-weight:900;font-size:.9rem;color:var(--bl);white-space:nowrap;}
+.nls{display:flex;gap:.25rem;flex-wrap:wrap;margin-left:auto;}
+.nl{padding:.22rem .65rem;border-radius:1rem;font-size:.7rem;font-weight:600;
+  text-decoration:none;color:var(--tx2);background:var(--sf2);border:1px solid var(--bd);transition:all .15s;}
+.nl:hover{background:var(--bl-l);color:var(--bl);border-color:var(--bl-m);}
+
+/* HERO */
+.hero{background:linear-gradient(145deg,#0f172a 0%,#1e1b4b 30%,#312e81 60%,#1e3a8a 100%);
+  color:#fff;padding:3.5rem 2rem 3rem;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 55% 70% at 5% 50%,rgba(99,102,241,.15) 0%,transparent 65%),
+    radial-gradient(ellipse 40% 55% at 92% 15%,rgba(59,130,246,.12) 0%,transparent 65%);
+  pointer-events:none;}
+.hi{max-width:1260px;margin:0 auto;position:relative;}
+.he{display:inline-flex;align-items:center;gap:.45rem;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
+  border-radius:2rem;padding:.35rem 1rem;font-size:.73rem;font-weight:700;
+  letter-spacing:.05em;margin-bottom:1.2rem;}
+.hero h1{font-size:clamp(1.6rem,3.6vw,2.9rem);font-weight:900;line-height:1.15;margin-bottom:.7rem;}
+.hero-sub{font-size:.95rem;opacity:.82;max-width:740px;margin-bottom:1.6rem;line-height:1.75;}
+.hcs{display:flex;flex-wrap:wrap;gap:.45rem;}
+.hc{padding:.25rem .8rem;border-radius:1rem;font-size:.72rem;font-weight:600;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);}
+.hg{background:rgba(52,211,153,.18);border-color:rgba(52,211,153,.35);color:#a7f3d0;}
+.ha{background:rgba(251,191,36,.18);border-color:rgba(251,191,36,.35);color:#fde68a;}
+.hr{background:rgba(248,113,113,.18);border-color:rgba(248,113,113,.35);color:#fecaca;}
+.hb{background:rgba(147,197,253,.18);border-color:rgba(147,197,253,.35);color:#bfdbfe;}
+
+/* LAYOUT */
+.wrap{max-width:1260px;margin:0 auto;padding:0 1.8rem 5rem;}
+.sec{margin-top:3rem;}
+.sh{display:flex;align-items:center;gap:.85rem;padding-bottom:.9rem;
+  margin-bottom:1.5rem;border-bottom:2.5px solid var(--bd);}
+.si{width:2.5rem;height:2.5rem;border-radius:.7rem;display:flex;align-items:center;
+  justify-content:center;font-size:1.15rem;flex-shrink:0;box-shadow:var(--s0);}
+.si-bl{background:var(--bl-l);border:1.5px solid var(--bl-m);}
+.si-pu{background:var(--pu-l);border:1.5px solid #c4b5fd;}
+.si-gr{background:var(--gr-l);border:1.5px solid #6ee7b7;}
+.si-am{background:var(--am-l);border:1.5px solid #fcd34d;}
+.si-cy{background:var(--cy-l);border:1.5px solid #67e8f9;}
+.si-re{background:var(--re-l);border:1.5px solid #fca5a5;}
+.si-in{background:var(--in-l);border:1.5px solid #a5b4fc;}
+.si-te{background:var(--te-l);border:1.5px solid #5eead4;}
+.si-or{background:var(--or-l);border:1.5px solid #fdba74;}
+.sh h2{font-size:1.18rem;font-weight:800;}
+.sh p{font-size:.79rem;color:var(--tx2);margin-top:.1rem;}
+
+/* NOTICE */
+.notice{border-radius:.85rem;padding:.88rem 1.2rem;display:flex;gap:.75rem;
+  margin-bottom:1.2rem;box-shadow:var(--s0);}
+.n-re{background:#fff1f2;border:1.5px solid #fca5a5;}
+.n-am{background:#fffbeb;border:1.5px solid #fcd34d;}
+.n-bl{background:#eff6ff;border:1.5px solid #93c5fd;}
+.n-gr{background:#f0fdf4;border:1.5px solid #86efac;}
+.n-pu{background:#faf5ff;border:1.5px solid #d8b4fe;}
+.n-te{background:#f0fdfa;border:1.5px solid #5eead4;}
+.n-in{background:#eef2ff;border:1.5px solid #a5b4fc;}
+.ni{font-size:1.1rem;flex-shrink:0;margin-top:.1rem;}
+.notice h4{font-size:.85rem;font-weight:800;margin-bottom:.2rem;}
+.n-re h4{color:#991b1b;} .n-am h4{color:#92400e;} .n-bl h4{color:#1e40af;}
+.n-gr h4{color:#166534;} .n-pu h4{color:#6b21a8;} .n-te h4{color:#0f766e;} .n-in h4{color:#3730a3;}
+.notice p,.notice li{font-size:.8rem;color:var(--tx2);line-height:1.65;}
+
+/* BADGE */
+.bdg{display:inline-flex;align-items:center;gap:.26rem;padding:.17rem .56rem;
+  border-radius:1rem;font-size:.7rem;font-weight:700;white-space:nowrap;}
+.b-bl{background:var(--bl-l);color:#1e40af;border:1px solid var(--bl-m);}
+.b-gr{background:var(--gr-l);color:#065f46;border:1px solid #6ee7b7;}
+.b-am{background:var(--am-l);color:#92400e;border:1px solid #fcd34d;}
+.b-re{background:var(--re-l);color:#991b1b;border:1px solid #fca5a5;}
+.b-pu{background:var(--pu-l);color:#5b21b6;border:1px solid #c4b5fd;}
+.b-in{background:var(--in-l);color:#3730a3;border:1px solid #a5b4fc;}
+.b-te{background:var(--te-l);color:#0f766e;border:1px solid #5eead4;}
+
+/* DVR */
+.dvd{height:4px;border-radius:2px;
+  background:linear-gradient(90deg,var(--bl),var(--pu),var(--te));
+  margin:2.6rem 0;opacity:.18;}
+
+/* STATUS CHIPS */
+.sc{padding:.18rem .55rem;border-radius:.4rem;font-size:.7rem;font-weight:700;display:inline-block;}
+.s-inbox  {background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;}
+.s-backlog{background:#fef3c7;color:#92400e;border:1px solid #fcd34d;}
+.s-ready  {background:#dbeafe;color:#1e40af;border:1px solid #93c5fd;}
+.s-design {background:#fce7f3;color:#9d174d;border:1px solid #f9a8d4;}
+.s-dev    {background:#ede9fe;color:#5b21b6;border:1px solid #c4b5fd;}
+.s-verify {background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;}
+.s-gate   {background:#fef3c7;color:#92400e;border:1px solid #fcd34d;}
+.s-done   {background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;}
+.s-block  {background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;}
+.s-arr{color:var(--tx3);font-size:.82rem;margin:0 .18rem;}
+
+/* TIMELINE */
+.tl{position:relative;padding-left:2rem;}
+.tl::before{content:'';position:absolute;left:.85rem;top:.5rem;bottom:.5rem;
+  width:3px;border-radius:2px;
+  background:linear-gradient(to bottom,var(--am),var(--bl),var(--gr),var(--pu),var(--te));}
+.tl-row{position:relative;margin-bottom:1rem;}
+.tl-dot{position:absolute;left:-2rem;top:.55rem;width:.95rem;height:.95rem;
+  border-radius:50%;border:2.5px solid var(--bg);z-index:1;}
+.tl-card{background:var(--sf);border:1.5px solid var(--bd);border-radius:.9rem;
+  padding:.95rem 1.2rem;box-shadow:var(--s0);transition:all .2s;}
+.tl-card:hover{box-shadow:var(--s1);}
+.tl-ph{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+  margin-bottom:.28rem;display:block;}
+.tl-card h4{font-size:.88rem;font-weight:800;margin-bottom:.28rem;}
+.tl-card p{font-size:.78rem;color:var(--tx2);}
+.tags{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.5rem;}
+.tag{padding:.12rem .48rem;border-radius:.35rem;font-size:.69rem;font-weight:600;}
+
+/* LOOP-BORDER COLOR */
+.ph-boot {border-left:3px solid var(--am);}
+.ph-mon  {border-left:3px solid #f59e0b;}
+.ph-dev  {border-left:3px solid var(--bl);}
+.ph-brk  {border-left:3px solid #94a3b8;}
+.ph-ver  {border-left:3px solid var(--gr);}
+.ph-imp  {border-left:3px solid var(--pu);}
+.ph-end  {border-left:3px solid var(--re);}
+.ph-boot .tl-ph{color:var(--am);}
+.ph-mon  .tl-ph{color:#d97706;}
+.ph-dev  .tl-ph{color:var(--bl);}
+.ph-brk  .tl-ph{color:#64748b;}
+.ph-ver  .tl-ph{color:var(--gr);}
+.ph-imp  .tl-ph{color:var(--pu);}
+.ph-end  .tl-ph{color:var(--re);}
+
+/* DAY CARDS */
+.day-grid{display:grid;gap:1.1rem;margin-bottom:1.5rem;}
+.day-card{background:var(--sf);border:1.5px solid var(--bd);border-radius:1.1rem;
+  overflow:hidden;box-shadow:var(--s0);transition:all .2s;}
+.day-card:hover{box-shadow:var(--s1);}
+.dc-head{padding:.95rem 1.3rem;display:flex;align-items:center;gap:.8rem;border-bottom:1px solid var(--bd);}
+.dc-day{padding:.28rem .75rem;border-radius:.5rem;font-family:var(--mono);
+  font-size:.8rem;font-weight:900;flex-shrink:0;}
+.dc-head h3{font-size:.92rem;font-weight:800;}
+.dc-head p{font-size:.74rem;color:var(--tx2);margin-top:.1rem;}
+.dc-body{padding:1rem 1.3rem;}
+
+/* TIME GRID */
+.tg{display:grid;grid-template-columns:repeat(5,1fr);gap:.45rem;margin-bottom:.65rem;}
+@media(max-width:600px){.tg{grid-template-columns:1fr 1fr;}}
+.tg-cell{background:var(--sf2);border:1.5px solid var(--bd);border-radius:.6rem;
+  padding:.5rem .65rem;text-align:center;}
+.tg-t{font-family:var(--mono);font-size:.73rem;font-weight:800;margin-bottom:.18rem;}
+.tg-l{font-size:.71rem;color:var(--tx2);line-height:1.4;}
+
+/* PROJ PAIR */
+.pp{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-top:.5rem;}
+@media(max-width:560px){.pp{grid-template-columns:1fr;}}
+.pp-item{background:var(--sf2);border:1.5px solid var(--bd);border-radius:.65rem;padding:.7rem .9rem;}
+.pp-item h5{font-size:.78rem;font-weight:800;margin-bottom:.3rem;display:flex;align-items:center;gap:.35rem;}
+.pp-item ul{list-style:none;}
+.pp-item li{font-size:.74rem;color:var(--tx2);padding:.15rem 0;
+  display:flex;gap:.35rem;align-items:flex-start;}
+.pp-foot{font-size:.72rem;color:var(--tx3);margin-top:.45rem;
+  padding-top:.45rem;border-top:1px solid var(--bd);}
+
+/* AGENT CARDS */
+.ag-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:.85rem;margin-bottom:1.4rem;}
+.ag-card{background:var(--sf);border:1.5px solid var(--bd);border-radius:1rem;padding:.95rem;
+  box-shadow:var(--s0);transition:all .2s;}
+.ag-card:hover{box-shadow:var(--s1);}
+.ag-h{display:flex;align-items:center;gap:.55rem;margin-bottom:.55rem;}
+.ag-ico{font-size:1.3rem;} .ag-role{font-size:.84rem;font-weight:800;}
+.ag-sub{font-size:.7rem;color:var(--tx2);margin-top:.06rem;}
+.ag-list{list-style:none;}
+.ag-list li{font-size:.75rem;color:var(--tx2);padding:.22rem 0;
+  border-bottom:1px solid var(--bd2);display:flex;gap:.35rem;align-items:flex-start;}
+.ag-list li:last-child{border-bottom:none;}
+
+/* PIPELINE */
+.pipe{background:var(--sf);border:1.5px solid var(--bd);border-radius:1.1rem;
+  overflow:hidden;box-shadow:var(--s1);margin-bottom:1.4rem;}
+.pipe-h{padding:.95rem 1.3rem;border-bottom:1px solid var(--bd);
+  background:linear-gradient(135deg,#0f172a,#1e1b4b);color:#fff;
+  display:flex;align-items:center;gap:.65rem;}
+.pipe-h h3{font-size:.94rem;font-weight:800;}
+.pipe-h p{font-size:.76rem;opacity:.82;margin-top:.08rem;}
+.pipe-body{padding:1.3rem;}
+.pipe-flow{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;margin-bottom:1rem;}
+.pf-step{padding:.28rem .7rem;border-radius:.45rem;font-size:.75rem;font-weight:700;
+  white-space:nowrap;}
+.pf-arr{color:var(--tx3);font-size:1rem;font-weight:700;}
+.pf-ok{background:var(--gr-l);color:#065f46;border:1px solid #6ee7b7;}
+.pf-bl{background:var(--bl-l);color:#1e40af;border:1px solid var(--bl-m);}
+.pf-pu{background:var(--pu-l);color:#5b21b6;border:1px solid #c4b5fd;}
+.pf-am{background:var(--am-l);color:#92400e;border:1px solid #fcd34d;}
+.pf-re{background:var(--re-l);color:#991b1b;border:1px solid #fca5a5;}
+.pf-te{background:var(--te-l);color:#0f766e;border:1px solid #5eead4;}
+
+/* CODE */
+.code{background:#0f172a;border-radius:.8rem;padding:1rem 1.2rem;
+  font-family:var(--mono);font-size:.73rem;color:#94a3b8;
+  line-height:1.9;overflow-x:auto;margin:.6rem 0;}
+.cm{color:#475569;} .kw{color:#c4b5fd;} .sv{color:#6ee7b7;}
+.nv{color:#fcd34d;} .co{color:#60a5fa;} .st{color:#f97316;}
+.cm2{color:#334155;}
+
+/* BP */
+.bp-grid{display:grid;gap:1rem;margin-bottom:1.4rem;}
+.bp{background:var(--sf);border:1.5px solid var(--bd);border-radius:1rem;overflow:hidden;box-shadow:var(--s0);}
+.bp-h{padding:.85rem 1.2rem;display:flex;align-items:center;gap:.72rem;border-bottom:1px solid var(--bd);}
+.bp-n{width:2.1rem;height:2.1rem;border-radius:.55rem;display:flex;align-items:center;
+  justify-content:center;font-weight:900;font-family:var(--mono);font-size:.86rem;flex-shrink:0;}
+.bn1{background:var(--bl-l);color:var(--bl);border:1.5px solid var(--bl-m);}
+.bn2{background:var(--gr-l);color:var(--gr);border:1.5px solid #6ee7b7;}
+.bn3{background:var(--am-l);color:var(--am);border:1.5px solid #fcd34d;}
+.bn4{background:var(--pu-l);color:var(--pu);border:1.5px solid #c4b5fd;}
+.bn5{background:var(--cy-l);color:var(--cy);border:1.5px solid #67e8f9;}
+.bn6{background:var(--te-l);color:var(--te);border:1.5px solid #5eead4;}
+.bn7{background:var(--in-l);color:var(--in);border:1.5px solid #a5b4fc;}
+.bn8{background:var(--re-l);color:var(--re);border:1.5px solid #fca5a5;}
+.bp-h h3{font-size:.87rem;font-weight:800;}
+.bp-h p{font-size:.72rem;color:var(--tx2);margin-top:.08rem;}
+.bp-b{padding:.9rem 1.2rem;}
+.bp-b>p{font-size:.8rem;color:var(--tx2);margin-bottom:.72rem;}
+.blist{list-style:none;}
+.blist li{display:flex;gap:.5rem;align-items:flex-start;font-size:.79rem;
+  padding:.33rem 0;border-bottom:1px solid var(--bd2);}
+.blist li:last-child{border-bottom:none;}
+.bd{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:.5rem;}
+.d-bl{background:var(--bl);} .d-gr{background:var(--gr);}
+.d-am{background:var(--am);} .d-re{background:var(--re);}
+.d-pu{background:var(--pu);} .d-te{background:var(--te);}
+
+/* SUMMARY */
+.sum{background:linear-gradient(135deg,#eff6ff 0%,#f5f3ff 50%,#f0fdfa 100%);
+  border:2px solid var(--bl-m);border-radius:1.2rem;
+  padding:2rem 2.2rem;box-shadow:var(--s2);}
+.sum h3{font-size:1.06rem;font-weight:900;color:var(--bl-d);margin-bottom:1rem;}
+.sum-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:.72rem;}
+.sk{background:rgba(255,255,255,.8);border:1px solid var(--bl-m);
+  border-radius:.72rem;padding:.78rem;text-align:center;}
+.sv2{font-size:1.38rem;font-weight:900;color:var(--bl);font-family:var(--mono);}
+.sl{font-size:.7rem;color:var(--tx2);margin-top:.16rem;}
+
+/* FADE */
+.fi{opacity:0;transform:translateY(14px);transition:opacity .4s ease,transform .4s ease;}
+.fi.in{opacity:1;transform:translateY(0);}
+
+footer{background:var(--sf);border-top:2px solid var(--bd);padding:1.8rem;text-align:center;}
+footer p{font-size:.76rem;color:var(--tx3);} footer p+p{margin-top:.22rem;}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav class="nav">
+  <div class="nb">🧠 ClaudeOS v4 Complete Plan</div>
+  <div class="nls">
+    <a class="nl" href="#s1">🧠 仕様解説</a>
+    <a class="nl" href="#s2">🔁 Loopタイムライン</a>
+    <a class="nl" href="#s3">🤖 Agent Teams</a>
+    <a class="nl" href="#s4">🔧 自動パイプライン</a>
+    <a class="nl" href="#s5">📅 曜日スケジュール</a>
+    <a class="nl" href="#s6">✅ ベストプラクティス</a>
+    <a class="nl" href="#s7">🚀 実行コマンド</a>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hi">
+    <div class="he">🧠 ClaudeOS v4 完全仕様準拠 — 2026.03.22 最終版</div>
+    <h1>ClaudeOS v4 × 8プロジェクト<br>09:00〜17:00 完全自動開発計画</h1>
+    <p class="hero-sub">
+      プロンプト仕様書（ClaudeOS v4 + GitHub完全自動パイプライン）に完全準拠。
+      <strong>/loop 30m Monitor → /loop 2h Development → /loop 2h Verify → /loop 4h Improvement</strong>、
+      Windowsターミナル 2タブ並列、月〜金 曜日スケジュール、09:00〜17:00（8時間）LoopGuard制御。
+    </p>
+    <div class="hcs">
+      <span class="hc hg">✅ 完全仕様書準拠</span>
+      <span class="hc hb">🖥️ Windowsターミナル 2タブ</span>
+      <span class="hc hb">🌳 WorkTree並列開発</span>
+      <span class="hc ha">⏱️ 8h LoopGuard</span>
+      <span class="hc hr">🔁 30m+2h+2h+4h</span>
+      <span class="hc hg">🔧 完全自動パイプライン</span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ══════════════ S1: 仕様解説 ══════════════ -->
+<div class="sec" id="s1" style="margin-top:2.5rem;">
+  <div class="sh fi">
+    <div class="si si-pu">🧠</div>
+    <div><h2>仕様書から読み解く ClaudeOS v4 の全体設計</h2>
+    <p>今回の指示プロンプトの重要ポイントを整理</p></div>
+  </div>
+
+  <div class="notice n-in fi">
+    <div class="ni">⚠️</div>
+    <div>
+      <h4>前回との最重要な差分 — Loopタイムが異なる！</h4>
+      <p>前回のHTMLでは <code>/loop 1h Monitor</code> と設定していましたが、今回の仕様書では <strong><code>/loop 30m Monitor</code></strong> です。また <strong><code>/loop 4h Improvement</code></strong>（前回は3h）。合計は <strong>30m + 2h + 2h + 4h = 8時間30分</strong> となり、昼休憩1時間を差し引くと実動8時間（09:00〜17:00）の枠内に収まります。本版で全て修正しています。</p>
+    </div>
+  </div>
+
+  <!-- 6カード -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.9rem;margin-bottom:1.4rem;">
+
+    <div class="fi" style="background:var(--sf);border:1.5px solid var(--bd);border-radius:1rem;overflow:hidden;box-shadow:var(--s0);">
+      <div style="padding:.82rem 1rem;background:var(--am-l);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:.55rem;">
+        <span style="font-size:1.25rem;">⏱️</span>
+        <div><div style="font-size:.87rem;font-weight:800;">Loop構成（正式版）</div>
+        <div style="font-size:.7rem;color:var(--tx2);">仕様書明記の正確なタイム</div></div>
+      </div>
+      <div style="padding:.85rem 1rem;">
+        <div style="display:flex;flex-direction:column;gap:.3rem;">
+          <div style="font-family:var(--mono);font-size:.8rem;display:flex;justify-content:space-between;">
+            <span style="color:var(--am);font-weight:700;">/loop 30m</span><span style="color:var(--tx2);">ClaudeOS Monitor</span>
+          </div>
+          <div style="font-family:var(--mono);font-size:.8rem;display:flex;justify-content:space-between;">
+            <span style="color:var(--bl);font-weight:700;">/loop 2h&nbsp;</span><span style="color:var(--tx2);">ClaudeOS Development</span>
+          </div>
+          <div style="font-family:var(--mono);font-size:.8rem;display:flex;justify-content:space-between;">
+            <span style="color:var(--gr);font-weight:700;">/loop 2h&nbsp;</span><span style="color:var(--tx2);">ClaudeOS Verify</span>
+          </div>
+          <div style="font-family:var(--mono);font-size:.8rem;display:flex;justify-content:space-between;">
+            <span style="color:var(--pu);font-weight:700;">/loop 4h&nbsp;</span><span style="color:var(--tx2);">ClaudeOS Improvement</span>
+          </div>
+          <div style="margin-top:.4rem;padding-top:.4rem;border-top:1px solid var(--bd2);font-size:.74rem;font-weight:800;color:var(--re);">合計：8時間30分（昼休憩1h含む）</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fi" style="background:var(--sf);border:1.5px solid var(--bd);border-radius:1rem;overflow:hidden;box-shadow:var(--s0);">
+      <div style="padding:.82rem 1rem;background:var(--bl-l);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:.55rem;">
+        <span style="font-size:1.25rem;">🛑</span>
+        <div><div style="font-size:.87rem;font-weight:800;">LoopGuard 停止条件</div>
+        <div style="font-size:.7rem;color:var(--tx2);">最優先ルール</div></div>
+      </div>
+      <div style="padding:.85rem 1rem;">
+        <ul style="list-style:none;">
+          <li style="font-size:.78rem;padding:.22rem 0;border-bottom:1px solid var(--bd2);display:flex;gap:.4rem;"><span style="color:var(--re);">🔴</span><span>8時間到達（強制終了）</span></li>
+          <li style="font-size:.78rem;padding:.22rem 0;border-bottom:1px solid var(--bd2);display:flex;gap:.4rem;"><span style="color:var(--re);">🔴</span><span>同一エラー3回繰り返し</span></li>
+          <li style="font-size:.78rem;padding:.22rem 0;border-bottom:1px solid var(--bd2);display:flex;gap:.4rem;"><span style="color:var(--re);">🔴</span><span>CI失敗5回連続</span></li>
+          <li style="font-size:.78rem;padding:.22rem 0;border-bottom:1px solid var(--bd2);display:flex;gap:.4rem;"><span style="color:var(--re);">🔴</span><span>Securityクリティカル問題</span></li>
+          <li style="font-size:.78rem;padding:.22rem 0;display:flex;gap:.4rem;"><span style="color:var(--am);">⚠️</span><span>Auto Repair最大15回</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="fi" style="background:var(--sf);border:1.5px solid var(--bd);border-radius:1rem;overflow:hidden;box-shadow:var(--s0);">
+      <div style="padding:.82rem 1rem;background:var(--gr-l);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:.55rem;">
+        <span style="font-size:1.25rem;">✅</span>
+        <div><div style="font-size:.87rem;font-weight:800;">STABLE判定</div>
+        <div style="font-size:.7rem;color:var(--tx2);">デフォルトN=3</div></div>
+      </div>
+      <div style="padding:.85rem 1rem;">
+        <ul style="list-style:none;">
+          <li style="font-size:.78rem;padding:.22rem 0;border-bottom:1px solid var(--bd2);display:flex;gap:.4rem;"><span>🧪</span><span>test / CI / lint / build success</span></li>
+          <li style="font-size:.78rem;padding:.22rem 0;border-bottom:1px solid var(--bd2);display:flex;gap:.4rem;"><span>🔒</span><span>error 0 / security critical 0</span></li>
+          <li style="font-size:.78rem;padding:.22rem 0;border-bottom:1px solid var(--bd2);display:flex;gap:.4rem;"><span style="color:var(--gr);">N=2</span><span>小規模変更</span></li>
+          <li style="font-size:.78rem;padding:.22rem 0;border-bottom:1px solid var(--bd2);display:flex;gap:.4rem;"><span style="color:var(--bl);">N=3</span><span>通常変更（デフォルト）</span></li>
+          <li style="font-size:.78rem;padding:.22rem 0;display:flex;gap:.4rem;"><span style="color:var(--re);">N=5</span><span>重要変更（Security等）</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="fi" style="background:var(--sf);border:1.5px solid var(--bd);border-radius:1rem;overflow:hidden;box-shadow:var(--s0);">
+      <div style="padding:.82rem 1rem;background:var(--pu-l);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:.55rem;">
+        <span style="font-size:1.25rem;">📋</span>
+        <div><div style="font-size:.87rem;font-weight:800;">Project Status</div>
+        <div style="font-size:.7rem;color:var(--tx2);">9ステータス管理</div></div>
+      </div>
+      <div style="padding:.82rem 1rem;display:flex;flex-wrap:wrap;gap:.3rem;">
+        <span class="sc s-inbox">Inbox</span>
+        <span class="sc s-backlog">Backlog</span>
+        <span class="sc s-ready">Ready</span>
+        <span class="sc s-design">Design</span>
+        <span class="sc s-dev">Development</span>
+        <span class="sc s-verify">Verify</span>
+        <span class="sc s-gate">Deploy Gate</span>
+        <span class="sc s-done">Done</span>
+        <span class="sc s-block">Blocked</span>
+      </div>
+    </div>
+
+    <div class="fi" style="background:var(--sf);border:1.5px solid var(--bd);border-radius:1rem;overflow:hidden;box-shadow:var(--s0);">
+      <div style="padding:.82rem 1rem;background:var(--te-l);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:.55rem;">
+        <span style="font-size:1.25rem;">🌳</span>
+        <div><div style="font-size:.87rem;font-weight:800;">WorkTree並列開発</div>
+        <div style="font-size:.7rem;color:var(--tx2);">Windowsターミナル2タブ</div></div>
+      </div>
+      <div style="padding:.85rem 1rem;">
+        <ul style="list-style:none;">
+          <li style="font-size:.78rem;padding:.22rem 0;border-bottom:1px solid var(--bd2);display:flex;gap:.4rem;"><span>🖥️</span><span>タブ1 = プロジェクトA</span></li>
+          <li style="font-size:.78rem;padding:.22rem 0;border-bottom:1px solid var(--bd2);display:flex;gap:.4rem;"><span>🖥️</span><span>タブ2 = プロジェクトB</span></li>
+          <li style="font-size:.78rem;padding:.22rem 0;border-bottom:1px solid var(--bd2);display:flex;gap:.4rem;"><span>🌳</span><span>1タスク = 1 WorkTree</span></li>
+          <li style="font-size:.78rem;padding:.22rem 0;border-bottom:1px solid var(--bd2);display:flex;gap:.4rem;"><span>🚫</span><span>main直接push禁止</span></li>
+          <li style="font-size:.78rem;padding:.22rem 0;display:flex;gap:.4rem;"><span>🔀</span><span>branch: feature/[曜日]-[task]</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="fi" style="background:var(--sf);border:1.5px solid var(--bd);border-radius:1rem;overflow:hidden;box-shadow:var(--s0);">
+      <div style="padding:.82rem 1rem;background:var(--in-l);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:.55rem;">
+        <span style="font-size:1.25rem;">💰</span>
+        <div><div style="font-size:.87rem;font-weight:800;">Token管理</div>
+        <div style="font-size:.7rem;color:var(--tx2);">4段階自動切替</div></div>
+      </div>
+      <div style="padding:.85rem 1rem;">
+        <ul style="list-style:none;">
+          <li style="font-size:.78rem;padding:.22rem 0;border-bottom:1px solid var(--bd2);display:flex;gap:.4rem;"><span>🟢</span><span>Green — 通常動作</span></li>
+          <li style="font-size:.78rem;padding:.22rem 0;border-bottom:1px solid var(--bd2);display:flex;gap:.4rem;"><span>🟡</span><span>Yellow — 軽量化</span></li>
+          <li style="font-size:.78rem;padding:.22rem 0;border-bottom:1px solid var(--bd2);display:flex;gap:.4rem;"><span>🟠</span><span>Orange — 監視優先</span></li>
+          <li style="font-size:.78rem;padding:.22rem 0;display:flex;gap:.4rem;"><span>🔴</span><span>Red — 開発停止</span></li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════ S2: 1日タイムライン ══════════════ -->
+<div class="dvd"></div>
+<div class="sec" id="s2">
+  <div class="sh fi">
+    <div class="si si-cy">🔁</div>
+    <div><h2>1日タイムライン — 09:00〜17:00 詳細スケジュール</h2>
+    <p>/loop 30m Monitor → /loop 2h Development → 昼休憩 → /loop 2h Verify → /loop 4h Improvement（17:00停止）</p></div>
+  </div>
+
+  <div class="notice n-gr fi">
+    <div class="ni">💡</div>
+    <div>
+      <h4>昼休憩を挟んだ実動8時間の設計</h4>
+      <p>仕様書のLoop合計（30m+2h+2h+4h=8h30m）は昼休憩1時間を考慮した設計です。実際の時計時間は <strong>09:00〜17:00（8時間）</strong>。Improvement（/loop 4h）は15:00〜開始し17:00でLoopGuardが停止、残2時間分は翌日のMonitorフェーズで継続します。アイドル状態なら各Loopは正確に発火します。</p>
+    </div>
+  </div>
+
+  <div style="background:var(--sf);border:1.5px solid var(--bd);border-radius:1.2rem;overflow:hidden;box-shadow:var(--s1);margin-bottom:1.5rem;" class="fi">
+    <div style="padding:1rem 1.4rem;border-bottom:1px solid var(--bd);background:var(--sf2);display:flex;align-items:center;gap:.7rem;">
+      <span style="font-size:1.2rem;">⏱️</span>
+      <div>
+        <div style="font-size:.94rem;font-weight:800;">1日（1曜日）詳細タイムライン</div>
+        <div style="font-size:.76rem;color:var(--tx2);">タブ1・タブ2 並列実行</div>
+      </div>
+    </div>
+    <div style="padding:1.3rem 1.5rem;">
+      <div class="tl">
+
+        <div class="tl-row fi">
+          <div class="tl-dot" style="background:var(--am);"></div>
+          <div class="tl-card ph-boot">
+            <span class="tl-ph">08:30〜09:00 ｜ Boot Sequence（30分）</span>
+            <h4>🔧 ClaudeOS Kernel 起動 ＋ GitHub Project 確認</h4>
+            <p>Windowsターミナルでタブ1・タブ2を開き、それぞれのプロジェクトディレクトリで <code>claude --dangerously-skip-permissions</code> を起動。claudeos/system/ の全mdファイルを読み込み、Kernel Boot Sequenceを実行。.bashrc の GitHub Token export確認。GitHub Issues/Projectの状態を確認し Inbox→Backlog→Ready に更新。</p>
+            <div class="tags">
+              <span class="tag" style="background:var(--am-l);color:#92400e;">🧠 Kernel Boot</span>
+              <span class="tag" style="background:var(--am-l);color:#92400e;">🔑 GitHub Token確認</span>
+              <span class="tag" style="background:var(--am-l);color:#92400e;">📋 Issue/Project確認</span>
+              <span class="tag" style="background:var(--am-l);color:#92400e;">⚙️ scripts/動作確認</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-row fi">
+          <div class="tl-dot" style="background:#f59e0b;"></div>
+          <div class="tl-card ph-mon">
+            <span class="tl-ph">09:00〜09:30 ｜ /loop 30m ClaudeOS Monitor（アイドルなら正確に発火）</span>
+            <h4>🔍 GitHub Project司令盤確認 ＋ Backlog整理 ＋ Dev Factory</h4>
+            <p>claudeos/loops/monitor-loop.md に従い実行。GitHub Projects の全Issue状態確認・優先度チェック・前日CI結果分析。<strong>Scrum Master（scrum-master.md）+ Dev Factory（最大3件タスク自動生成）</strong>が起動。scripts/project-sync.sh でStatus更新。現在の日時時間（yyyy:mm:dd:hh:mm）を確認してLoopを発火。</p>
+            <div class="tags">
+              <span class="tag" style="background:var(--am-l);color:#92400e;">09:00 正確発火</span>
+              <span class="tag" style="background:var(--am-l);color:#92400e;">Project Status確認・更新</span>
+              <span class="tag" style="background:var(--am-l);color:#92400e;">Dev Factory（最大3件）</span>
+              <span class="tag" style="background:var(--am-l);color:#92400e;">Ready→Design（設計必要時）</span>
+              <span class="tag" style="background:var(--am-l);color:#92400e;">Token状態確認</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-row fi">
+          <div class="tl-dot" style="background:var(--bl);"></div>
+          <div class="tl-card ph-dev">
+            <span class="tl-ph">09:30〜11:30 ｜ /loop 2h ClaudeOS Development</span>
+            <h4>⚙️ WorkTree並列実装 ＋ PR自動生成（scripts/create-pr.sh）</h4>
+            <p>claudeos/loops/build-loop.md（Development Loop）に従い実行。Agent Teams（Developer + Reviewer）がWorkTreeで実装。<strong>main直接push禁止 → feature/[曜日]-[タスク]ブランチ → 頻繁commit（Small change）→ scripts/create-pr.sh でPR自動生成</strong>。Architect（architecture-check-loop.md）が設計審査。Security がPR時セキュリティレビュー。TODO/FIXME検出 → scripts/create-issue.sh で自動Issue化。</p>
+            <div class="tags">
+              <span class="tag" style="background:var(--bl-l);color:#1e40af;">Status: Design→Development</span>
+              <span class="tag" style="background:var(--bl-l);color:#1e40af;">WorkTree: feature/[曜日]-[task]</span>
+              <span class="tag" style="background:var(--bl-l);color:#1e40af;">頻繁commit（Small change原則）</span>
+              <span class="tag" style="background:var(--bl-l);color:#1e40af;">scripts/create-pr.sh 自動PR</span>
+              <span class="tag" style="background:var(--bl-l);color:#1e40af;">scripts/create-issue.sh 自動Issue</span>
+              <span class="tag" style="background:var(--bl-l);color:#1e40af;">architecture-check-loop.md</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-row fi">
+          <div class="tl-dot" style="background:#94a3b8;"></div>
+          <div class="tl-card ph-brk">
+            <span class="tl-ph">11:30〜12:00 ｜ CI自動実行中（GitHub Actions）</span>
+            <h4>🔄 PR作成後の GitHub Actions CI 自動実行</h4>
+            <p>Development Loopで生成されたPRに対してGitHub Actions（.github/workflows/claudeos-ci.yml）が自動起動。CI失敗時は<strong>Auto Repairが自動起動（最大15retry）</strong>。この間もLoopGuardの8時間カウントは継続。</p>
+            <div class="tags">
+              <span class="tag" style="background:#f1f5f9;color:#475569;">claudeos-ci.yml 自動実行</span>
+              <span class="tag" style="background:#f1f5f9;color:#475569;">Install/Lint/Test/Build</span>
+              <span class="tag" style="background:#f1f5f9;color:#475569;">CI失敗→Auto Repair（最大15回）</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-row fi">
+          <div class="tl-dot" style="background:#94a3b8;"></div>
+          <div class="tl-card ph-brk">
+            <span class="tl-ph">12:00〜13:00 ｜ 昼休憩（LoopGuard 待機継続）</span>
+            <h4>🍱 昼休憩 — CI実行中・LoopGuard 待機モード</h4>
+            <p>開発者は昼休憩。<strong>タブ1・タブ2のLoopGuardは待機継続中</strong>（8時間カウント継続）。GitHub Actionsが並行実行中。CI失敗時はAuto Repairが自動起動するため人間の介入不要。昼休憩中にタブを確認して進捗把握することを推奨。</p>
+            <div class="tags">
+              <span class="tag" style="background:#f1f5f9;color:#475569;">LoopGuard 待機継続</span>
+              <span class="tag" style="background:#f1f5f9;color:#475569;">CI 自動実行中</span>
+              <span class="tag" style="background:#f1f5f9;color:#475569;">タブ確認OK（人間）</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-row fi">
+          <div class="tl-dot" style="background:var(--gr);"></div>
+          <div class="tl-card ph-ver">
+            <span class="tl-ph">13:00〜15:00 ｜ /loop 2h ClaudeOS Verify</span>
+            <h4>✅ CI品質ゲート ＋ STABLE判定（N=3）＋ Merge → Deploy</h4>
+            <p>claudeos/loops/verify-loop.md に従い実行。QAがテスト実行・CI確認。失敗時は<strong>ci-manager.md → Auto Repair（最大15retry） → 再Verify</strong>。STABLE判定（デフォルトN=3）達成後、scripts/create-pr.sh → CI確認 → merge → deploy まで自動実行。scripts/project-sync.sh でDeploy Gate → Done に更新。</p>
+            <div class="tags">
+              <span class="tag" style="background:var(--gr-l);color:#065f46;">Status: Development→Verify</span>
+              <span class="tag" style="background:var(--gr-l);color:#065f46;">test/lint/build/security（error=0）</span>
+              <span class="tag" style="background:var(--gr-l);color:#065f46;">CI失敗→ci-manager→Auto Repair</span>
+              <span class="tag" style="background:var(--gr-l);color:#065f46;">STABLE N=3達成→Deploy Gate</span>
+              <span class="tag" style="background:var(--gr-l);color:#065f46;">commit→push→PR→merge→deploy</span>
+              <span class="tag" style="background:var(--gr-l);color:#065f46;">scripts/project-sync.sh Done更新</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-row fi">
+          <div class="tl-dot" style="background:var(--pu);"></div>
+          <div class="tl-card ph-imp">
+            <span class="tl-ph">15:00〜17:00 ｜ /loop 4h ClaudeOS Improvement（17:00でLoopGuard停止・残2hは翌日）</span>
+            <h4>🔄 パターン学習・ループ最適化・戦略改善（self-evolution.md）</h4>
+            <p>claudeos/loops/improve-loop.md + claudeos/evolution/self-evolution.md に従い実行。STABLE達成後のEvolutionトリガー。パターン学習・ループ最適化・戦略改善を実施。<strong>/loop 4h のうち実動するのは15:00〜17:00の2時間</strong>。17:00でLoopGuardが8時間到達を検知し安全停止。残り2時間分は翌日のMonitorフェーズ冒頭で継続。</p>
+            <div class="tags">
+              <span class="tag" style="background:var(--pu-l);color:#5b21b6;">self-evolution.md 起動</span>
+              <span class="tag" style="background:var(--pu-l);color:#5b21b6;">パターン学習・最適化</span>
+              <span class="tag" style="background:var(--pu-l);color:#5b21b6;">17:00 LoopGuard→安全停止</span>
+              <span class="tag" style="background:var(--pu-l);color:#5b21b6;">残2h→翌日継続</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-row fi">
+          <div class="tl-dot" style="background:var(--re);"></div>
+          <div class="tl-card ph-end">
+            <span class="tl-ph">16:50〜17:00 ｜ 最終報告（AI CTO実行）</span>
+            <h4>📊 必須9項目 最終報告 ＋ 8時間終了時追加6項目</h4>
+            <p>AI CTOが最終報告を出力。開発内容・修正内容・テスト結果・CI結果・Project更新・PR/merge・deploy結果・残課題・次フェーズ提案。<strong>8時間終了時は追加で：開始/終了時刻・総作業時間・未完了タスク・再開ポイント・継続優先順位</strong>も出力。残課題はBlockedまたはBacklogへ移動。</p>
+            <div class="tags">
+              <span class="tag" style="background:var(--re-l);color:#991b1b;">必須9項目 出力</span>
+              <span class="tag" style="background:var(--re-l);color:#991b1b;">8h終了時 追加6項目</span>
+              <span class="tag" style="background:var(--re-l);color:#991b1b;">残課題→Blocked/Backlog</span>
+              <span class="tag" style="background:var(--re-l);color:#991b1b;">scripts/project-sync.sh 最終更新</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ S3: Agent Teams ══════════════ -->
+<div class="dvd"></div>
+<div class="sec" id="s3">
+  <div class="sh fi">
+    <div class="si si-or">🤖</div>
+    <div><h2>Agent Teams — 7役割と責務（会話を必ず可視化）</h2>
+    <p>仕様書明記：「Agent Teamsの会話は必ず可視化してください」</p></div>
+  </div>
+  <div class="ag-grid">
+    <div class="ag-card fi">
+      <div class="ag-h"><div class="ag-ico">🏢</div>
+      <div><div class="ag-role">CTO</div><div class="ag-sub">最終判断・8h終了含む</div></div></div>
+      <ul class="ag-list">
+        <li><span>🎯</span><span>優先順位判断・継続可否判断</span></li>
+        <li><span>⏱️</span><span>17:00到達→強制終了の最終判断</span></li>
+        <li><span>📊</span><span>最終報告（15項目）の統括</span></li>
+        <li><span>🔀</span><span>曜日ごとのプロジェクト切替決定</span></li>
+      </ul>
+    </div>
+    <div class="ag-card fi">
+      <div class="ag-h"><div class="ag-ico">🏗️</div>
+      <div><div class="ag-role">Architect</div><div class="ag-sub">設計・構造改善</div></div></div>
+      <ul class="ag-list">
+        <li><span>🔍</span><span>architecture-check-loop.md 実行</span></li>
+        <li><span>🔗</span><span>8プロジェクト間API依存関係管理</span></li>
+        <li><span>⚠️</span><span>破壊的変更の検知・Architecture Board</span></li>
+        <li><span>📐</span><span>責務分離・構造改善提案</span></li>
+      </ul>
+    </div>
+    <div class="ag-card fi">
+      <div class="ag-h"><div class="ag-ico">💻</div>
+      <div><div class="ag-role">Developer</div><div class="ag-sub">実装・修正・修復</div></div></div>
+      <ul class="ag-list">
+        <li><span>🌳</span><span>WorkTree: feature/[曜日]-[task] 実装</span></li>
+        <li><span>📝</span><span>頻繁commit（Small change原則）</span></li>
+        <li><span>🔧</span><span>Auto Repair実行（最大15回）</span></li>
+        <li><span>📋</span><span>scripts/create-pr.sh でPR自動生成</span></li>
+      </ul>
+    </div>
+    <div class="ag-card fi">
+      <div class="ag-h"><div class="ag-ico">🔍</div>
+      <div><div class="ag-role">Reviewer</div><div class="ag-sub">コード品質・差分確認</div></div></div>
+      <ul class="ag-list">
+        <li><span>👁️</span><span>PR差分レビュー・保守性確認</span></li>
+        <li><span>📊</span><span>コード品質メトリクス評価</span></li>
+        <li><span>💬</span><span>レビューコメント・改善提案</span></li>
+        <li><span>✅</span><span>Approve後にマージ可能状態へ</span></li>
+      </ul>
+    </div>
+    <div class="ag-card fi">
+      <div class="ag-h"><div class="ag-ico">🧪</div>
+      <div><div class="ag-role">QA</div><div class="ag-sub">テスト・回帰・品質評価</div></div></div>
+      <ul class="ag-list">
+        <li><span>✅</span><span>pytest/Vitest/Pester実行</span></li>
+        <li><span>🔄</span><span>CI失敗→ci-manager→Auto Repair</span></li>
+        <li><span>📊</span><span>STABLE判定（N=3確認）</span></li>
+        <li><span>📋</span><span>テスト結果ログ生成</span></li>
+      </ul>
+    </div>
+    <div class="ag-card fi">
+      <div class="ag-h"><div class="ag-ico">🛡️</div>
+      <div><div class="ag-role">Security</div><div class="ag-sub">secrets・権限・脆弱性</div></div></div>
+      <ul class="ag-list">
+        <li><span>🔍</span><span>PR時点でセキュリティレビュー</span></li>
+        <li><span>🚨</span><span>criticalissue検知→LoopGuard即停止</span></li>
+        <li><span>🔐</span><span>secrets/token/認証設定変更は慎重扱い</span></li>
+        <li><span>📜</span><span>ISO27001/NIST CSF準拠チェック</span></li>
+      </ul>
+    </div>
+    <div class="ag-card fi">
+      <div class="ag-h"><div class="ag-ico">🚀</div>
+      <div><div class="ag-role">DevOps</div><div class="ag-sub">CI/CD・PR・Deploy Gate</div></div></div>
+      <ul class="ag-list">
+        <li><span>⚙️</span><span>GitHub Actions CI確認・claudeos-ci.yml</span></li>
+        <li><span>🔀</span><span>scripts/create-pr.sh・project-sync.sh</span></li>
+        <li><span>🏁</span><span>Deploy Gate確認・deploy実行</span></li>
+        <li><span>📊</span><span>deploy結果ログ → 最終報告</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ S4: 完全自動パイプライン ══════════════ -->
+<div class="dvd"></div>
+<div class="sec" id="s4">
+  <div class="sh fi">
+    <div class="si si-gr">🔧</div>
+    <div><h2>ClaudeOS × GitHub 完全自動開発パイプライン</h2>
+    <p>4つの自動化スクリプト + GitHub Actions CI + Auto Repair（最大15回）</p></div>
+  </div>
+
+  <!-- パイプライン全体フロー -->
+  <div class="pipe fi">
+    <div class="pipe-h">
+      <span style="font-size:1.2rem;">🔥</span>
+      <div><h3>完全自動フロー（Issue生成→Merge→Deploy）</h3>
+      <p>ClaudeOS Orchestrator が全ステップを自律実行</p></div>
+    </div>
+    <div class="pipe-body">
+      <div class="pipe-flow">
+        <span class="pf-step pf-am">Issue生成</span><span class="pf-arr">→</span>
+        <span class="pf-step pf-am">Project: Backlog</span><span class="pf-arr">→</span>
+        <span class="pf-step pf-bl">Ready→Design</span><span class="pf-arr">→</span>
+        <span class="pf-step pf-bl">WorkTree生成</span><span class="pf-arr">→</span>
+        <span class="pf-step pf-bl">Development Loop</span><span class="pf-arr">→</span>
+        <span class="pf-step pf-pu">Verify Loop</span><span class="pf-arr">→</span>
+        <span class="pf-step pf-pu">PR自動生成</span><span class="pf-arr">→</span>
+        <span class="pf-step pf-te">CI実行</span><span class="pf-arr">→</span>
+        <span class="pf-step pf-re">失敗→Auto Repair</span><span class="pf-arr">→</span>
+        <span class="pf-step pf-ok">成功→STABLE</span><span class="pf-arr">→</span>
+        <span class="pf-step pf-ok">Merge→Deploy</span>
+      </div>
+
+      <!-- 4スクリプト -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.9rem;">
+        <div>
+          <div style="font-size:.78rem;font-weight:800;color:var(--bl);margin-bottom:.4rem;">① scripts/project-sync.sh — Project Status自動更新</div>
+          <div class="code">
+<span class="cm">#!/bin/bash</span>
+<span class="cm"># 使用例: project-sync.sh ISSUE_ID Development</span>
+<span class="nv">ISSUE_ID</span>=<span class="sv">$1</span>
+<span class="nv">STATUS</span>=<span class="sv">$2</span>
+<span class="nv">PROJECT_ID</span>=<span class="sv">"YOUR_PROJECT_ID"</span>
+<span class="nv">FIELD_ID</span>=<span class="sv">"STATUS_FIELD_ID"</span>
+
+<span class="kw">gh api graphql</span> -f query=<span class="st">'
+mutation($project:ID!, $item:ID!, $field:ID!, $value:String!) {
+  updateProjectV2ItemFieldValue(input:{
+    projectId:$project itemId:$item
+    fieldId:$field value:{singleSelectOptionId:$value}
+  }) { projectV2Item { id } }
+}'</span> \
+  -f project=<span class="sv">"$PROJECT_ID"</span> \
+  -f item=<span class="sv">"$ISSUE_ID"</span> \
+  -f field=<span class="sv">"$FIELD_ID"</span> \
+  -f value=<span class="sv">"$STATUS"</span>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:.78rem;font-weight:800;color:var(--pu);margin-bottom:.4rem;">② scripts/create-issue.sh — Issue自動生成</div>
+          <div class="code">
+<span class="cm">#!/bin/bash</span>
+<span class="cm"># 自動トリガー: TODO/FIXME/CI失敗/テスト不足</span>
+<span class="nv">TITLE</span>=<span class="sv">"$1"</span>
+<span class="nv">BODY</span>=<span class="sv">"$2"</span>
+
+<span class="kw">gh issue create</span> \
+  --title <span class="sv">"$TITLE"</span> \
+  --body <span class="sv">"$BODY"</span> \
+  --label <span class="sv">"auto-generated"</span>
+
+<span class="cm"># 自動トリガー条件:</span>
+<span class="co"># - TODO検出</span>
+<span class="co"># - FIXME検出</span>
+<span class="co"># - CI失敗</span>
+<span class="co"># - テスト不足</span>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:.78rem;font-weight:800;color:var(--gr);margin-bottom:.4rem;">③ scripts/create-pr.sh — PR自動生成</div>
+          <div class="code">
+<span class="cm">#!/bin/bash</span>
+<span class="cm"># Development Loop完了時に自動実行</span>
+<span class="nv">BRANCH</span>=<span class="sv">$(git branch --show-current)</span>
+
+<span class="kw">gh pr create</span> \
+  --title <span class="sv">"Auto PR: $BRANCH"</span> \
+  --body <span class="sv">"
+## Summary
+Auto-generated by ClaudeOS
+
+## Changes
+- Implementation / Fixes
+
+## Test
+- Passed local tests
+
+## CI
+- Pending
+
+## Impact
+- [影響範囲]
+
+## Issues
+- [残課題]
+"</span> \
+  --base main \
+  --head <span class="sv">"$BRANCH"</span>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:.78rem;font-weight:800;color:var(--am);margin-bottom:.4rem;">④ .github/workflows/claudeos-ci.yml — CI + Auto Repair</div>
+          <div class="code">
+<span class="kw">name</span>: <span class="sv">ClaudeOS CI</span>
+<span class="kw">on</span>:
+  pull_request:
+  push:
+    branches: [main]
+<span class="kw">jobs</span>:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install
+      run: |
+        npm install || true
+        pip install -r requirements.txt || true
+    - name: Lint
+      run: npm run lint || true
+    - name: Test
+      run: npm test || true
+    - name: Build
+      run: npm run build || true
+    - name: Detect Failure
+      if: failure()
+      run: echo "CI_FAILED=true" >> $GITHUB_ENV
+    - name: Auto Repair Trigger
+      if: env.CI_FAILED == 'true'
+      run: echo <span class="sv">"Triggering repair loop"</span>
+<span class="cm"># CI失敗→ClaudeOS ci-manager.md→Auto Repair→再Push（最大15回）</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ S5: 曜日スケジュール ══════════════ -->
+<div class="dvd"></div>
+<div class="sec" id="s5">
+  <div class="sh fi">
+    <div class="si si-in">📅</div>
+    <div><h2>週間曜日スケジュール — 月〜金 09:00〜17:00</h2>
+    <p>各曜日 = /loop 30m Monitor + /loop 2h Development + 昼休憩 + /loop 2h Verify + /loop 4h Improvement</p></div>
+  </div>
+
+  <div class="day-grid">
+
+    <!-- 月曜 -->
+    <div class="day-card fi">
+      <div class="dc-head" style="background:var(--bl-l);">
+        <div class="dc-day" style="background:var(--bl);color:#fff;">月曜日</div>
+        <div>
+          <h3 style="color:var(--bl-d);">ペアA — ITSM-System v3.0 ＋ Enterprise AI HelpDesk System v2.0</h3>
+          <p>既存統合タスク×2件 | 週の最初に最重要・最依存元を完了 | <span class="bdg b-re">依存元・最優先</span></p>
+        </div>
+      </div>
+      <div class="dc-body">
+        <div class="tg">
+          <div class="tg-cell" style="border-color:#f59e0b;">
+            <div class="tg-t" style="color:#d97706;">09:00〜09:30</div>
+            <div class="tg-l">/loop 30m<br>🔍 Monitor</div>
+          </div>
+          <div class="tg-cell" style="border-color:var(--bl-m);">
+            <div class="tg-t" style="color:var(--bl);">09:30〜11:30</div>
+            <div class="tg-l">/loop 2h<br>⚙️ Development</div>
+          </div>
+          <div class="tg-cell" style="border-color:#cbd5e1;">
+            <div class="tg-t" style="color:#64748b;">12:00〜13:00</div>
+            <div class="tg-l">🍱 昼休憩<br>CI自動実行中</div>
+          </div>
+          <div class="tg-cell" style="border-color:#6ee7b7;">
+            <div class="tg-t" style="color:var(--gr);">13:00〜15:00</div>
+            <div class="tg-l">/loop 2h<br>✅ Verify</div>
+          </div>
+          <div class="tg-cell" style="border-color:#c4b5fd;">
+            <div class="tg-t" style="color:var(--pu);">15:00〜17:00</div>
+            <div class="tg-l">/loop 4h※<br>🔄 Improvement<br>（17:00停止）</div>
+          </div>
+        </div>
+        <div class="pp">
+          <div class="pp-item" style="border-left:3px solid var(--bl);">
+            <h5 style="color:var(--bl);">🖥️ タブ1：ITSM-System v3.0</h5>
+            <ul>
+              <li><span>🌳</span><span>feature/mon-servicematrix-integration</span></li>
+              <li><span>⚙️</span><span>ServiceMatrix GitHub連携モジュール移植</span></li>
+              <li><span>💾</span><span>Backup 3-2-1-1-0 API統合</span></li>
+              <li><span>✅</span><span>CI緑・STABLE N=3・PR merge</span></li>
+            </ul>
+          </div>
+          <div class="pp-item" style="border-left:3px solid var(--pu);">
+            <h5 style="color:var(--pu);">🖥️ タブ2：Enterprise AI HelpDesk v2.0</h5>
+            <ul>
+              <li><span>🌳</span><span>feature/mon-subagent-pipeline-v2</span></li>
+              <li><span>🧠</span><span>並列SubAgent（7専門AI）パイプライン統合</span></li>
+              <li><span>🔗</span><span>ITSM自動分類ロジック統合</span></li>
+              <li><span>✅</span><span>AI応答テスト pass・PR merge</span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="pp-foot">※ Improvement(/loop 4h)は15:00開始→17:00停止（実動2h）。残2hは火曜MonitorのImprovement継続分として引き継ぎ。</div>
+      </div>
+    </div>
+
+    <!-- 火曜 -->
+    <div class="day-card fi">
+      <div class="dc-head" style="background:var(--pu-l);">
+        <div class="dc-day" style="background:var(--pu);color:#fff;">火曜日</div>
+        <div>
+          <h3 style="color:#5b21b6;">ペアB — AEGIS-SIGHT ＋ Mirai-Knowledge-Systems</h3>
+          <p>Python/FastAPI系・IAMS選択的統合開始 | <span class="bdg b-pu">Python系統一</span></p>
+        </div>
+      </div>
+      <div class="dc-body">
+        <div class="tg">
+          <div class="tg-cell" style="border-color:#f59e0b;">
+            <div class="tg-t" style="color:#d97706;">09:00〜09:30</div>
+            <div class="tg-l">/loop 30m<br>🔍 Monitor<br>（月曜Improvement継続）</div>
+          </div>
+          <div class="tg-cell" style="border-color:var(--bl-m);">
+            <div class="tg-t" style="color:var(--bl);">09:30〜11:30</div>
+            <div class="tg-l">/loop 2h<br>⚙️ Development</div>
+          </div>
+          <div class="tg-cell" style="border-color:#cbd5e1;">
+            <div class="tg-t" style="color:#64748b;">12:00〜13:00</div>
+            <div class="tg-l">🍱 昼休憩</div>
+          </div>
+          <div class="tg-cell" style="border-color:#6ee7b7;">
+            <div class="tg-t" style="color:var(--gr);">13:00〜15:00</div>
+            <div class="tg-l">/loop 2h<br>✅ Verify</div>
+          </div>
+          <div class="tg-cell" style="border-color:#c4b5fd;">
+            <div class="tg-t" style="color:var(--pu);">15:00〜17:00</div>
+            <div class="tg-l">/loop 4h※<br>🔄 Improvement</div>
+          </div>
+        </div>
+        <div class="pp">
+          <div class="pp-item" style="border-left:3px solid var(--pu);">
+            <h5 style="color:var(--pu);">🖥️ タブ1：AEGIS-SIGHT</h5>
+            <ul>
+              <li><span>🌳</span><span>feature/tue-aegis-phase1-foundation</span></li>
+              <li><span>🐳</span><span>docker-compose.dev/prod.yml確立</span></li>
+              <li><span>⚡</span><span>FastAPI基本EP・PS Agent・/health 200</span></li>
+              <li><span>📊</span><span>Prometheus/Grafana追加（IAMS移植）</span></li>
+            </ul>
+          </div>
+          <div class="pp-item" style="border-left:3px solid var(--te);">
+            <h5 style="color:var(--te);">🖥️ タブ2：Mirai-Knowledge-Systems</h5>
+            <ul>
+              <li><span>🌳</span><span>feature/tue-itsm-integration</span></li>
+              <li><span>🔗</span><span>ITSM-System インシデント起票API連携</span></li>
+              <li><span>📜</span><span>ISO27001コンプライアンスレポート機能</span></li>
+              <li><span>✅</span><span>既存テスト維持・新機能PR merge</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 水曜 -->
+    <div class="day-card fi">
+      <div class="dc-head" style="background:var(--te-l);">
+        <div class="dc-day" style="background:var(--te);color:#fff;">水曜日</div>
+        <div>
+          <h3 style="color:#0f766e;">ペアC — Linux-Management-System ＋ ZeroTrust-ID-Governance</h3>
+          <p>セキュリティ統制共通テーマ | <span class="bdg b-te">セキュリティ統制</span></p>
+        </div>
+      </div>
+      <div class="dc-body">
+        <div class="tg">
+          <div class="tg-cell" style="border-color:#f59e0b;">
+            <div class="tg-t" style="color:#d97706;">09:00〜09:30</div>
+            <div class="tg-l">/loop 30m<br>🔍 Monitor</div>
+          </div>
+          <div class="tg-cell" style="border-color:var(--bl-m);">
+            <div class="tg-t" style="color:var(--bl);">09:30〜11:30</div>
+            <div class="tg-l">/loop 2h<br>⚙️ Development</div>
+          </div>
+          <div class="tg-cell" style="border-color:#cbd5e1;">
+            <div class="tg-t" style="color:#64748b;">12:00〜13:00</div>
+            <div class="tg-l">🍱 昼休憩</div>
+          </div>
+          <div class="tg-cell" style="border-color:#6ee7b7;">
+            <div class="tg-t" style="color:var(--gr);">13:00〜15:00</div>
+            <div class="tg-l">/loop 2h<br>✅ Verify</div>
+          </div>
+          <div class="tg-cell" style="border-color:#c4b5fd;">
+            <div class="tg-t" style="color:var(--pu);">15:00〜17:00</div>
+            <div class="tg-l">/loop 4h※<br>🔄 Improvement</div>
+          </div>
+        </div>
+        <div class="pp">
+          <div class="pp-item" style="border-left:3px solid var(--te);">
+            <h5 style="color:var(--te);">🖥️ タブ1：Linux-Management-System</h5>
+            <ul>
+              <li><span>🌳</span><span>feature/wed-itsm-incident-integration</span></li>
+              <li><span>🔗</span><span>ITSM-System インシデント自動起票連携</span></li>
+              <li><span>🛡️</span><span>監査ログ ハッシュチェーン強化</span></li>
+              <li><span>✅</span><span>既存テスト維持・連携API動作確認</span></li>
+            </ul>
+          </div>
+          <div class="pp-item" style="border-left:3px solid var(--bl);">
+            <h5 style="color:var(--bl);">🖥️ タブ2：ZeroTrust-ID-Governance（新規）</h5>
+            <ul>
+              <li><span>🌳</span><span>feature/wed-zt-initial-scaffold</span></li>
+              <li><span>🐳</span><span>Docker Compose骨格・FastAPI初期構成</span></li>
+              <li><span>🔐</span><span>EntraID OIDC認証基盤確立</span></li>
+              <li><span>✅</span><span>docker up成功・/health 200</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 木曜 -->
+    <div class="day-card fi">
+      <div class="dc-head" style="background:var(--am-l);">
+        <div class="dc-day" style="background:var(--am);color:#fff;">木曜日</div>
+        <div>
+          <h3 style="color:#92400e;">ペアD — Construction-SIEM-Platform ＋ Construction-GRC-System</h3>
+          <p>建設業新規×2件・Python/Docker系共通 | <span class="bdg b-am">⚠️ Token Orange/Red注意</span></p>
+        </div>
+      </div>
+      <div class="dc-body">
+        <div class="notice n-re" style="padding:.65rem .9rem;margin-bottom:.7rem;">
+          <div class="ni" style="font-size:.95rem;">🚨</div>
+          <div><h4 style="font-size:.78rem;">木曜はToken消費が最大 — Monitor(/loop 30m)で必ずToken状態を確認してから開始</h4>
+          <p>木曜（ペアD）は2件とも新規構築で最も負荷が高く、Token消費がOrange/Redに近づく可能性があります。16:30以降はLoopGuardが17:00終了を検知し始めます。</p></div>
+        </div>
+        <div class="tg">
+          <div class="tg-cell" style="border-color:#f59e0b;">
+            <div class="tg-t" style="color:#d97706;">09:00〜09:30</div>
+            <div class="tg-l">/loop 30m<br>🔍 Monitor<br>⚠️Token確認</div>
+          </div>
+          <div class="tg-cell" style="border-color:var(--bl-m);">
+            <div class="tg-t" style="color:var(--bl);">09:30〜11:30</div>
+            <div class="tg-l">/loop 2h<br>⚙️ Development</div>
+          </div>
+          <div class="tg-cell" style="border-color:#cbd5e1;">
+            <div class="tg-t" style="color:#64748b;">12:00〜13:00</div>
+            <div class="tg-l">🍱 昼休憩</div>
+          </div>
+          <div class="tg-cell" style="border-color:#6ee7b7;">
+            <div class="tg-t" style="color:var(--gr);">13:00〜15:00</div>
+            <div class="tg-l">/loop 2h<br>✅ Verify</div>
+          </div>
+          <div class="tg-cell" style="border-color:#c4b5fd;">
+            <div class="tg-t" style="color:var(--pu);">15:00〜17:00</div>
+            <div class="tg-l">/loop 4h※<br>🔄 Improvement</div>
+          </div>
+        </div>
+        <div class="pp">
+          <div class="pp-item" style="border-left:3px solid var(--am);">
+            <h5 style="color:var(--am);">🖥️ タブ1：Construction-SIEM-Platform（新規）</h5>
+            <ul>
+              <li><span>🌳</span><span>feature/thu-siem-initial-scaffold</span></li>
+              <li><span>🔍</span><span>ELK Stack docker-compose・Fluentd基本設定</span></li>
+              <li><span>⚠️</span><span>Sigma Rules ディレクトリ構造</span></li>
+              <li><span>✅</span><span>ELK起動確認・ログ転送テスト</span></li>
+            </ul>
+          </div>
+          <div class="pp-item" style="border-left:3px solid var(--or);">
+            <h5 style="color:var(--or);">🖥️ タブ2：Construction-GRC-System（新規）</h5>
+            <ul>
+              <li><span>🌳</span><span>feature/thu-grc-initial-scaffold</span></li>
+              <li><span>🐳</span><span>Docker Compose骨格・FastAPI基本構成</span></li>
+              <li><span>📊</span><span>ISO27001 A-93管理策マスタDB初期スキーマ</span></li>
+              <li><span>✅</span><span>docker up・/health 200・DB migration OK</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 金曜 -->
+    <div class="day-card fi">
+      <div class="dc-head" style="background:var(--in-l);">
+        <div class="dc-day" style="background:var(--in);color:#fff;">金曜日</div>
+        <div>
+          <h3 style="color:#3730a3;">全体Improvement仕上げ ＋ 残り2件（CAB・BCP）着手</h3>
+          <p>週次統合・仕上げ・来週計画 | <span class="bdg b-in">週次Improvement</span></p>
+        </div>
+      </div>
+      <div class="dc-body">
+        <div class="tg">
+          <div class="tg-cell" style="border-color:#f59e0b;">
+            <div class="tg-t" style="color:#d97706;">09:00〜09:30</div>
+            <div class="tg-l">/loop 30m<br>🔍 Monitor<br>週次全体確認</div>
+          </div>
+          <div class="tg-cell" style="border-color:#c4b5fd;">
+            <div class="tg-t" style="color:var(--pu);">09:30〜11:30</div>
+            <div class="tg-l">/loop 2h<br>🔄 Improvement<br>月〜木仕上げ</div>
+          </div>
+          <div class="tg-cell" style="border-color:#cbd5e1;">
+            <div class="tg-t" style="color:#64748b;">12:00〜13:00</div>
+            <div class="tg-l">🍱 昼休憩</div>
+          </div>
+          <div class="tg-cell" style="border-color:var(--bl-m);">
+            <div class="tg-t" style="color:var(--bl);">13:00〜15:00</div>
+            <div class="tg-l">/loop 2h<br>⚙️ Development<br>CAB・BCP着手</div>
+          </div>
+          <div class="tg-cell" style="border-color:#a5b4fc;">
+            <div class="tg-t" style="color:var(--in);">15:00〜17:00</div>
+            <div class="tg-l">📊 最終報告<br>週次まとめ<br>来週計画策定</div>
+          </div>
+        </div>
+        <div class="pp">
+          <div class="pp-item" style="border-left:3px solid var(--cy);">
+            <h5 style="color:var(--cy);">🖥️ タブ1：IT-Change-CAB-Platform（新規着手）</h5>
+            <ul>
+              <li><span>🌳</span><span>feature/fri-cab-initial-scaffold</span></li>
+              <li><span>🐳</span><span>Docker Compose骨格・基本API構成</span></li>
+              <li><span>📋</span><span>RFC起票ワークフロー初期設計</span></li>
+            </ul>
+          </div>
+          <div class="pp-item" style="border-left:3px solid var(--am);">
+            <h5 style="color:var(--am);">🖥️ タブ2：IT-BCP-ITSCM-System（新規着手）</h5>
+            <ul>
+              <li><span>🌳</span><span>feature/fri-bcp-initial-scaffold</span></li>
+              <li><span>🐳</span><span>Docker Compose骨格・基本API構成</span></li>
+              <li><span>📋</span><span>RTO/RPO管理台帳初期設計</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 週次サマリー -->
+  <div class="notice n-bl fi">
+    <div class="ni">📊</div>
+    <div>
+      <h4>週次スケジュールまとめ（月〜金 09:00〜17:00）</h4>
+      <p><strong>月曜</strong>：ペアA（ITSM + HelpDesk）依存元最優先 → <strong>火曜</strong>：ペアB（AEGIS + Knowledge）Python基盤 → <strong>水曜</strong>：ペアC（Linux + ZeroTrust）セキュリティ → <strong>木曜</strong>：ペアD（SIEM + GRC）建設業新規⚠️Token注意 → <strong>金曜</strong>：全体Improvement仕上げ + CAB/BCP着手</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ S6: ベストプラクティス ══════════════ -->
+<div class="dvd"></div>
+<div class="sec" id="s6">
+  <div class="sh fi">
+    <div class="si si-am">✅</div>
+    <div><h2>ベストプラクティス 8原則（仕様書準拠）</h2>
+    <p>行動原則：Small change / Test everything / Stable first / Deploy safely / Improve continuously / Stop at 8h safely</p></div>
+  </div>
+
+  <div class="bp-grid">
+
+    <div class="bp fi">
+      <div class="bp-h" style="background:var(--am-l);">
+        <div class="bp-n bn3">1</div>
+        <div><h3>/loop 30m Monitor — 09:00に正確発火・30分で完結させる</h3>
+        <p>仕様書明記：「アイドルなら正確に発火」</p></div>
+      </div>
+      <div class="bp-b">
+        <p>Monitor Loopは30分で完結させる設計です。30分を超えるとDevelopment Loopの開始時刻が後ろにずれ、17:00のLoopGuard停止までに全Loopが完了しなくなります。</p>
+        <ul class="blist">
+          <li><span class="bd d-am"></span><span>GitHub Project確認・Issue優先度ソートは最大15分以内</span></li>
+          <li><span class="bd d-am"></span><span>Dev Factoryのタスク自動生成（最大3件）は自動実行 — 人間は確認のみ</span></li>
+          <li><span class="bd d-am"></span><span>前日Improvement Loopの残分（2h）もMonitor冒頭に継続確認</span></li>
+          <li><span class="bd d-re"></span><span>30分を超えたら強制的にDevelopmentに移行する（Monitor延長禁止）</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="bp fi">
+      <div class="bp-h" style="background:var(--bl-l);">
+        <div class="bp-n bn1">2</div>
+        <div><h3>GitHub Project を唯一の司令盤として徹底活用</h3>
+        <p>仕様書明記：「GitHub Projectsを中心にタスク状態を管理する」</p></div>
+      </div>
+      <div class="bp-b">
+        <p>ClaudeOS v4はGitHub Projectと完全連動して動作します。scripts/project-sync.sh が全ステータス変更を自動実行します。</p>
+        <ul class="blist">
+          <li><span class="bd d-bl"></span><span>Boot Sequence時に全Issue状態を確認 → Inbox→Backlog→Ready→Design→Development に更新</span></li>
+          <li><span class="bd d-bl"></span><span>scripts/project-sync.sh でStatus変更を全て自動化（graphql API使用）</span></li>
+          <li><span class="bd d-bl"></span><span>8時間終了時は必ず実態と整合するStatusに更新（Blocked or Backlogへ）</span></li>
+          <li><span class="bd d-re"></span><span>Issue未登録のままLoop開始は「Scrum MasterとDev Factoryが機能しない」原因</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="bp fi">
+      <div class="bp-h" style="background:var(--gr-l);">
+        <div class="bp-n bn2">3</div>
+        <div><h3>Small change 原則 — 頻繁commitでAuto Repairを高速化</h3>
+        <p>仕様書明記：「Small change」行動原則</p></div>
+      </div>
+      <div class="bp-b">
+        <p>1回のcommitを小さく保つことで、CI失敗時のAuto Repair（最大15回）が正確な失敗箇所を特定でき、修復速度が大幅に上がります。</p>
+        <ul class="blist">
+          <li><span class="bd d-gr"></span><span>1commit = 1機能・1修正。300行以上のcommitは禁止</span></li>
+          <li><span class="bd d-gr"></span><span>WorkTree: feature/[曜日]-[task] で1タスク1ブランチを厳守</span></li>
+          <li><span class="bd d-gr"></span><span>TODO/FIXMEを検出したら scripts/create-issue.sh で即座にIssue化</span></li>
+          <li><span class="bd d-re"></span><span>main直接push → LoopGuardが検知→自動阻止。PR経由のみ許可</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="bp fi">
+      <div class="bp-h" style="background:var(--pu-l);">
+        <div class="bp-n bn4">4</div>
+        <div><h3>STABLE判定はN=3（デフォルト）を厳守</h3>
+        <p>仕様書明記：「デフォルトN=3 / 小規模N=2 / 重要N=5」</p></div>
+      </div>
+      <div class="bp-b">
+        <p>STABLEと判定されてはじめて commit→push→PR→merge→deploy の完全パイプラインが実行されます。N=3は「3回連続成功」の意味です。</p>
+        <ul class="blist">
+          <li><span class="bd d-pu"></span><span>通常変更（既存統合タスク）→ N=3（デフォルト）</span></li>
+          <li><span class="bd d-pu"></span><span>小規模変更（1ファイル修正等）→ N=2</span></li>
+          <li><span class="bd d-re"></span><span>重要変更（Security・認証・secrets変更）→ N=5。自動承認対象外</span></li>
+          <li><span class="bd d-am"></span><span>STABLE未達 + 8時間到達 → STABLEを待たずLoopGuardが安全停止</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="bp fi">
+      <div class="bp-h" style="background:var(--te-l);">
+        <div class="bp-n bn6">5</div>
+        <div><h3>Improvement(/loop 4h)は「2h実動 + 2h翌日継続」設計で運用</h3>
+        <p>17:00 LoopGuard停止のため、残り2時間は翌日のMonitorで継続</p></div>
+      </div>
+      <div class="bp-b">
+        <p>Improvement Loopは4時間設計ですが、15:00〜17:00の2時間しか実動しません。残り2時間は翌日のMonitor(/loop 30m)冒頭に「前日Improvement継続」として発火します。</p>
+        <ul class="blist">
+          <li><span class="bd d-te"></span><span>15:00〜17:00（2h）：パターン学習・ループ最適化を集中実施</span></li>
+          <li><span class="bd d-te"></span><span>翌日09:00 Monitor冒頭：前日Improvement残分（2h）を優先処理</span></li>
+          <li><span class="bd d-te"></span><span>STABLE達成後の self-evolution.md（Evolutionトリガー）もここで実行</span></li>
+          <li><span class="bd d-am"></span><span>金曜17:00停止分のImprovement残は翌週月曜に持越し</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="bp fi">
+      <div class="bp-h" style="background:var(--cy-l);">
+        <div class="bp-n bn5">6</div>
+        <div><h3>Agent Teamsの会話を必ず可視化する</h3>
+        <p>仕様書明記：「Agent Teamsの会話は必ず可視化してください」</p></div>
+      </div>
+      <div class="bp-b">
+        <p>各AgentがどのLoopでどんな判断をしたかを可視化することで、8時間終了時の最終報告（15項目）が自動生成されます。</p>
+        <ul class="blist">
+          <li><span class="bd d-cy"></span><span>CTO：優先順位判断・8時間終了時の最終判断 → 可視化必須</span></li>
+          <li><span class="bd d-cy"></span><span>Security：PR時のセキュリティレビュー結果 → ログに残す</span></li>
+          <li><span class="bd d-cy"></span><span>Architect：architecture-check-loop.mdの審査結果 → PRコメントとして記録</span></li>
+          <li><span class="bd d-am"></span><span>会話の可視化なしで最終報告を生成しようとすると「根拠なし報告」になる</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="bp fi">
+      <div class="bp-h" style="background:var(--in-l);">
+        <div class="bp-n bn7">7</div>
+        <div><h3>最終報告は16:50から開始 — 9項目 + 8h終了時追加6項目</h3>
+        <p>仕様書明記：「終了時に以下を報告してください」（15項目）</p></div>
+      </div>
+      <div class="bp-b">
+        <p>16:50から最終報告生成を開始することで、17:00のLoopGuard強制終了前に全15項目が完成します。この報告書が翌日のBoot Sequenceの材料になります。</p>
+        <ul class="blist">
+          <li><span class="bd d-in"></span><span>基本9項目：開発内容・修正内容・テスト結果・CI結果・Project更新・PR/merge・deploy結果・残課題・次フェーズ提案</span></li>
+          <li><span class="bd d-in"></span><span>8h終了時追加6項目：開始時刻・終了時刻・総作業時間・未完了タスク・再開ポイント・継続優先順位</span></li>
+          <li><span class="bd d-in"></span><span>この最終報告書 = 翌日のCLAUDE.md（タスク指示書）の材料</span></li>
+          <li><span class="bd d-re"></span><span>16:50時点でImprovement実行中でも最終報告を優先して開始する</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="bp fi">
+      <div class="bp-h" style="background:var(--re-l);">
+        <div class="bp-n bn8">8</div>
+        <div><h3>LoopGuardを「安全装置」として信頼する — 人間は止めなくてよい</h3>
+        <p>仕様書明記：「Loop Guardが最優先」「Stop at 8 hours safely」</p></div>
+      </div>
+      <div class="bp-b">
+        <p>LoopGuardは4つの停止条件を自動監視します。人間が手動で止める必要はありません。むしろLoopGuardが止まった場合は「根本的な問題がある」サインです。</p>
+        <ul class="blist">
+          <li><span class="bd d-re"></span><span><strong>8時間（17:00）到達</strong> → 安全終了 + 最終報告（AI CTO実行）</span></li>
+          <li><span class="bd d-re"></span><span><strong>同一エラー3回</strong> → 停止 + 人間確認が必要なサイン</span></li>
+          <li><span class="bd d-re"></span><span><strong>CI失敗5回連続</strong> → 停止（Auto Repair最大15回はLoopGuard管理下）</span></li>
+          <li><span class="bd d-re"></span><span><strong>Securityクリティカル問題</strong> → 即時停止 → secrets/認証/権限変更の手動確認が必須</span></li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════ S7: 実行コマンド ══════════════ -->
+<div class="dvd"></div>
+<div class="sec" id="s7">
+  <div class="sh fi">
+    <div class="si si-bl">🚀</div>
+    <div><h2>実行コマンド（Windowsターミナル 2タブ × ClaudeOS v4 完全版）</h2>
+    <p>Boot Sequence → /loop 30m Monitor → /loop 2h Development → 昼休憩 → /loop 2h Verify → /loop 4h Improvement</p></div>
+  </div>
+
+  <div class="notice n-gr fi">
+    <div class="ni">🖥️</div>
+    <div>
+      <h4>Windowsターミナル 2タブ起動手順</h4>
+      <p><strong>Ctrl+T</strong> で新規タブを開き、タブ1にプロジェクトA、タブ2にプロジェクトBのディレクトリで <code>claude --dangerously-skip-permissions</code> を起動。各タブが独立したClaudeCodeセッションを持ち、Agent TeamsとWorkTreeが自律動作します。タブを切り替えて進捗確認できます。</p>
+    </div>
+  </div>
+
+  <!-- 起動コマンド -->
+  <div style="background:var(--sf);border:1.5px solid var(--bd);border-radius:1.1rem;padding:1.4rem;box-shadow:var(--s1);margin-bottom:1.2rem;" class="fi">
+    <div style="font-size:.82rem;font-weight:800;color:var(--bl);margin-bottom:.8rem;">🖥️ Windowsターミナル 2タブ起動（例：月曜 ペアA）</div>
+    <div class="code">
+<span class="cm"># ── タブ1（Ctrl+T）: ITSM-System ─────────────────────────</span>
+<span class="sv">cd C:\Users\[ユーザー名]\projects\ITSM-System</span>
+<span class="kw">claude --dangerously-skip-permissions</span>
+<span class="cm"># 起動後、以下をプロンプトに貼り付け：</span>
+<span class="st">"/loop 30m ClaudeOS Monitor
+/loop 2h ClaudeOS Development
+/loop 2h ClaudeOS Verify
+/loop 3h ClaudeOS Improvement
+
+以降、日本語で対応・解説してください。
+
+[CLAUDE.mdの内容をここに貼り付け]
+
+現在の日時時間：2026:03:25:09:00 です。
+LoopGuardを有効にし、8時間（17:00）を厳守してください。
+scripts/project-sync.sh・create-pr.sh・create-issue.sh を使用してください。"</span>
+
+<span class="cm"># ── タブ2（Ctrl+T）: Enterprise AI HelpDesk System ────────</span>
+<span class="sv">cd C:\Users\[ユーザー名]\projects\Enterprise-AI-HelpDesk-System</span>
+<span class="kw">claude --dangerously-skip-permissions</span>
+<span class="cm"># 同様にCLAUDE.md内容を貼り付けて起動</span>
+    </div>
+  </div>
+
+  <!-- CLAUDE.mdテンプレート -->
+  <div style="background:var(--sf);border:1.5px solid var(--bd);border-radius:1.1rem;padding:1.4rem;box-shadow:var(--s1);margin-bottom:1.2rem;" class="fi">
+    <div style="font-size:.82rem;font-weight:800;color:var(--pu);margin-bottom:.8rem;">📋 CLAUDE.md 各プロジェクト共通テンプレート（完全版）</div>
+    <div class="code">
+<span class="cm"># CLAUDE.md — [プロジェクト名] [曜日]</span>
+<span class="cm"># ClaudeOS v4 完全準拠 | 09:00〜17:00（8時間）</span>
+
+<span class="kw">## Loop構成</span>
+<span class="sv">/loop 30m ClaudeOS Monitor      09:00〜09:30</span>
+<span class="sv">/loop 2h  ClaudeOS Development  09:30〜11:30</span>
+<span class="cm">                                 12:00〜13:00 昼休憩（CI自動実行中）</span>
+<span class="sv">/loop 2h  ClaudeOS Verify       13:00〜15:00</span>
+<span class="sv">/loop 4h  ClaudeOS Improvement  15:00〜17:00（17:00 LoopGuard停止）</span>
+
+<span class="kw">## このラウンドのタスク</span>
+<span class="co">[具体的なタスク内容を記載]</span>
+
+<span class="kw">## WorkTreeブランチ</span>
+<span class="sv">feature/[曜日]-[タスク名]</span>
+<span class="cm"># 例: feature/mon-servicematrix-integration</span>
+
+<span class="kw">## 完了条件（STABLE判定 N=3）</span>
+<span class="co">1. docker compose up -d が成功すること</span>
+<span class="co">2. GET /api/health が {"status":"ok"} を返すこと</span>
+<span class="co">3. test / lint / build が全てsuccess</span>
+<span class="co">4. CI（GitHub Actions / claudeos-ci.yml）が全てgreen</span>
+<span class="co">5. error 0 / security critical issue 0</span>
+<span class="co">6. N=3 連続成功でSTABLE判定</span>
+
+<span class="kw">## Project Status 運用</span>
+<span class="sv">作業開始: Inbox→Backlog→Ready→Design</span>
+<span class="sv">実装中:   Design→Development</span>
+<span class="sv">検証中:   Development→Verify</span>
+<span class="sv">STABLE:   Verify→Deploy Gate→Done</span>
+<span class="sv">8h終了:   実態に合わせてBlocked or Backlog</span>
+
+<span class="kw">## 使用スクリプト</span>
+<span class="co">scripts/project-sync.sh  ISSUE_ID STATUS    # Status自動更新</span>
+<span class="co">scripts/create-pr.sh                         # PR自動生成</span>
+<span class="co">scripts/create-issue.sh  TITLE BODY          # Issue自動生成</span>
+
+<span class="kw">## 禁止事項</span>
+<span class="st">- main への直接push禁止（PR経由のみ）</span>
+<span class="st">- secrets・token・認証設定変更は慎重扱い</span>
+<span class="st">- 破壊的変更は Architecture Board 承認必須</span>
+<span class="st">- 8時間超過して作業を継続しない</span>
+
+<span class="kw">## 最終報告（16:50〜17:00）</span>
+<span class="co">必須9項目 + 8h終了時追加6項目を出力すること</span>
+<span class="co">開始時刻・終了時刻・総作業時間・未完了タスク・再開ポイント・継続優先順位</span>
+    </div>
+  </div>
+
+  <!-- サマリー -->
+  <div class="sum fi">
+    <h3>🏁 8時間（09:00〜17:00）終了時 期待成果サマリー</h3>
+    <div class="sum-kpi">
+      <div class="sk"><div class="sv2">2件</div><div class="sl">WorkTree STABLE完了</div></div>
+      <div class="sk"><div class="sv2">4本</div><div class="sl">PR merge完了</div></div>
+      <div class="sk"><div class="sv2">N=3</div><div class="sl">STABLE達成基準</div></div>
+      <div class="sk"><div class="sv2">CI 緑</div><div class="sl">全ジョブ success</div></div>
+      <div class="sk"><div class="sv2">15項目</div><div class="sl">最終報告（16:50〜）</div></div>
+      <div class="sk"><div class="sv2">翌日</div><div class="sl">Improvement残2h継続</div></div>
+    </div>
+    <div style="margin-top:1.2rem;font-size:.83rem;color:#1e40af;line-height:1.85;background:rgba(255,255,255,.75);border-radius:.65rem;padding:.9rem 1rem;border:1px solid var(--bl-m);">
+      <strong>行動原則 6条：</strong>
+      Small change（小さく変える）→
+      Test everything（全てテスト）→
+      Stable first（安定を優先）→
+      Deploy safely（安全にデプロイ）→
+      Improve continuously（継続的に改善）→
+      <strong>Stop at 8 hours safely（8時間で安全停止）</strong>
+    </div>
+  </div>
+
+</div>
+</div><!-- /wrap -->
+
+<footer>
+  <p>🧠 ClaudeOS v4 完全仕様書準拠 × 8プロジェクト × 09:00〜17:00（8時間）| みらい建設工業 IT部門 | 2026.03.22</p>
+  <p>Windowsターミナル 2タブ / /loop 30m Monitor+2h Development+2h Verify+4h Improvement / 月〜金 曜日スケジュール / GitHub完全自動パイプライン準拠</p>
+</footer>
+
+<script>
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('in'); });
+},{threshold:0.06});
+document.querySelectorAll('.fi').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
