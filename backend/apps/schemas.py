@@ -562,3 +562,124 @@ class DashboardResponse(BaseModel):
     systems_on_track: int
     systems_at_risk: int
     systems_overdue: int
+
+
+# ---- BCPScenario ----
+
+
+SCENARIO_TYPES = r"^(earthquake|ransomware|dc_failure|cloud_outage|pandemic|supplier_failure)$"
+DIFFICULTY_LEVELS = r"^(easy|medium|hard)$"
+
+
+class BCPScenarioCreate(BaseModel):
+    """Schema for creating a new BCP scenario."""
+
+    scenario_id: str = Field(..., max_length=20)
+    title: str = Field(..., max_length=200)
+    scenario_type: str = Field(
+        ...,
+        pattern=SCENARIO_TYPES,
+    )
+    description: str
+    initial_inject: str
+    injects: list = Field(...)
+    affected_systems: list[str] | None = None
+    expected_duration_hours: float | None = None
+    difficulty: str = Field("medium", pattern=DIFFICULTY_LEVELS)
+    is_active: bool = True
+
+    @field_validator("scenario_id")
+    @classmethod
+    def scenario_id_not_blank(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("scenario_id must not be blank")
+        return v.strip()
+
+
+class BCPScenarioUpdate(BaseModel):
+    """Schema for updating a BCP scenario."""
+
+    title: str | None = Field(None, max_length=200)
+    scenario_type: str | None = Field(None, pattern=SCENARIO_TYPES)
+    description: str | None = None
+    initial_inject: str | None = None
+    injects: list | None = None
+    affected_systems: list[str] | None = None
+    expected_duration_hours: float | None = None
+    difficulty: str | None = Field(None, pattern=DIFFICULTY_LEVELS)
+    is_active: bool | None = None
+
+
+class BCPScenarioResponse(BaseModel):
+    """Schema for BCP scenario response."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    scenario_id: str
+    title: str
+    scenario_type: str
+    description: str
+    initial_inject: str
+    injects: list
+    affected_systems: list[str] | None = None
+    expected_duration_hours: float | None = None
+    difficulty: str
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+
+
+# ---- ExerciseRTORecord ----
+
+
+class ExerciseRTORecordCreate(BaseModel):
+    """Schema for creating an exercise RTO record."""
+
+    system_name: str = Field(..., max_length=100)
+    rto_target_hours: float = Field(..., gt=0)
+    rto_actual_hours: float | None = None
+    achieved: bool | None = None
+    recorded_by: str | None = Field(None, max_length=100)
+    notes: str | None = None
+
+
+class ExerciseRTORecordResponse(BaseModel):
+    """Schema for exercise RTO record response."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    exercise_id: uuid.UUID
+    system_name: str
+    rto_target_hours: float
+    rto_actual_hours: float | None = None
+    achieved: bool | None = None
+    recorded_at: datetime
+    recorded_by: str | None = None
+    notes: str | None = None
+
+
+# ---- ExerciseReport ----
+
+
+class ExerciseReportResponse(BaseModel):
+    """Schema for exercise report with RTO records, findings, recommendations."""
+
+    exercise: BCPExerciseResponse
+    rto_records: list[ExerciseRTORecordResponse] = Field(default_factory=list)
+    rto_achievement_rate: float | None = None
+    total_systems_tested: int = 0
+    systems_achieved: int = 0
+    systems_failed: int = 0
+    findings: list[str] = Field(default_factory=list)
+    recommendations: list[str] = Field(default_factory=list)
+
+
+# ---- Exercise Engine request schemas ----
+
+
+class InjectRequest(BaseModel):
+    """Schema for injecting a scenario step into an exercise."""
+
+    inject_index: int = Field(..., ge=0)

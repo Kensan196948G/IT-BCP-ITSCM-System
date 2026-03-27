@@ -8,8 +8,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from apps.models import (
     ActiveIncident,
     BCPExercise,
+    BCPScenario,
     BIAAssessment,
     EmergencyContact,
+    ExerciseRTORecord,
     ITSystemBCP,
     RecoveryProcedure,
     VendorContact,
@@ -335,3 +337,68 @@ async def delete_bia_assessment(db: AsyncSession, assessment_id: uuid.UUID) -> b
     await db.delete(obj)
     await db.flush()
     return True
+
+
+# ---- BCPScenario CRUD ----
+
+
+async def create_scenario(db: AsyncSession, data: dict) -> BCPScenario:
+    """Create a new BCP scenario record."""
+    obj = BCPScenario(**data)
+    db.add(obj)
+    await db.flush()
+    await db.refresh(obj)
+    return obj
+
+
+async def get_scenario(db: AsyncSession, scenario_id: uuid.UUID) -> BCPScenario | None:
+    """Get a single BCP scenario record by ID."""
+    result = await db.execute(select(BCPScenario).where(BCPScenario.id == scenario_id))
+    return result.scalar_one_or_none()
+
+
+async def get_all_scenarios(db: AsyncSession, skip: int = 0, limit: int = 100) -> list[BCPScenario]:
+    """Get all BCP scenario records with pagination."""
+    result = await db.execute(select(BCPScenario).offset(skip).limit(limit))
+    return list(result.scalars().all())
+
+
+async def update_scenario(db: AsyncSession, scenario_id: uuid.UUID, data: dict) -> BCPScenario | None:
+    """Update a BCP scenario record."""
+    obj = await get_scenario(db, scenario_id)
+    if obj is None:
+        return None
+    for key, value in data.items():
+        if value is not None:
+            setattr(obj, key, value)
+    await db.flush()
+    await db.refresh(obj)
+    return obj
+
+
+async def delete_scenario(db: AsyncSession, scenario_id: uuid.UUID) -> bool:
+    """Delete a BCP scenario record."""
+    obj = await get_scenario(db, scenario_id)
+    if obj is None:
+        return False
+    await db.delete(obj)
+    await db.flush()
+    return True
+
+
+# ---- ExerciseRTORecord CRUD ----
+
+
+async def create_rto_record(db: AsyncSession, data: dict) -> ExerciseRTORecord:
+    """Create a new exercise RTO record."""
+    obj = ExerciseRTORecord(**data)
+    db.add(obj)
+    await db.flush()
+    await db.refresh(obj)
+    return obj
+
+
+async def get_rto_records_by_exercise(db: AsyncSession, exercise_id: uuid.UUID) -> list[ExerciseRTORecord]:
+    """Get all RTO records for a given exercise."""
+    result = await db.execute(select(ExerciseRTORecord).where(ExerciseRTORecord.exercise_id == exercise_id))
+    return list(result.scalars().all())

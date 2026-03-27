@@ -245,6 +245,54 @@ export interface RiskMatrixData {
   matrix: number[][];         // 5x5
 }
 
+// ---- BCPScenario ----
+
+export interface BCPScenario {
+  id: string;
+  scenario_id: string;
+  title: string;
+  scenario_type: string;    // earthquake / ransomware / dc_failure / cloud_outage / pandemic / supplier_failure
+  description: string;
+  initial_inject: string;
+  injects: ScenarioInject[];
+  affected_systems?: string[];
+  expected_duration_hours?: number;
+  difficulty: string;        // easy / medium / hard
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ScenarioInject {
+  offset_minutes: number;
+  title: string;
+  description: string;
+  expected_actions?: string[];
+}
+
+export interface ExerciseRTORecord {
+  id: string;
+  exercise_id: string;
+  system_name: string;
+  rto_target_hours: number;
+  rto_actual_hours?: number;
+  achieved?: boolean;
+  recorded_at: string;
+  recorded_by?: string;
+  notes?: string;
+}
+
+export interface ExerciseReport {
+  exercise: BCPExercise;
+  rto_records: ExerciseRTORecord[];
+  rto_achievement_rate?: number;
+  total_systems_tested: number;
+  systems_achieved: number;
+  systems_failed: number;
+  findings: string[];
+  recommendations: string[];
+}
+
 // API response wrapper
 export interface ApiResponse<T> {
   data: T;
