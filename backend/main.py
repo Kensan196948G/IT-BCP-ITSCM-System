@@ -12,12 +12,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from apps.monitoring import metrics_collector
 from apps.routers import (
     bia,
     contacts,
     dashboard,
     exercises,
     incidents,
+    monitoring,
     notifications,
     procedures,
     scenarios,
@@ -90,6 +92,10 @@ tags_metadata = [
         "name": "notifications",
         "description": "通知連携・エスカレーション自動化。Teams/Email通知送信、エスカレーション計画・発動・状況追跡を管理します。",
     },
+    {
+        "name": "monitoring",
+        "description": "監視・メトリクス・ヘルスプローブ。Prometheusフォーマットメトリクス、Kubernetes互換プローブを提供します。",
+    },
 ]
 
 app = FastAPI(
@@ -151,6 +157,21 @@ async def request_logging_middleware(request: Request, call_next: object) -> JSO
     return response
 
 
+@app.middleware("http")
+async def metrics_middleware(request: Request, call_next: object) -> JSONResponse:
+    """Record request metrics for monitoring."""
+    start = time.time()
+    response = await call_next(request)  # type: ignore[operator]
+    duration = time.time() - start
+    metrics_collector.record_request(
+        method=request.method,
+        path=request.url.path,
+        status_code=response.status_code,
+        duration=duration,
+    )
+    return response
+
+
 # ---------------------------------------------------------------------------
 # Error handlers
 # ---------------------------------------------------------------------------
@@ -203,6 +224,7 @@ app.include_router(contacts.router)
 app.include_router(bia.router)
 app.include_router(scenarios.router)
 app.include_router(notifications.router)
+app.include_router(monitoring.router)
 app.include_router(ws.router)
 
 
