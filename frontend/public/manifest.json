@@ -1,0 +1,9 @@
+{
+  "name": "IT-BCP-ITSCM-System",
+  "short_name": "BCP-ITSCM",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#1e40af",
+  "background_color": "#f8fafc",
+  "icons": []
+}
