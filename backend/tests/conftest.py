@@ -28,9 +28,13 @@ def _fake_db_generator():
 @pytest.fixture()
 def client():
     """Provide a TestClient with the DB dependency overridden."""
+    from main import _rate_limiter
+
     app.dependency_overrides[get_db] = _fake_db_generator()
+    _rate_limiter._history.clear()
     yield TestClient(app)
     app.dependency_overrides.clear()
+    _rate_limiter._history.clear()
 
 
 # ---------------------------------------------------------------------------

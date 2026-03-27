@@ -34,6 +34,9 @@ class Settings(BaseSettings):
     SMTP_FROM: str = "noreply@itbcp.local"
     NOTIFICATION_DRY_RUN: bool = True
 
+    # Rate limiting
+    RATE_LIMIT_PER_MINUTE: int = 100
+
     # CORS
     CORS_ORIGINS: list[str] = [
         "http://localhost:3000",

@@ -9,6 +9,13 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml"><img src="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml/badge.svg" alt="CI"></a>
+  <img src="https://img.shields.io/badge/tests-321_passed-brightgreen?style=flat-square" alt="Tests">
+  <img src="https://img.shields.io/badge/coverage-92%25-brightgreen?style=flat-square" alt="Coverage">
+  <img src="https://img.shields.io/badge/PRs-29_merged-blue?style=flat-square" alt="PRs">
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/ISO20000-ITSCM-blue?style=flat-square" alt="ISO20000">
   <img src="https://img.shields.io/badge/ISO27001-A.5.29%2FA.5.30-green?style=flat-square" alt="ISO27001">
   <img src="https://img.shields.io/badge/NIST_CSF-RECOVER_RC-orange?style=flat-square" alt="NIST CSF">

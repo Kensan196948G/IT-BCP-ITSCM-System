@@ -13,6 +13,7 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from apps.monitoring import metrics_collector
+from apps.rate_limiter import RateLimiter
 from apps.routers import (
     audit,
     auth,
@@ -154,6 +155,16 @@ async def security_headers_middleware(request: Request, call_next: object) -> JS
     response.headers["Cache-Control"] = "no-store"
     response.headers["Content-Security-Policy"] = "default-src 'self'"
     return response
+
+
+# Rate limiting middleware (after security headers)
+_rate_limiter = RateLimiter()
+
+
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next: object) -> JSONResponse:
+    """Enforce per-IP rate limiting."""
+    return await _rate_limiter(request, call_next)
 
 
 @app.middleware("http")
