@@ -10,9 +10,12 @@
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
+    "@tailwindcss/postcss": "^4.2.2",
     "next": "14.2.21",
+    "postcss": "^8.5.8",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "tailwindcss": "^4.2.2"
   },
   "devDependencies": {
     "@types/node": "^20.17.12",
