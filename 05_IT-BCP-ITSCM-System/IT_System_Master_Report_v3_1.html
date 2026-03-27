@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏗️ ITシステム 統廃合・統合分析 総合マスターレポート v2</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+:root {
+  --bg:        #f0f5ff;
+  --surface:   #ffffff;
+  --surface2:  #f7f9ff;
+  --border:    #dde3f4;
+  --border2:   #c8d0ea;
+
+  --blue:      #2563eb;
+  --blue-lt:   #dbeafe;
+  --blue-mid:  #93c5fd;
+  --cyan:      #0891b2;
+  --cyan-lt:   #cffafe;
+  --purple:    #7c3aed;
+  --purple-lt: #ede9fe;
+  --green:     #059669;
+  --green-lt:  #d1fae5;
+  --amber:     #d97706;
+  --amber-lt:  #fef3c7;
+  --red:       #dc2626;
+  --red-lt:    #fee2e2;
+  --orange:    #ea580c;
+  --orange-lt: #ffedd5;
+  --teal:      #0d9488;
+  --teal-lt:   #ccfbf1;
+  --indigo:    #4338ca;
+  --indigo-lt: #e0e7ff;
+
+  --text:  #1e293b;
+  --text2: #475569;
+  --text3: #94a3b8;
+  --mono: 'JetBrains Mono', monospace;
+  --sh0: 0 1px 3px rgba(30,41,59,.07),0 1px 2px rgba(30,41,59,.05);
+  --sh1: 0 4px 14px rgba(30,41,59,.09),0 2px 4px rgba(30,41,59,.05);
+  --sh2: 0 8px 28px rgba(30,41,59,.11),0 4px 8px rgba(30,41,59,.06);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;line-height:1.75;font-size:15px;}
+
+/* ─── NAV ─── */
+.nav{
+  position:sticky;top:0;z-index:200;
+  background:rgba(255,255,255,.94);backdrop-filter:blur(14px);
+  border-bottom:1.5px solid var(--border);
+  padding:.55rem 1.8rem;
+  display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap;
+  box-shadow:var(--sh0);
+}
+.nav-brand{font-weight:900;font-size:.95rem;color:var(--blue);white-space:nowrap;display:flex;align-items:center;gap:.35rem;}
+.nav-links{display:flex;gap:.3rem;flex-wrap:wrap;margin-left:auto;}
+.nl{padding:.26rem .72rem;border-radius:1rem;font-size:.73rem;font-weight:600;
+  text-decoration:none;color:var(--text2);background:var(--surface2);
+  border:1px solid var(--border);transition:all .15s;}
+.nl:hover{background:var(--blue-lt);color:var(--blue);border-color:var(--blue-mid);}
+
+/* ─── HERO ─── */
+.hero{
+  background:linear-gradient(140deg,#1d4ed8 0%,#4f46e5 50%,#6d28d9 100%);
+  color:#fff;padding:4rem 2rem 3rem;position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 55% 70% at 8% 50%,rgba(255,255,255,.09) 0%,transparent 65%),
+             radial-gradient(ellipse 35% 55% at 92% 15%,rgba(255,255,255,.07) 0%,transparent 65%);
+  pointer-events:none;
+}
+.hero-inner{max-width:1340px;margin:0 auto;position:relative;}
+.hero-eye{
+  display:inline-flex;align-items:center;gap:.45rem;
+  background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);
+  border-radius:2rem;padding:.38rem 1rem;font-size:.76rem;
+  font-weight:700;letter-spacing:.05em;margin-bottom:1.3rem;
+}
+.hero h1{font-size:clamp(1.8rem,3.8vw,3rem);font-weight:900;line-height:1.15;margin-bottom:.7rem;}
+.hero-sub{font-size:1rem;opacity:.85;max-width:660px;margin-bottom:1.6rem;}
+.hero-chips{display:flex;flex-wrap:wrap;gap:.5rem;}
+.hc{padding:.28rem .85rem;border-radius:1rem;font-size:.74rem;font-weight:600;
+  background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);}
+
+/* ─── LAYOUT ─── */
+.wrap{max-width:1340px;margin:0 auto;padding:0 1.8rem 5rem;}
+
+/* ─── SECTION HEAD ─── */
+.sec{margin-top:3.2rem;}
+.sh{display:flex;align-items:center;gap:.85rem;
+  padding-bottom:.9rem;margin-bottom:1.6rem;
+  border-bottom:2.5px solid var(--border);}
+.si{width:2.6rem;height:2.6rem;border-radius:.7rem;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;flex-shrink:0;box-shadow:var(--sh0);}
+.si-bl{background:var(--blue-lt);  border:1.5px solid var(--blue-mid);}
+.si-pu{background:var(--purple-lt);border:1.5px solid #c4b5fd;}
+.si-gr{background:var(--green-lt); border:1.5px solid #6ee7b7;}
+.si-am{background:var(--amber-lt); border:1.5px solid #fcd34d;}
+.si-re{background:var(--red-lt);   border:1.5px solid #fca5a5;}
+.si-cy{background:var(--cyan-lt);  border:1.5px solid #67e8f9;}
+.si-or{background:var(--orange-lt);border:1.5px solid #fdba74;}
+.si-te{background:var(--teal-lt);  border:1.5px solid #5eead4;}
+.si-in{background:var(--indigo-lt);border:1.5px solid #a5b4fc;}
+.sh h2{font-size:1.25rem;font-weight:800;}
+.sh p {font-size:.82rem;color:var(--text2);margin-top:.12rem;}
+
+/* ─── KPI ROW ─── */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:.9rem;margin-bottom:.8rem;}
+.kpi{background:var(--surface);border:1.5px solid var(--border);
+  border-radius:.9rem;padding:1rem 1.1rem;
+  display:flex;align-items:center;gap:.75rem;
+  box-shadow:var(--sh0);transition:all .2s;}
+.kpi:hover{box-shadow:var(--sh1);transform:translateY(-2px);}
+.kpi-ico{font-size:1.5rem;}
+.kpi-val{font-size:1.6rem;font-weight:900;line-height:1;}
+.kpi-lbl{font-size:.7rem;color:var(--text2);margin-top:.12rem;}
+.cv-bl{color:var(--blue);}  .cv-gr{color:var(--green);}
+.cv-re{color:var(--red);}   .cv-am{color:var(--amber);}
+.cv-pu{color:var(--purple);}  .cv-cy{color:var(--cyan);}
+
+/* ─── NOTICE ─── */
+.notice{border-radius:.85rem;padding:.9rem 1.2rem;
+  display:flex;gap:.75rem;margin-bottom:1.2rem;box-shadow:var(--sh0);}
+.nw{background:#fffbeb;border:1.5px solid #fcd34d;}
+.ni{background:#eff6ff;border:1.5px solid #93c5fd;}
+.nok{background:#f0fdf4;border:1.5px solid #86efac;}
+.nd{background:#fff1f2;border:1.5px solid #fca5a5;}
+.n-ico{font-size:1.1rem;flex-shrink:0;margin-top:.12rem;}
+.notice h4{font-size:.86rem;font-weight:700;margin-bottom:.2rem;}
+.nw h4{color:#92400e;} .ni h4{color:#1e40af;} .nok h4{color:#166534;} .nd h4{color:#991b1b;}
+.notice p{font-size:.8rem;color:var(--text2);}
+
+/* ─── BADGE ─── */
+.badge{display:inline-flex;align-items:center;gap:.28rem;
+  padding:.2rem .62rem;border-radius:1rem;font-size:.71rem;font-weight:700;white-space:nowrap;}
+.b-keep{background:var(--green-lt); color:#065f46;border:1px solid #6ee7b7;}
+.b-into{background:var(--blue-lt);  color:#1e40af;border:1px solid var(--blue-mid);}
+.b-nc  {background:var(--purple-lt);color:#5b21b6;border:1px solid #c4b5fd;}
+.b-del {background:var(--red-lt);   color:#991b1b;border:1px solid #fca5a5;}
+.b-sel {background:var(--teal-lt);  color:#0f766e;border:1px solid #5eead4;}
+.b-new {background:var(--indigo-lt);color:#3730a3;border:1px solid #a5b4fc;}
+.b-am  {background:var(--amber-lt); color:#92400e;border:1px solid #fcd34d;}
+
+/* ─── REPO TABLE ─── */
+.tbl-wrap{background:var(--surface);border:1.5px solid var(--border);
+  border-radius:1.1rem;overflow:auto;box-shadow:var(--sh1);margin-bottom:1.4rem;}
+.rtbl{width:100%;border-collapse:collapse;font-size:.82rem;min-width:820px;}
+.rtbl th{background:var(--surface2);padding:.82rem 1rem;text-align:left;
+  font-size:.73rem;font-weight:700;color:var(--text2);letter-spacing:.05em;
+  border-bottom:1.5px solid var(--border);white-space:nowrap;}
+.rtbl td{padding:.85rem 1rem;border-bottom:1px solid var(--border2);vertical-align:top;}
+.rtbl tr:last-child td{border-bottom:none;}
+.rtbl tr:hover td{background:#f8faff;}
+.rn{font-weight:700;font-size:.85rem;color:var(--blue);}
+.rd{font-size:.73rem;color:var(--text3);margin-top:.12rem;}
+.ftags{display:flex;flex-wrap:wrap;gap:.28rem;margin-top:.28rem;}
+.ft{padding:.1rem .48rem;border-radius:.35rem;font-size:.68rem;
+  background:var(--blue-lt);color:var(--blue);border:1px solid var(--blue-mid);}
+.ft-d{background:var(--red-lt);color:var(--red);border:1px solid #fca5a5;}
+.ft-g{background:var(--green-lt);color:var(--green);border:1px solid #6ee7b7;}
+
+/* ─── DECISION PANEL ─── */
+.dec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-bottom:1.5rem;}
+.dec-card{background:var(--surface);border:1.5px solid var(--border);
+  border-radius:1rem;overflow:hidden;box-shadow:var(--sh0);transition:all .2s;}
+.dec-card:hover{box-shadow:var(--sh1);}
+.dec-hd{padding:1rem 1.2rem;display:flex;align-items:flex-start;gap:.8rem;border-bottom:1px solid var(--border);}
+.dec-ico{font-size:1.6rem;flex-shrink:0;margin-top:.1rem;}
+.dec-hd h3{font-size:.9rem;font-weight:800;line-height:1.3;}
+.dec-hd p{font-size:.75rem;color:var(--text2);margin-top:.15rem;}
+.dec-body{padding:1rem 1.2rem;}
+.dec-body p{font-size:.81rem;color:var(--text2);line-height:1.65;margin-bottom:.7rem;}
+.dec-chips{display:flex;flex-wrap:wrap;gap:.35rem;}
+
+/* ─── FLOW ARROW ─── */
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:.7rem;padding:.65rem .9rem;margin-bottom:.8rem;}
+.ftag2{padding:.22rem .65rem;background:var(--surface);
+  border:1.5px solid var(--border2);border-radius:.45rem;
+  font-size:.74rem;font-family:var(--mono);color:var(--text2);}
+.farr{color:var(--text3);font-size:.9rem;font-weight:700;}
+.fresult{padding:.22rem .65rem;background:var(--green-lt);
+  border:1.5px solid #86efac;border-radius:.45rem;
+  font-size:.74rem;font-weight:700;color:#065f46;}
+.fdel{padding:.22rem .65rem;background:var(--red-lt);
+  border:1.5px solid #fca5a5;border-radius:.45rem;
+  font-size:.74rem;font-weight:700;color:#991b1b;}
+
+/* ─── BULLET LIST ─── */
+.blist{list-style:none;}
+.blist li{display:flex;gap:.6rem;align-items:flex-start;
+  font-size:.83rem;padding:.4rem 0;border-bottom:1px solid var(--border2);}
+.blist li:last-child{border-bottom:none;}
+.bdot{flex-shrink:0;margin-top:.48rem;width:6px;height:6px;border-radius:50%;}
+.d-bl{background:var(--blue);} .d-gr{background:var(--green);}
+.d-pu{background:var(--purple);} .d-am{background:var(--amber);}
+.d-re{background:var(--red);} .d-cy{background:var(--cyan);}
+.d-te{background:var(--teal);} .d-in{background:var(--indigo);}
+
+/* ─── NEW SYSTEM CARDS ─── */
+.new-grid{display:grid;gap:1.6rem;}
+.nc{background:var(--surface);border:1.5px solid var(--border);
+  border-radius:1.2rem;overflow:hidden;box-shadow:var(--sh1);transition:all .3s;}
+.nc:hover{box-shadow:var(--sh2);}
+
+.nc-hd{padding:1.2rem 1.5rem;display:flex;align-items:flex-start;gap:.9rem;
+  border-bottom:1.5px solid var(--border);}
+.nc-num{width:2.5rem;height:2.5rem;border-radius:.65rem;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-family:var(--mono);font-size:.95rem;flex-shrink:0;}
+.nn-1{background:var(--blue-lt);  color:var(--blue);  border:1.5px solid var(--blue-mid);}
+.nn-2{background:var(--purple-lt);color:var(--purple);border:1.5px solid #c4b5fd;}
+.nn-3{background:var(--green-lt); color:var(--green); border:1.5px solid #6ee7b7;}
+.nn-4{background:var(--cyan-lt);  color:var(--cyan);  border:1.5px solid #67e8f9;}
+.nn-5{background:var(--amber-lt); color:var(--amber); border:1.5px solid #fcd34d;}
+
+.nc-hd-info{flex:1;}
+.nc-title{font-size:1.02rem;font-weight:800;margin-bottom:.22rem;}
+.nc-sub{font-size:.78rem;color:var(--text2);}
+.nc-repo{font-size:.72rem;font-family:var(--mono);color:var(--purple);
+  margin-top:.3rem;display:flex;align-items:center;gap:.3rem;}
+.nc-badges{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.4rem;}
+
+/* タブ */
+.tab-bar{display:flex;border-bottom:1.5px solid var(--border);
+  padding:0 1.5rem;background:var(--surface2);overflow-x:auto;}
+.tbn{padding:.65rem 1rem;font-size:.78rem;font-weight:600;cursor:pointer;
+  background:none;border:none;color:var(--text3);
+  border-bottom:2.5px solid transparent;transition:all .15s;
+  white-space:nowrap;margin-bottom:-1.5px;}
+.tbn.active{color:var(--blue);border-bottom-color:var(--blue);}
+.tbn:hover:not(.active){color:var(--text);}
+.tpanel{display:none;padding:1.3rem 1.5rem;}
+.tpanel.active{display:block;}
+
+.req-h{font-size:.76rem;font-weight:700;color:var(--text2);
+  text-transform:uppercase;letter-spacing:.06em;
+  margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem;}
+.req-sec{margin-bottom:1.3rem;}
+
+.spec2{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;}
+@media(max-width:540px){.spec2{grid-template-columns:1fr;}}
+.sblk{background:var(--surface2);border:1px solid var(--border);border-radius:.65rem;padding:.85rem;}
+.sblk h6{font-size:.73rem;font-weight:700;color:var(--text2);margin-bottom:.5rem;}
+.srow{font-size:.79rem;padding:.16rem 0;display:flex;gap:.5rem;}
+.sk{color:var(--text2);white-space:nowrap;}  .sv{font-family:var(--mono);font-size:.74rem;color:var(--blue);}
+
+.cmp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:.65rem;}
+.cmp-item{background:var(--surface2);border:1px solid var(--border);border-radius:.65rem;padding:.72rem;}
+.cmp-fw{font-size:.68rem;font-weight:700;color:var(--text2);margin-bottom:.28rem;}
+.cmp-c{font-size:.75rem;line-height:1.7;}
+
+.flow-box{background:#1e293b;border-radius:.7rem;padding:.9rem 1.1rem;
+  font-family:var(--mono);font-size:.72rem;color:#94a3b8;
+  line-height:1.9;overflow-x:auto;margin:.6rem 0;}
+
+/* ─── AEGIS SECTION ─── */
+.verdict-box{
+  background:linear-gradient(135deg,#eff6ff 0%,#f0fdf4 100%);
+  border:2px solid #86efac;border-radius:1.2rem;
+  padding:1.7rem 1.9rem;margin-bottom:1.7rem;
+  display:grid;grid-template-columns:auto 1fr;gap:1.4rem;align-items:start;
+  box-shadow:var(--sh1);}
+.score-wrap{text-align:center;flex-shrink:0;}
+.score-ring{width:5.4rem;height:5.4rem;border-radius:50%;
+  background:conic-gradient(var(--green) 0% 78%,var(--border) 78% 100%);
+  display:flex;align-items:center;justify-content:center;position:relative;margin:0 auto;}
+.score-ring::before{content:'';position:absolute;width:4rem;height:4rem;
+  background:#fff;border-radius:50%;}
+.score-n{position:relative;z-index:1;font-size:1.25rem;font-weight:900;
+  color:var(--green);font-family:var(--mono);}
+.score-l{font-size:.68rem;color:var(--text2);margin-top:.28rem;}
+.vt h3{font-size:.98rem;font-weight:800;color:var(--green);margin-bottom:.45rem;}
+.vt p{font-size:.84rem;color:var(--text2);line-height:1.75;}
+
+.cmp-tbl-wrap{background:var(--surface);border:1.5px solid var(--border);
+  border-radius:1rem;overflow:auto;box-shadow:var(--sh1);margin-bottom:1.4rem;}
+.ctbl{width:100%;border-collapse:collapse;font-size:.8rem;min-width:740px;}
+.ctbl th{background:var(--surface2);padding:.78rem 1rem;text-align:left;
+  font-size:.71rem;font-weight:700;color:var(--text2);
+  border-bottom:1.5px solid var(--border);white-space:nowrap;}
+.ctbl td{padding:.82rem 1rem;border-bottom:1px solid var(--border2);vertical-align:top;}
+.ctbl tr:last-child td{border-bottom:none;}
+.ctbl tr:hover td{background:#fafbff;}
+.ov-f{color:var(--red);font-weight:700;}  .ov-p{color:var(--amber);font-weight:700;}
+.ov-a{color:var(--blue);font-weight:700;} .ov-i{color:var(--purple);font-weight:700;}
+.ov-ok{color:var(--green);font-weight:700;}
+
+.str-grid{display:grid;gap:1.1rem;margin-bottom:1.4rem;}
+.str-c{background:var(--surface);border:1.5px solid var(--border);
+  border-radius:1rem;overflow:hidden;box-shadow:var(--sh0);transition:all .2s;}
+.str-c:hover{box-shadow:var(--sh1);}
+.str-hd{padding:1rem 1.3rem;display:flex;align-items:center;gap:.8rem;border-bottom:1px solid var(--border);}
+.str-num{width:2.3rem;height:2.3rem;border-radius:.6rem;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-family:var(--mono);font-size:.9rem;flex-shrink:0;}
+.sn-bl{background:var(--blue-lt);  color:var(--blue);  border:1.5px solid var(--blue-mid);}
+.sn-gr{background:var(--green-lt); color:var(--green); border:1.5px solid #6ee7b7;}
+.sn-am{background:var(--amber-lt); color:var(--amber); border:1.5px solid #fcd34d;}
+.sn-cy{background:var(--cyan-lt);  color:var(--cyan);  border:1.5px solid #67e8f9;}
+.str-hd-t h3{font-size:.9rem;font-weight:800;}
+.str-hd-t p{font-size:.75rem;color:var(--text2);margin-top:.1rem;}
+.str-pri{margin-left:auto;flex-shrink:0;}
+.str-body{padding:1.1rem 1.3rem;}
+.str-body>p{font-size:.82rem;color:var(--text2);margin-bottom:.8rem;}
+
+.rb2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.4rem;}
+@media(max-width:620px){.rb2{grid-template-columns:1fr;}}
+.rb-b{background:var(--surface);border:1.5px solid var(--border);
+  border-radius:1rem;padding:1.1rem;box-shadow:var(--sh0);}
+.rb-t{font-size:.76rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.05em;margin-bottom:.75rem;display:flex;align-items:center;gap:.4rem;}
+.rb-i{display:flex;gap:.52rem;align-items:flex-start;font-size:.81rem;
+  padding:.36rem 0;border-bottom:1px solid var(--border2);}
+.rb-i:last-child{border-bottom:none;}
+.rbd{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:.5rem;}
+.rbd-g{background:var(--green);} .rbd-r{background:var(--red);}
+.rbd-a{background:var(--amber);} .rbd-b{background:var(--blue);}
+
+/* ─── ROADMAP ─── */
+.rm{position:relative;padding-left:2.1rem;}
+.rm::before{content:'';position:absolute;left:.95rem;top:.5rem;bottom:.5rem;
+  width:3px;border-radius:2px;
+  background:linear-gradient(to bottom,var(--blue),var(--purple),var(--teal));}
+.rm-i{position:relative;margin-bottom:1.2rem;}
+.rm-dot{position:absolute;left:-2.1rem;top:.52rem;width:.95rem;height:.95rem;
+  border-radius:50%;border:2.5px solid var(--bg);z-index:1;}
+.rm-c{background:var(--surface);border:1.5px solid var(--border);
+  border-radius:.9rem;padding:.95rem 1.2rem;box-shadow:var(--sh0);transition:all .2s;}
+.rm-c:hover{box-shadow:var(--sh1);}
+.rm-ph{font-size:.7rem;font-weight:700;margin-bottom:.25rem;display:block;}
+.rm-c h4{font-size:.88rem;font-weight:800;margin-bottom:.25rem;}
+.rm-c p{font-size:.79rem;color:var(--text2);}
+.rm-tasks{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.5rem;}
+.rmt{padding:.13rem .5rem;background:var(--surface2);border:1px solid var(--border);
+  border-radius:.35rem;font-size:.69rem;color:var(--text2);}
+
+/* ─── NEXT STEPS ─── */
+.nxt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.9rem;}
+.nxt{background:var(--surface);border:1.5px solid var(--border);
+  border-radius:1rem;padding:1.1rem;box-shadow:var(--sh0);transition:all .2s;}
+.nxt:hover{box-shadow:var(--sh1);border-color:var(--blue-mid);}
+.nxt-hd{display:flex;align-items:center;gap:.6rem;margin-bottom:.55rem;}
+.nxt-n{width:1.85rem;height:1.85rem;border-radius:50%;
+  background:var(--blue);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.76rem;font-weight:900;flex-shrink:0;}
+.nxt h4{font-size:.87rem;font-weight:700;}
+.nxt p{font-size:.79rem;color:var(--text2);line-height:1.62;}
+.nxt-time{display:inline-block;margin-top:.45rem;padding:.12rem .55rem;
+  background:var(--blue-lt);border:1px solid var(--blue-mid);
+  border-radius:.35rem;font-size:.68rem;font-weight:600;color:var(--blue);}
+
+/* ─── DIVIDER ─── */
+.dvd{height:4px;border-radius:2px;
+  background:linear-gradient(90deg,var(--blue),var(--purple),var(--teal));
+  margin:2.8rem 0;opacity:.2;}
+
+/* ─── FOOTER ─── */
+footer{background:var(--surface);border-top:2px solid var(--border);padding:1.8rem;text-align:center;}
+footer p{font-size:.78rem;color:var(--text3);}
+footer p+p{margin-top:.28rem;}
+
+/* ─── FADE IN ─── */
+.fi{opacity:0;transform:translateY(16px);transition:opacity .4s ease,transform .4s ease;}
+.fi.in{opacity:1;transform:translateY(0);}
+
+/* ─── ARCH BOX ─── */
+.arch-box{background:#1e293b;border-radius:.9rem;padding:1.2rem 1.4rem;
+  font-family:var(--mono);font-size:.72rem;color:#94a3b8;
+  line-height:2;overflow-x:auto;margin-bottom:1.3rem;}
+
+@media(max-width:680px){
+  .verdict-box{grid-template-columns:1fr;}
+  .score-wrap{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════ NAV ══════ -->
+<nav class="nav">
+  <div class="nav-brand">🏗️ IT System Master Report v2</div>
+  <div class="nav-links">
+    <a class="nl" href="#s1">📦 リポジトリ分析</a>
+    <a class="nl" href="#s2">🔀 統廃合プラン</a>
+    <a class="nl" href="#s3">🗑️ 削除対象</a>
+    <a class="nl" href="#s4">🆕 新規開発</a>
+    <a class="nl" href="#s5">🛡️ AEGIS統合</a>
+    <a class="nl" href="#s6">🗺️ ロードマップ</a>
+    <a class="nl" href="#s7">👣 次のステップ</a>
+  </div>
+</nav>
+
+<!-- ══════ HERO ══════ -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eye">🏗️ みらい建設工業 IT部門 — 2026.03.22 策定 v2</div>
+    <h1>ITシステム 統廃合・統合分析<br>総合マスターレポート</h1>
+    <p class="hero-sub">11リポジトリ精査 ／ 統廃合プラン ／ 削除対象明確化 ／ 新規開発5システム（リポジトリ名付き） ／ AEGIS-SIGHT 選択的統合分析</p>
+    <div class="hero-chips">
+      <span class="hc">🔵 ITSM / ISO 20000</span>
+      <span class="hc">🔷 ISO 27001</span>
+      <span class="hc">🟣 NIST CSF 2.0</span>
+      <span class="hc">👷 建設・土木業界</span>
+      <span class="hc">👥 従業員600名 / IT部門7名</span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ════ KPI ════ -->
+<div class="sec" style="margin-top:2.2rem;">
+  <div class="kpi-row">
+    <div class="kpi fi"><div class="kpi-ico">📦</div><div><div class="kpi-val cv-bl">11</div><div class="kpi-lbl">開発中リポジトリ総数</div></div></div>
+    <div class="kpi fi"><div class="kpi-ico">✅</div><div><div class="kpi-val cv-gr">3</div><div class="kpi-lbl">継続開発推奨</div></div></div>
+    <div class="kpi fi"><div class="kpi-ico">🔀</div><div><div class="kpi-val cv-am">3</div><div class="kpi-lbl">統合（機能移植・吸収）</div></div></div>
+    <div class="kpi fi"><div class="kpi-ico">🗑️</div><div><div class="kpi-val cv-re">3</div><div class="kpi-lbl">削除・ノーコード移行</div></div></div>
+    <div class="kpi fi"><div class="kpi-ico">🛡️</div><div><div class="kpi-val cv-cy">1</div><div class="kpi-lbl">選択的統合 (AEGIS)</div></div></div>
+    <div class="kpi fi"><div class="kpi-ico">🆕</div><div><div class="kpi-val cv-in">5</div><div class="kpi-lbl">新規開発推奨</div></div></div>
+  </div>
+  <div class="notice nw fi">
+    <div class="n-ico">⚠️</div>
+    <div>
+      <h4>重複機能が多数検出されています — 早急な整理が必要</h4>
+      <p>ITSM-System・IntegratedITAsset・Mirai-Operational-Totalmanagement-System の3リポジトリがインシデント管理・CMDB・変更管理・SLA管理で機能重複。Enterprise AI HelpDesk SystemとMirai-IT-Knowledge-Systemも類似のAIパイプラインを並列実装しています。7名のIT部門での継続保守が限界に近い状態です。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PART 1: リポジトリ分析
+═══════════════════════════════════════ -->
+<div class="dvd"></div>
+<div class="sec" id="s1">
+  <div class="sh">
+    <div class="si si-bl">🔍</div>
+    <div><h2>PART 1｜開発中リポジトリ 精査・一覧（11件）</h2>
+    <p>各リポジトリの機能・重複状況・推奨アクションを色分けして整理</p></div>
+  </div>
+
+  <!-- 判定カラーの凡例 -->
+  <div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem;">
+    <span class="badge b-keep">✅ 継続開発</span>
+    <span class="badge b-into">🔀 統合（機能移植後）</span>
+    <span class="badge b-sel">🛡️ 選択的統合 (AEGIS)</span>
+    <span class="badge b-nc">🟣 ノーコード移行</span>
+    <span class="badge b-del">🗑️ 削除</span>
+  </div>
+
+  <div class="tbl-wrap fi">
+    <table class="rtbl">
+      <thead>
+        <tr>
+          <th width="22%">リポジトリ名</th>
+          <th width="28%">主要機能</th>
+          <th width="12%">技術スタック</th>
+          <th width="15%">推奨アクション</th>
+          <th>判定理由</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="rn">🏆 ITSM-System</div><div class="rd">ITSM-Sec Nexus v2.1.0</div></td>
+          <td><div class="ftags"><span class="ft">インシデント管理</span><span class="ft">SLA管理</span><span class="ft">CMDB</span><span class="ft">変更管理</span><span class="ft">NIST CSF 2.0</span><span class="ft">GRC/監査</span><span class="ft">M365連携</span><span class="ft">バックアップAPI</span></div></td>
+          <td style="font-size:.76rem;">Node.js + React<br><span style="color:var(--text3)">CI/CD完備 v2.1.0</span></td>
+          <td><span class="badge b-keep">✅ 中核として継続</span></td>
+          <td style="font-size:.76rem;color:var(--text2)">最も機能が充実。CI/CD・セキュリティスキャン実装済み。他リポジトリの統合先となる基盤</td>
+        </tr>
+        <tr>
+          <td><div class="rn">📚 Mirai-Knowledge-Systems</div><div class="rd">建設土木ナレッジ管理</div></td>
+          <td><div class="ftags"><span class="ft">施工ナレッジ</span><span class="ft">SOP管理</span><span class="ft">事故レポート</span><span class="ft">専門家相談</span><span class="ft">承認フロー</span></div></td>
+          <td style="font-size:.76rem;">Python Flask + HTML</td>
+          <td><span class="badge b-keep">✅ 継続（建設特化）</span></td>
+          <td style="font-size:.76rem;color:var(--text2)">建設・土木業界固有機能（施工知見・法令・事故レポート）は他と重複なし。現場価値が高い</td>
+        </tr>
+        <tr>
+          <td><div class="rn">🐧 Linux-Management-System</div><div class="rd">v0.47.0 sudoアロウリスト制御</div></td>
+          <td><div class="ftags"><span class="ft">Linux統制WebUI</span><span class="ft">sudo最小化</span><span class="ft">監査証跡</span><span class="ft">Allowlist制御</span></div></td>
+          <td style="font-size:.76rem;">FastAPI + Python</td>
+          <td><span class="badge b-keep">✅ 継続（インフラ特化）</span></td>
+          <td style="font-size:.76rem;color:var(--text2)">Linux統制・sudo管理はITSM-Systemと異なるレイヤー。外部DCオンプレサーバ管理に必須</td>
+        </tr>
+        <tr style="background:#eff6ff;">
+          <td><div class="rn">🏛 ServiceMatrix</div><div class="rd">GitHub Native 統治基盤</div></td>
+          <td><div class="ftags"><span class="ft">GitHub Issue連携</span><span class="ft">PR型変更管理</span><span class="ft">AI統治</span><span class="ft ft-d">SLA管理(重複)</span><span class="ft ft-d">変更管理(重複)</span></div></td>
+          <td style="font-size:.76rem;">GitHub Actions中心</td>
+          <td><span class="badge b-into">🔀 ITSM-Systemへ統合</span></td>
+          <td style="font-size:.76rem;color:var(--text2)">SLA・変更管理はITSM-Systemと重複。<strong>GitHub連携ロジックのみITSM-Systemに移植後、本リポジトリは廃止</strong></td>
+        </tr>
+        <tr style="background:#eff6ff;">
+          <td><div class="rn">💾 Backup-management-system</div><div class="rd">3-2-1-1-0バックアップ管理</div></td>
+          <td><div class="ftags"><span class="ft">3-2-1-1-0ルール</span><span class="ft">Veeam連携</span><span class="ft">ISO27001対応</span><span class="ft ft-d">バックアップAPI(重複)</span></div></td>
+          <td style="font-size:.76rem;">Python Flask 3.0+</td>
+          <td><span class="badge b-into">🔀 ITSM-Systemへ統合</span></td>
+          <td style="font-size:.76rem;color:var(--text2)">ITSM-SystemにすでにバックアップAPI実装済み。<strong>3-2-1-1-0コンプライアンス監視機能のみITSM-Systemに移植後、本リポジトリは廃止</strong></td>
+        </tr>
+        <tr style="background:#eff6ff;">
+          <td><div class="rn">🌸 Mirai-IT-Knowledge-System</div><div class="rd">AI支援型ITナレッジ</div></td>
+          <td><div class="ftags"><span class="ft ft-d">ナレッジ管理(重複)</span><span class="ft ft-d">AIパイプライン(重複)</span><span class="ft ft-g">ITSM自動分類</span><span class="ft ft-g">並列SubAgent</span></div></td>
+          <td style="font-size:.76rem;">Claude+Gemini+Perplexity</td>
+          <td><span class="badge b-into">🔀 Enterprise AI HelpDesk System へ統合</span></td>
+          <td style="font-size:.76rem;color:var(--text2)">Mirai-Knowledge・Enterprise AI HelpDesk System と3方向重複。<strong>並列SubAgent設計のみ Enterprise AI HelpDesk System に移植後、本リポジトリは廃止</strong></td>
+        </tr>
+        <tr style="background:#f0fdf4;">
+          <td><div class="rn">📊 IntegratedITAsset (IAMS)</div><div class="rd">Phase22 / 1,157テスト</div></td>
+          <td><div class="ftags"><span class="ft ft-d">IT資産管理(重複)</span><span class="ft ft-d">CMDB(重複)</span><span class="ft ft-d">インシデント管理(重複)</span><span class="ft ft-g">Prometheus/Grafana</span><span class="ft ft-g">PWA対応</span><span class="ft ft-g">調達管理</span><span class="ft ft-g">1,157テスト</span></div></td>
+          <td style="font-size:.76rem;">Node.js<br><span style="color:var(--text3)">149エンドポイント</span></td>
+          <td><span class="badge b-sel">🛡️ AEGIS-SIGHTに選択的統合</span></td>
+          <td style="font-size:.76rem;color:var(--text2)">資産・CMDB・インシデントはITSM-Systemと重複。<strong>Prometheus/Grafana・PWA・調達管理・テスト資産をAEGIS-SIGHTに選択的移植後、本リポジトリは廃止</strong></td>
+        </tr>
+        <tr style="background:#fff1f2;">
+          <td><div class="rn">🏗️ Mirai-Operational-Total</div><div class="rd">41システム統合管理ポータル</div></td>
+          <td><div class="ftags"><span class="ft ft-d">統合ポータル(重複)</span><span class="ft ft-d">ロードマップ(重複)</span><span class="ft">組織図</span></div></td>
+          <td style="font-size:.76rem;">HTML/CSS/JS（静的）</td>
+          <td><span class="badge b-del">🗑️ SharePointへ移行・削除</span></td>
+          <td style="font-size:.76rem;color:var(--text2)">静的HTMLポータル。<strong>SharePoint Online/Power Pagesで代替後、本リポジトリは削除</strong>。M365既存ライセンスで保守コストゼロ化</td>
+        </tr>
+        <tr style="background:#fff1f2;">
+          <td><div class="rn">📱 Appsuite-ITSM-Management</div><div class="rd">DeskNet's Neo AppSuite連携</div></td>
+          <td><div class="ftags"><span class="ft ft-d">インシデント管理(重複)</span><span class="ft ft-d">変更管理(重複)</span><span class="ft">AppSuite連携</span></div></td>
+          <td style="font-size:.76rem;">Node.js / 3100/8443</td>
+          <td><span class="badge b-del">🗑️ AppSuite標準へ移行・削除</span></td>
+          <td style="font-size:.76rem;color:var(--text2)">インシデント・変更管理はITSM-Systemと重複。<strong>DeskNet's NeoのAppSuiteフォームアプリへ移行後、本リポジトリは削除</strong></td>
+        </tr>
+        <tr style="background:#fff1f2;">
+          <td><div class="rn">❌ Mirai-DX-Management-System</div><div class="rd">GitHub 404 Not Found</div></td>
+          <td><div class="ftags"><span class="ft ft-d">リポジトリ未存在</span></div></td>
+          <td style="font-size:.76rem;">未確認</td>
+          <td><span class="badge b-del">🗑️ 即時削除</span></td>
+          <td style="font-size:.76rem;color:var(--text2)">GitHubで404。<strong>リポジトリが存在しないか削除済み。管理インベントリから即時除外</strong></td>
+        </tr>
+        <tr>
+          <td><div class="rn">🤖 Enterprise AI HelpDesk System</div><div class="rd">Kensan196948G/Enterprise-AI-HelpDesk-System</div></td>
+          <td><div class="ftags"><span class="ft">AIヘルプデスク</span><span class="ft ft-g">3段階AIパイプライン</span><span class="ft ft-d">チケット管理(重複)</span><span class="ft ft-d">FAQ管理(重複)</span></div></td>
+          <td style="font-size:.76rem;">PowerShell + WebUI</td>
+          <td><span class="badge b-keep">✅ 継続（AI機能受け皿）</span></td>
+          <td style="font-size:.76rem;color:var(--text2)">チケット/FAQは重複だが、<strong>Mirai-IT-Knowledge-Systemの並列SubAgentを吸収しEnterprise AI HelpDesk System v2.0 として強化・継続</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PART 2: 統合プラン
+═══════════════════════════════════════ -->
+<div class="dvd"></div>
+<div class="sec" id="s2">
+  <div class="sh">
+    <div class="si si-bl">🔀</div>
+    <div><h2>PART 2｜統合プラン A・B — 詳細</h2>
+    <p>機能を移植して吸収・統合する2つのプラン。移植元リポジトリは移植完了後に廃止</p></div>
+  </div>
+
+  <!-- プランA -->
+  <div class="notice ni fi" style="margin-bottom:.8rem;">
+    <div class="n-ico">🔗</div>
+    <div>
+      <h4>統合プラン A：ITSM中核統合 — 統合先：ITSM-System（継続・強化）</h4>
+      <p>ServiceMatrix と Backup-management-system の有用機能を ITSM-System に移植し、ITSM-System を v3.0 へ進化させます。移植元の2リポジトリは移植完了後に廃止します。</p>
+    </div>
+  </div>
+
+  <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:1.1rem;padding:1.3rem 1.5rem;box-shadow:var(--sh0);margin-bottom:1.5rem;" class="fi">
+    <div style="font-size:.82rem;font-weight:800;color:var(--blue);margin-bottom:.8rem;">📦 統合フロー</div>
+    <div class="flow" style="margin-bottom:1rem;">
+      <span class="ftag2">🏛 ServiceMatrix（GitHub Issue/PR型変更管理）</span>
+      <span class="farr">＋</span>
+      <span class="ftag2">💾 Backup-management（3-2-1-1-0監視）</span>
+      <span class="farr">→ 移植先 →</span>
+      <span class="fresult">✅ ITSM-System v3.0（継続強化）</span>
+    </div>
+    <div class="flow">
+      <span class="ftag2">🏛 ServiceMatrix（残余機能）</span>
+      <span class="farr">＋</span>
+      <span class="ftag2">💾 Backup-management（残余機能）</span>
+      <span class="farr">→ 移植完了後 →</span>
+      <span class="fdel">🗑️ 両リポジトリ 廃止・削除</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;">
+      <div>
+        <div style="font-size:.78rem;font-weight:700;color:var(--text2);margin-bottom:.5rem;">🏛 ServiceMatrix から移植する機能</div>
+        <ul class="blist">
+          <li><span class="bdot d-bl"></span><span>GitHub Issue / PR 連携型変更管理ロジック</span></li>
+          <li><span class="bdot d-bl"></span><span>AI統治エンジン（影響分析・リスクスコア算出）</span></li>
+          <li><span class="bdot d-bl"></span><span>GitHub Actions CI連携の変更承認ゲート</span></li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-size:.78rem;font-weight:700;color:var(--text2);margin-bottom:.5rem;">💾 Backup-management から移植する機能</div>
+        <ul class="blist">
+          <li><span class="bdot d-am"></span><span>3-2-1-1-0ルール自動コンプライアンスチェック</span></li>
+          <li><span class="bdot d-am"></span><span>Veeam / Windows Server Backup 連携ロジック</span></li>
+          <li><span class="bdot d-am"></span><span>ISO27001監査対応バックアップレポートテンプレート</span></li>
+        </ul>
+      </div>
+    </div>
+    <div style="margin-top:.8rem;font-size:.78rem;color:var(--text2);display:flex;gap:.5rem;align-items:center;">
+      <span>⏱️ 期間目安：</span><span class="badge b-am">移植 3ヶ月 ＋ テスト 1ヶ月 = 計4ヶ月</span>
+    </div>
+  </div>
+
+  <!-- プランB -->
+  <div class="notice ni fi" style="margin-bottom:.8rem;">
+    <div class="n-ico">🤖</div>
+    <div>
+      <h4>統合プラン B：AIヘルプデスク統合 — 統合先：Enterprise AI HelpDesk System（継続・強化）</h4>
+      <p>Mirai-IT-Knowledge-System の並列SubAgent設計を <strong>Enterprise AI HelpDesk System</strong>（<code>Kensan196948G/Enterprise-AI-HelpDesk-System</code>）に移植し、v2.0 として強化します。移植元の Mirai-IT-Knowledge-System は移植完了後に廃止します。</p>
+    </div>
+  </div>
+
+  <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:1.1rem;padding:1.3rem 1.5rem;box-shadow:var(--sh0);margin-bottom:1.5rem;" class="fi">
+    <div style="font-size:.82rem;font-weight:800;color:var(--purple);margin-bottom:.8rem;">📦 統合フロー</div>
+    <div class="flow" style="margin-bottom:1rem;">
+      <span class="ftag2">🌸 Mirai-IT-Knowledge（並列SubAgent設計・ITSM自動分類）</span>
+      <span class="farr">→ 移植先 →</span>
+      <span class="fresult">✅ Enterprise AI HelpDesk System v2.0（継続強化）</span>
+    </div>
+    <div class="flow">
+      <span class="ftag2">🌸 Mirai-IT-Knowledge-System（残余機能）</span>
+      <span class="farr">→ 移植完了後 →</span>
+      <span class="fdel">🗑️ Mirai-IT-Knowledge-System 廃止・削除</span>
+    </div>
+
+    <ul class="blist" style="margin-top:.9rem;">
+      <li><span class="bdot d-pu"></span><span>並列SubAgent（7専門AI）設計を Enterprise AI HelpDesk System の AI パイプラインに組み込み</span></li>
+      <li><span class="bdot d-pu"></span><span>ITSM自動分類（Incident / Problem / Change / Release）ロジックをEnterprise AI HelpDesk System のチケット振り分けに活用</span></li>
+      <li><span class="bdot d-pu"></span><span>統合後はITSM-SystemのAPIと連携し、AIが生成した回答をチケットナレッジとして蓄積</span></li>
+    </ul>
+    <div class="notice nw" style="margin-top:.9rem;margin-bottom:0;">
+      <div class="n-ico">💡</div>
+      <div>
+        <h4>さらに推奨：M365 Copilot Studio との費用比較</h4>
+        <p>Microsoft Copilot Studioで構築すればClaude/Gemini/Perplexity APIキー管理コストを削減できる可能性あり。月次APIコスト vs Copilot Studio利用料を試算して最適解を選択してください。</p>
+      </div>
+    </div>
+    <div style="margin-top:.8rem;font-size:.78rem;color:var(--text2);display:flex;gap:.5rem;align-items:center;">
+      <span>⏱️ 期間目安：</span><span class="badge b-am">移植 2ヶ月 ＋ 統合テスト 1ヶ月 = 計3ヶ月</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PART 3: 削除対象
+═══════════════════════════════════════ -->
+<div class="dvd"></div>
+<div class="sec" id="s3">
+  <div class="sh">
+    <div class="si si-re">🗑️</div>
+    <div><h2>PART 3｜削除対象・ノーコード移行対象（3件）</h2>
+    <p>開発・保守コストを削減するため、既存ツール活用またはリポジトリ廃止を実施</p></div>
+  </div>
+
+  <div class="dec-grid">
+    <!-- 削除1 -->
+    <div class="dec-card fi">
+      <div class="dec-hd" style="background:var(--red-lt);">
+        <div class="dec-ico">🏗️</div>
+        <div>
+          <h3>Mirai-Operational-Totalmanagement-System</h3>
+          <p>41システム統合管理ポータル（静的HTML）</p>
+        </div>
+      </div>
+      <div class="dec-body">
+        <p><strong>代替ツール：SharePoint Online + Power Pages + Microsoft Lists</strong>（M365既存ライセンス）</p>
+        <ul class="blist">
+          <li><span class="bdot d-re"></span><span>静的HTMLで構築されたポータル・組織図・ロードマップはSharePoint Onlineで全て代替可能</span></li>
+          <li><span class="bdot d-re"></span><span>EntraID統合認証により既存M365ユーザーがそのままアクセス可能</span></li>
+          <li><span class="bdot d-re"></span><span>移行後は開発・保守コストゼロ。IT部門の工数を解放できる</span></li>
+        </ul>
+        <div class="dec-chips" style="margin-top:.7rem;">
+          <span class="badge b-del">🗑️ 移行後 リポジトリ削除</span>
+          <span class="badge b-am">⏱️ 移行期間 2〜3週間</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 削除2 -->
+    <div class="dec-card fi">
+      <div class="dec-hd" style="background:var(--red-lt);">
+        <div class="dec-ico">📱</div>
+        <div>
+          <h3>Appsuite-ITSM-Management</h3>
+          <p>DeskNet's Neo AppSuite連携 ITSMシステム</p>
+        </div>
+      </div>
+      <div class="dec-body">
+        <p><strong>代替ツール：DeskNet's Neo AppSuite 標準フォームアプリ</strong>（既存契約・追加費用ゼロ）</p>
+        <ul class="blist">
+          <li><span class="bdot d-re"></span><span>インシデント報告・変更申請・承認ワークフローはAppSuiteのノーコードフォームで構築可能</span></li>
+          <li><span class="bdot d-re"></span><span>インシデント・変更管理機能はITSM-Systemと完全重複のため、AppSuite側はITSM-Systemへの入力窓口として再定義</span></li>
+          <li><span class="bdot d-re"></span><span>現場担当者にとってAppSuiteの方が使い慣れたUIのため、利用率向上が期待できる</span></li>
+        </ul>
+        <div class="dec-chips" style="margin-top:.7rem;">
+          <span class="badge b-del">🗑️ 移行後 リポジトリ削除</span>
+          <span class="badge b-am">⏱️ 移行期間 2〜3週間</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 削除3 -->
+    <div class="dec-card fi">
+      <div class="dec-hd" style="background:var(--red-lt);">
+        <div class="dec-ico">❌</div>
+        <div>
+          <h3>Mirai-DX-Management-System</h3>
+          <p>GitHub 404 Not Found — リポジトリ未存在</p>
+        </div>
+      </div>
+      <div class="dec-body">
+        <p><strong>対応：管理インベントリからの即時除外・関連記録の整理</strong></p>
+        <ul class="blist">
+          <li><span class="bdot d-re"></span><span>GitHubで404エラー。リポジトリが存在しないか、すでに削除済み</span></li>
+          <li><span class="bdot d-re"></span><span>開発計画・予算計画・工数計画から即座に除外し、11件リストを10件に正式更新する</span></li>
+          <li><span class="bdot d-re"></span><span>過去の要件定義書・議事録等に記載がある場合は「廃止」として記録を残す</span></li>
+        </ul>
+        <div class="dec-chips" style="margin-top:.7rem;">
+          <span class="badge b-del">🗑️ 即時 管理リストから削除</span>
+          <span class="badge b-am">⏱️ 即日対応可能</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PART 4: 新規開発推奨
+═══════════════════════════════════════ -->
+<div class="dvd"></div>
+<div class="sec" id="s4">
+  <div class="sh">
+    <div class="si si-in">🆕</div>
+    <div><h2>PART 4｜新規開発推奨システム（5件）</h2>
+    <p>プロジェクト名・リポジトリ名付き｜ITSM/ISO20000・ISO27001・NIST CSF2.0全準拠｜建設業界特化</p></div>
+  </div>
+
+  <div class="new-grid">
+
+    <!-- ─── 01 ─── -->
+    <div class="nc fi">
+      <div class="nc-hd">
+        <div class="nc-num nn-1">01</div>
+        <div class="nc-hd-info">
+          <div class="nc-title">🔐 ゼロトラスト ID統合ガバナンスシステム</div>
+          <div class="nc-sub">EntraID Connect × HENGEONE × AD 統合アイデンティティ管理プラットフォーム</div>
+          <div class="nc-repo">
+            <span>📁 プロジェクト名：</span><strong>ZeroTrust-ID-Governance</strong>
+            <span style="margin-left:.5rem;">🔗 リポジトリ名：</span><strong>Kensan196948G/ZeroTrust-ID-Governance</strong>
+          </div>
+          <div class="nc-badges">
+            <span class="badge b-new">🆕 新規開発</span>
+            <span class="badge" style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;">🔴 優先度：高</span>
+            <span class="badge b-keep">ISO27001 A.5.15〜A.8.2</span>
+            <span class="badge" style="background:var(--purple-lt);color:#5b21b6;border:1px solid #c4b5fd;">NIST PROTECT PR.AA</span>
+          </div>
+        </div>
+      </div>
+      <div class="tab-bar">
+        <button class="tbn active" onclick="sw(this,'p1','ov')">📋 概要</button>
+        <button class="tbn" onclick="sw(this,'p1','req')">📄 要件定義書</button>
+        <button class="tbn" onclick="sw(this,'p1','des')">⚙️ 詳細設計書</button>
+        <button class="tbn" onclick="sw(this,'p1','cmp')">🛡️ 準拠フレームワーク</button>
+      </div>
+      <div id="p1-ov" class="tpanel active">
+        <div class="req-sec"><div class="req-h">🎯 システム概要</div><p style="font-size:.83rem;color:var(--text2)">既存のEntraID Connect・HENGEONE（SSO/MFA）・ADを統合し、600名分のユーザーライフサイクル（入社〜異動〜退職）を自動管理。建設業特有の「現場勤務者・協力会社・季節社員」の一時的アクセス制御をゼロトラスト原則で実装。IT部門7名の手動運用工数を大幅に削減する。</p></div>
+        <div class="req-sec"><div class="req-h">💡 開発背景・課題</div>
+          <ul class="blist">
+            <li><span class="bdot d-bl"></span><span>AD・EntraID・HENGEONEが個別管理で入退社時の棚卸しが手動</span></li>
+            <li><span class="bdot d-bl"></span><span>協力会社社員・季節社員への一時アクセス付与が管理簿ベースで証跡不十分</span></li>
+            <li><span class="bdot d-bl"></span><span>ISO27001 A.9（アクセス制御）・NIST CSF PROTECT の要求事項に不整合</span></li>
+            <li><span class="bdot d-bl"></span><span>IT部門7名で600名分のアカウント管理を手動運用中、工数圧迫が深刻</span></li>
+          </ul>
+        </div>
+      </div>
+      <div id="p1-req" class="tpanel">
+        <div class="req-sec"><div class="req-h">📌 機能要件</div>
+          <ul class="blist">
+            <li><span class="bdot d-bl"></span><span>【FR-001】AD/EntraID統合ユーザーライフサイクル管理：入社・異動・退職の自動プロビジョニング/デプロビジョニング</span></li>
+            <li><span class="bdot d-bl"></span><span>【FR-002】HENGEONE SSO統合ポリシー管理：アプリ別アクセス権限マトリックスの可視化・承認ワークフロー</span></li>
+            <li><span class="bdot d-bl"></span><span>【FR-003】協力会社・一時アカウント管理：期限付き発行・自動失効・上長承認フロー</span></li>
+            <li><span class="bdot d-bl"></span><span>【FR-004】特権アカウント管理（PAM）：管理者権限の使用申請・タイムボックス承認・セッション録画</span></li>
+            <li><span class="bdot d-bl"></span><span>【FR-005】ID棚卸し自動化：四半期ごとの全ユーザー権限レビュー・不要権限自動検出・承認通知</span></li>
+            <li><span class="bdot d-bl"></span><span>【FR-006】MFA適用状況ダッシュボード：未設定ユーザーの自動検出・督促通知</span></li>
+            <li><span class="bdot d-bl"></span><span>【FR-007】監査ログ統合：AD・EntraID・HENGEONEのログ統合・不正アクセス検知アラート</span></li>
+            <li><span class="bdot d-bl"></span><span>【FR-008】ISO27001 A.9準拠レポート自動生成：アクセス制御台帳・棚卸し証跡のPDF出力</span></li>
+          </ul>
+        </div>
+        <div class="req-sec"><div class="req-h">📌 非機能要件</div>
+          <ul class="blist">
+            <li><span class="bdot d-gr"></span><span>【NFR-001】可用性：99.9%以上（IT基盤システムのため高可用性必須）</span></li>
+            <li><span class="bdot d-gr"></span><span>【NFR-002】レスポンス：ユーザー検索・権限変更操作3秒以内</span></li>
+            <li><span class="bdot d-gr"></span><span>【NFR-003】監査ログ保存：5年間保存・改ざん防止（ハッシュチェーン）</span></li>
+            <li><span class="bdot d-gr"></span><span>【NFR-004】RBAC：Admin/Operator/Auditor/ReadOnly の4段階権限制御</span></li>
+          </ul>
+        </div>
+      </div>
+      <div id="p1-des" class="tpanel">
+        <div class="req-sec"><div class="req-h">🏗️ システムアーキテクチャ</div>
+          <div class="flow-box">
+[ユーザー/管理者] → HTTPS + EntraID SSO → [React フロントエンド]
+                                               ↓ REST API
+                                    [FastAPI バックエンド]
+                                      ├── Microsoft Graph API → EntraID / M365
+                                      ├── LDAP/AD Client → オンプレAD (外部DC)
+                                      ├── HENGEONE REST API → SSO/MFA管理
+                                      ├── ワークフローエンジン → 承認/PAM
+                                      ├── 棚卸しスケジューラー → 四半期自動実行
+                                      └── レポートエンジン → ISO27001 A.9準拠PDF
+                                               ↓ Webhook
+                                    [Microsoft Teams / Outlook 通知]</div>
+        </div>
+        <div class="spec2">
+          <div class="sblk"><h6>⚙️ 技術スタック</h6>
+            <div class="srow"><span class="sk">Frontend</span><span class="sv">React + TypeScript</span></div>
+            <div class="srow"><span class="sk">Backend</span><span class="sv">FastAPI (Python)</span></div>
+            <div class="srow"><span class="sk">DB</span><span class="sv">PostgreSQL + Redis</span></div>
+            <div class="srow"><span class="sk">認証</span><span class="sv">EntraID OAuth2.0</span></div>
+            <div class="srow"><span class="sk">デプロイ</span><span class="sv">Docker Compose / Azure</span></div>
+          </div>
+          <div class="sblk"><h6>🔗 外部API連携</h6>
+            <div class="srow"><span class="sk">M365</span><span class="sv">Microsoft Graph API</span></div>
+            <div class="srow"><span class="sk">EntraID</span><span class="sv">Entra ID Connect API</span></div>
+            <div class="srow"><span class="sk">HENGE</span><span class="sv">HENGEONE REST API</span></div>
+            <div class="srow"><span class="sk">AD</span><span class="sv">LDAPS (636/tcp)</span></div>
+            <div class="srow"><span class="sk">通知</span><span class="sv">Teams / Outlook Webhook</span></div>
+          </div>
+        </div>
+      </div>
+      <div id="p1-cmp" class="tpanel">
+        <div class="cmp-grid">
+          <div class="cmp-item"><div class="cmp-fw">🔵 ITSM / ISO 20000</div><div class="cmp-c">• アクセス管理プロセス<br>• 構成管理（CMDB連携）<br>• サービス要求管理</div></div>
+          <div class="cmp-item"><div class="cmp-fw">🔷 ISO 27001:2022</div><div class="cmp-c">• A.5.15 アクセス制御<br>• A.5.16 ID管理<br>• A.5.17 認証情報管理<br>• A.8.2 特権アクセス権</div></div>
+          <div class="cmp-item"><div class="cmp-fw">🟣 NIST CSF 2.0</div><div class="cmp-c">• GOVERN GV.OC<br>• PROTECT PR.AA（認証）<br>• PROTECT PR.AT（意識向上）<br>• DETECT DE.CM（監視）</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── 02 ─── -->
+    <div class="nc fi">
+      <div class="nc-hd">
+        <div class="nc-num nn-2">02</div>
+        <div class="nc-hd-info">
+          <div class="nc-title">🛡️ 建設現場 サイバーセキュリティ監視・SIEM統合システム</div>
+          <div class="nc-sub">現場IoT機器・CAD/BIM環境のセキュリティイベント集約・異常検知プラットフォーム</div>
+          <div class="nc-repo">
+            <span>📁 プロジェクト名：</span><strong>Construction-SIEM-Platform</strong>
+            <span style="margin-left:.5rem;">🔗 リポジトリ名：</span><strong>Kensan196948G/Construction-SIEM-Platform</strong>
+          </div>
+          <div class="nc-badges">
+            <span class="badge b-new">🆕 新規開発</span>
+            <span class="badge" style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;">🔴 優先度：高</span>
+            <span class="badge b-keep">ISO27001 A.8.15/A.8.16</span>
+            <span class="badge" style="background:var(--purple-lt);color:#5b21b6;border:1px solid #c4b5fd;">NIST DETECT DE.CM</span>
+          </div>
+        </div>
+      </div>
+      <div class="tab-bar">
+        <button class="tbn active" onclick="sw(this,'p2','ov')">📋 概要</button>
+        <button class="tbn" onclick="sw(this,'p2','req')">📄 要件定義書</button>
+        <button class="tbn" onclick="sw(this,'p2','des')">⚙️ 詳細設計書</button>
+        <button class="tbn" onclick="sw(this,'p2','cmp')">🛡️ 準拠フレームワーク</button>
+      </div>
+      <div id="p2-ov" class="tpanel active">
+        <div class="req-sec"><div class="req-h">🎯 システム概要</div><p style="font-size:.83rem;color:var(--text2)">建設業特有の分散IT環境（本社・支店・現場事務所・外部DC）のセキュリティログを一元集約するSIEM基盤。AutoCAD・Revit（BIM）・現場IoT機器からのログを収集し、ランサムウェア・不正アクセス・内部不正を早期検知するプラットフォーム。</p></div>
+        <div class="req-sec"><div class="req-h">💡 開発背景・課題</div>
+          <ul class="blist">
+            <li><span class="bdot d-pu"></span><span>建設業界はランサムウェア被害増加中。設計図・施工データが標的に</span></li>
+            <li><span class="bdot d-pu"></span><span>現場PCがサプライチェーン攻撃の入口になりやすい（USBウイルス等）</span></li>
+            <li><span class="bdot d-pu"></span><span>NIST CSF 2.0 DETECT（DE.CM）の継続的セキュリティ監視が未実装</span></li>
+            <li><span class="bdot d-pu"></span><span>ファイルサーバー（外部DC）への大量アクセス等の異常検知手段がない</span></li>
+          </ul>
+        </div>
+      </div>
+      <div id="p2-req" class="tpanel">
+        <div class="req-sec"><div class="req-h">📌 機能要件</div>
+          <ul class="blist">
+            <li><span class="bdot d-pu"></span><span>【FR-001】ログ集約：AD/EntraID・ファイルサーバー・Exchange Online・M365セキュリティログの一元収集</span></li>
+            <li><span class="bdot d-pu"></span><span>【FR-002】リアルタイム異常検知：不審ログイン・大量ファイルアクセス・権限昇格試行の即時アラート</span></li>
+            <li><span class="bdot d-pu"></span><span>【FR-003】ランサムウェア早期検知：ファイルサーバーの短時間大量暗号化操作をパターン検知</span></li>
+            <li><span class="bdot d-pu"></span><span>【FR-004】現場IoT機器監視：施工現場のネットワーク機器・カメラ・センサーのログ収集と不審通信検知</span></li>
+            <li><span class="bdot d-pu"></span><span>【FR-005】インシデント自動起票：ITSM-SystemのAPIと連携し検知イベントを自動チケット化</span></li>
+            <li><span class="bdot d-pu"></span><span>【FR-006】NIST CSF 2.0 6機能別セキュリティKPIダッシュボード可視化</span></li>
+            <li><span class="bdot d-pu"></span><span>【FR-007】ISO27001監査証跡：セキュリティイベントの証跡保存・コンプライアンスレポート出力</span></li>
+            <li><span class="bdot d-pu"></span><span>【FR-008】M365 Defender連携：Microsoft 365 Defenderのアラートとの統合・重複排除</span></li>
+          </ul>
+        </div>
+      </div>
+      <div id="p2-des" class="tpanel">
+        <div class="flow-box">
+【ログソース】
+├── Microsoft 365 / Defender / EntraID Signin Logs
+├── オンプレAD (Security Event Log)
+├── ファイルサーバー (SMBアクセスログ)
+└── 現場IoT機器 (Syslog/SNMP)
+      ↓ Log Forwarding (Fluentd / Winlogbeat)
+【SIEM コア】
+├── Elasticsearch（ログストア・全文検索）
+├── Kibana（ダッシュボード・可視化）
+├── 異常検知エンジン (Python + scikit-learn + Sigma Rules + UEBA)
+└── アラートマネージャー → ITSM-System API / Teams Webhook</div>
+        <div class="spec2">
+          <div class="sblk"><h6>⚙️ 技術スタック</h6>
+            <div class="srow"><span class="sk">SIEM基盤</span><span class="sv">ELK Stack (OSS)</span></div>
+            <div class="srow"><span class="sk">検知エンジン</span><span class="sv">Python + scikit-learn</span></div>
+            <div class="srow"><span class="sk">ルール形式</span><span class="sv">Sigma Rules</span></div>
+            <div class="srow"><span class="sk">ログ転送</span><span class="sv">Fluentd / Winlogbeat</span></div>
+          </div>
+          <div class="sblk"><h6>🔗 外部API連携</h6>
+            <div class="srow"><span class="sk">M365</span><span class="sv">Graph API (SigninLogs)</span></div>
+            <div class="srow"><span class="sk">Defender</span><span class="sv">M365 Defender API</span></div>
+            <div class="srow"><span class="sk">ITSM</span><span class="sv">ITSM-System REST API</span></div>
+            <div class="srow"><span class="sk">通知</span><span class="sv">Teams / Outlook Webhook</span></div>
+          </div>
+        </div>
+      </div>
+      <div id="p2-cmp" class="tpanel">
+        <div class="cmp-grid">
+          <div class="cmp-item"><div class="cmp-fw">🔵 ITSM / ISO 20000</div><div class="cmp-c">• インシデント管理<br>• 問題管理（根本原因分析）<br>• 継続的改善</div></div>
+          <div class="cmp-item"><div class="cmp-fw">🔷 ISO 27001:2022</div><div class="cmp-c">• A.8.15 ログ取得<br>• A.8.16 監視活動<br>• A.5.25 情報セキュリティ事象評価<br>• A.5.26 対応</div></div>
+          <div class="cmp-item"><div class="cmp-fw">🟣 NIST CSF 2.0</div><div class="cmp-c">• DETECT DE.CM（継続監視）<br>• DETECT DE.AE（異常と事象）<br>• RESPOND RS.AN（分析）<br>• RESPOND RS.CO（通知）</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── 03 ─── -->
+    <div class="nc fi">
+      <div class="nc-hd">
+        <div class="nc-num nn-3">03</div>
+        <div class="nc-hd-info">
+          <div class="nc-title">📋 建設業 統合リスク＆コンプライアンス管理システム（GRC）</div>
+          <div class="nc-sub">ISO27001・NIST CSF 2.0・建設業法・公共工事品確法 多法令準拠の統合GRC基盤</div>
+          <div class="nc-repo">
+            <span>📁 プロジェクト名：</span><strong>Construction-GRC-System</strong>
+            <span style="margin-left:.5rem;">🔗 リポジトリ名：</span><strong>Kensan196948G/Construction-GRC-System</strong>
+          </div>
+          <div class="nc-badges">
+            <span class="badge b-new">🆕 新規開発</span>
+            <span class="badge" style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;">🔴 優先度：高</span>
+            <span class="badge b-keep">ISO27001 全93管理策</span>
+            <span class="badge" style="background:var(--purple-lt);color:#5b21b6;border:1px solid #c4b5fd;">NIST GOVERN GV.RM</span>
+          </div>
+        </div>
+      </div>
+      <div class="tab-bar">
+        <button class="tbn active" onclick="sw(this,'p3','ov')">📋 概要</button>
+        <button class="tbn" onclick="sw(this,'p3','req')">📄 要件定義書</button>
+        <button class="tbn" onclick="sw(this,'p3','des')">⚙️ 詳細設計書</button>
+        <button class="tbn" onclick="sw(this,'p3','cmp')">🛡️ 準拠フレームワーク</button>
+      </div>
+      <div id="p3-ov" class="tpanel active">
+        <div class="req-sec"><div class="req-h">🎯 システム概要</div><p style="font-size:.83rem;color:var(--text2)">建設・土木業界固有のリスク（施工不良・安全事故・労務問題）とITセキュリティリスクを統合管理するGRCプラットフォーム。ISO27001の情報資産リスクアセスメントと、建設業法・公共工事品確法・労働安全衛生法のコンプライアンス管理を一元化する。</p></div>
+        <div class="req-sec"><div class="req-h">💡 開発背景・課題</div>
+          <ul class="blist">
+            <li><span class="bdot d-gr"></span><span>ISO27001認証取得・維持のためのリスクアセスメントが手動（Excelベース）</span></li>
+            <li><span class="bdot d-gr"></span><span>建設業法改正・公共工事品確法への対応状況が各部門バラバラに管理</span></li>
+            <li><span class="bdot d-gr"></span><span>現場安全点検・労災記録・是正措置の追跡に統合ツールがない</span></li>
+            <li><span class="bdot d-gr"></span><span>NIST CSF 2.0 GOVERN（GV.RM）のリスク管理フレームワーク未整備</span></li>
+          </ul>
+        </div>
+      </div>
+      <div id="p3-req" class="tpanel">
+        <div class="req-sec"><div class="req-h">📌 機能要件</div>
+          <ul class="blist">
+            <li><span class="bdot d-gr"></span><span>【FR-001】情報資産リスクアセスメント：ISO27001附属書A全93管理策の実施状況自動チェック・リスクスコア算出</span></li>
+            <li><span class="bdot d-gr"></span><span>【FR-002】リスクレジスター：リスク識別・評価・受容・対応策・残存リスクの一元管理・経年追跡</span></li>
+            <li><span class="bdot d-gr"></span><span>【FR-003】建設業コンプライアンスチェック：建設業法・公共工事品確法・労働安全衛生法の適用法令マッピングと遵守状況管理</span></li>
+            <li><span class="bdot d-gr"></span><span>【FR-004】内部監査管理：監査計画・チェックリスト・指摘事項・是正措置・クローズ確認のワークフロー</span></li>
+            <li><span class="bdot d-gr"></span><span>【FR-005】NIST CSF 2.0 成熟度評価：6機能×カテゴリの実施レベルをTier1〜4で評価・ロードマップ自動生成</span></li>
+            <li><span class="bdot d-gr"></span><span>【FR-006】法令改正追跡：建設関連法令・セキュリティガイドラインの改正情報通知・対応状況管理</span></li>
+            <li><span class="bdot d-gr"></span><span>【FR-007】マネジメントレビュー支援：PDCA状況・KPI・リスクサマリーのCEO/取締役向けレポート自動生成</span></li>
+            <li><span class="bdot d-gr"></span><span>【FR-008】ITSM-System連携：インシデント・問題から起因するリスク事象の自動リスクレジスター登録</span></li>
+          </ul>
+        </div>
+      </div>
+      <div id="p3-des" class="tpanel">
+        <div class="flow-box">
+[ユーザー/監査担当/IT部門/経営層] → EntraID SSO
+      ↓
+[React フロントエンド]
+  ├── リスクアセスメント画面
+  ├── コンプライアンスチェックリスト（建設業法・労安法）
+  ├── 内部監査ポータル
+  └── 経営レポートダッシュボード（CEO/取締役向け）
+      ↓ REST API
+[FastAPI バックエンド]
+  ├── ISO27001 A-93管理策マスタDB
+  ├── NIST CSF 2.0 フレームワークマスタ（Tier1〜4評価）
+  ├── 建設業法 / 公共工事品確法 / 労安法チェックリスト
+  └── レポートエンジン (PDF / Excel 自動生成)</div>
+      </div>
+      <div id="p3-cmp" class="tpanel">
+        <div class="cmp-grid">
+          <div class="cmp-item"><div class="cmp-fw">🔵 ITSM / ISO 20000</div><div class="cmp-c">• リスク管理プロセス<br>• マネジメントレビュー<br>• 継続的改善（PDCA）</div></div>
+          <div class="cmp-item"><div class="cmp-fw">🔷 ISO 27001:2022</div><div class="cmp-c">• 箇条6.1 リスクアセスメント<br>• 附属書A 全93管理策<br>• 箇条9.3 マネジメントレビュー</div></div>
+          <div class="cmp-item"><div class="cmp-fw">🟣 NIST CSF 2.0</div><div class="cmp-c">• GOVERN GV.RM（リスク戦略）<br>• IDENTIFY ID.RA（リスクアセスメント）<br>• IDENTIFY ID.IM（改善）</div></div>
+          <div class="cmp-item"><div class="cmp-fw">🏗️ 建設業界固有</div><div class="cmp-c">• 建設業法<br>• 公共工事品確法<br>• 労働安全衛生法<br>• 国土交通省 ICT基準</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── 04 ─── -->
+    <div class="nc fi">
+      <div class="nc-hd">
+        <div class="nc-num nn-4">04</div>
+        <div class="nc-hd-info">
+          <div class="nc-title">🚀 IT変更管理・リリース自動化プラットフォーム（CAB管理）</div>
+          <div class="nc-sub">RFC承認・影響分析・CAB審議・展開・ロールバックの完全自動化ワークフロー</div>
+          <div class="nc-repo">
+            <span>📁 プロジェクト名：</span><strong>IT-Change-CAB-Platform</strong>
+            <span style="margin-left:.5rem;">🔗 リポジトリ名：</span><strong>Kensan196948G/IT-Change-CAB-Platform</strong>
+          </div>
+          <div class="nc-badges">
+            <span class="badge b-new">🆕 新規開発</span>
+            <span class="badge" style="background:var(--amber-lt);color:#92400e;border:1px solid #fcd34d;">🟡 優先度：中</span>
+            <span class="badge b-keep">ISO20000 変更管理</span>
+            <span class="badge" style="background:var(--purple-lt);color:#5b21b6;border:1px solid #c4b5fd;">ISO27001 A.8.32</span>
+          </div>
+        </div>
+      </div>
+      <div class="tab-bar">
+        <button class="tbn active" onclick="sw(this,'p4','ov')">📋 概要</button>
+        <button class="tbn" onclick="sw(this,'p4','req')">📄 要件定義書</button>
+        <button class="tbn" onclick="sw(this,'p4','cmp')">🛡️ 準拠フレームワーク</button>
+      </div>
+      <div id="p4-ov" class="tpanel active">
+        <div class="req-sec"><div class="req-h">🎯 システム概要</div><p style="font-size:.83rem;color:var(--text2)">ISO20000準拠の変更管理プロセスを自動化するCAB（変更諮問委員会）支援システム。RFC（変更要求）の起票から影響分析・CAB審議・承認・スケジューリング・テスト・展開・ロールバックまでのライフサイクルを管理。AD・M365・ファイルサーバー等の基幹インフラ変更の証跡を自動収集する。</p></div>
+        <div class="req-sec"><div class="req-h">💡 開発背景・課題</div>
+          <ul class="blist">
+            <li><span class="bdot d-cy"></span><span>現状：変更管理がメール承認＋手動Excelで追跡。証跡が散在</span></li>
+            <li><span class="bdot d-cy"></span><span>ISO20000の変更管理プロセス要求（RFC→CAB→承認→実施→クローズ）が未整備</span></li>
+            <li><span class="bdot d-cy"></span><span>M365/EntraIDの設定変更が承認なしに実施されるリスク</span></li>
+            <li><span class="bdot d-cy"></span><span>ロールバック計画の策定・実施が属人化しており手順書依存</span></li>
+          </ul>
+        </div>
+      </div>
+      <div id="p4-req" class="tpanel">
+        <div class="req-sec"><div class="req-h">📌 機能要件</div>
+          <ul class="blist">
+            <li><span class="bdot d-cy"></span><span>【FR-001】RFC起票・ワークフロー：変更種別（通常/緊急/標準）別の申請フォーム・多段承認ワークフロー</span></li>
+            <li><span class="bdot d-cy"></span><span>【FR-002】影響分析支援：CMDB連携による影響範囲の自動可視化・依存関係マップ表示</span></li>
+            <li><span class="bdot d-cy"></span><span>【FR-003】CABスケジュール管理：変更諮問委員会の定期・臨時開催管理・審議資料自動生成</span></li>
+            <li><span class="bdot d-cy"></span><span>【FR-004】変更カレンダー：計画変更の一覧表示・競合検知・凍結期間管理（年末年始・決算期）</span></li>
+            <li><span class="bdot d-cy"></span><span>【FR-005】実施確認・証跡収集：変更実施チェックリスト・Before/After証跡の自動収集</span></li>
+            <li><span class="bdot d-cy"></span><span>【FR-006】ロールバック管理：ロールバック手順の事前策定必須化・実施時の自動チケット起票</span></li>
+            <li><span class="bdot d-cy"></span><span>【FR-007】KPI自動計算：変更成功率・緊急変更率・ロールバック率・平均承認時間のリアルタイム集計</span></li>
+          </ul>
+        </div>
+      </div>
+      <div id="p4-cmp" class="tpanel">
+        <div class="cmp-grid">
+          <div class="cmp-item"><div class="cmp-fw">🔵 ITSM / ISO 20000</div><div class="cmp-c">• 変更管理プロセス（必須）<br>• リリース管理<br>• 構成管理（CMDB）</div></div>
+          <div class="cmp-item"><div class="cmp-fw">🔷 ISO 27001:2022</div><div class="cmp-c">• A.8.32 変更管理<br>• A.8.9 構成管理<br>• A.8.29 開発・受入テスト</div></div>
+          <div class="cmp-item"><div class="cmp-fw">🟣 NIST CSF 2.0</div><div class="cmp-c">• PROTECT PR.IP（情報保護）<br>• RECOVER RC.RP（復旧計画）</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── 05 ─── -->
+    <div class="nc fi">
+      <div class="nc-hd">
+        <div class="nc-num nn-5">05</div>
+        <div class="nc-hd-info">
+          <div class="nc-title">🔄 IT事業継続管理システム（BCP/ITSCM）</div>
+          <div class="nc-sub">災害・サイバー攻撃時のIT復旧計画・BCP訓練・RTOダッシュボード統合プラットフォーム</div>
+          <div class="nc-repo">
+            <span>📁 プロジェクト名：</span><strong>IT-BCP-ITSCM-System</strong>
+            <span style="margin-left:.5rem;">🔗 リポジトリ名：</span><strong>Kensan196948G/IT-BCP-ITSCM-System</strong>
+          </div>
+          <div class="nc-badges">
+            <span class="badge b-new">🆕 新規開発</span>
+            <span class="badge" style="background:var(--amber-lt);color:#92400e;border:1px solid #fcd34d;">🟡 優先度：中</span>
+            <span class="badge b-keep">ISO20000 ITサービス継続管理</span>
+            <span class="badge" style="background:var(--purple-lt);color:#5b21b6;border:1px solid #c4b5fd;">NIST RECOVER RC</span>
+          </div>
+        </div>
+      </div>
+      <div class="tab-bar">
+        <button class="tbn active" onclick="sw(this,'p5','ov')">📋 概要</button>
+        <button class="tbn" onclick="sw(this,'p5','req')">📄 要件定義書</button>
+        <button class="tbn" onclick="sw(this,'p5','cmp')">🛡️ 準拠フレームワーク</button>
+      </div>
+      <div id="p5-ov" class="tpanel active">
+        <div class="req-sec"><div class="req-h">🎯 システム概要</div><p style="font-size:.83rem;color:var(--text2)">地震・水害（建設業現場は自然災害リスク大）・ランサムウェア攻撃を想定したIT事業継続管理（ITSCM）基盤。各システムのRTO/RPO目標値管理・DRテスト結果記録・BCP発動手順のデジタル化・復旧状況の可視化ダッシュボードを提供する。</p></div>
+        <div class="req-sec"><div class="req-h">💡 開発背景・課題</div>
+          <ul class="blist">
+            <li><span class="bdot d-am"></span><span>BCP/ITSCMが紙の手順書ベースで実際の訓練・テスト記録なし</span></li>
+            <li><span class="bdot d-am"></span><span>各システムのRTO（目標復旧時間）・RPO（目標復旧時点）が未定義</span></li>
+            <li><span class="bdot d-am"></span><span>ランサムウェア攻撃時の初動対応フロー・指揮系統が明文化されていない</span></li>
+            <li><span class="bdot d-am"></span><span>NIST CSF 2.0 RECOVER（RC）・ISO27001 A.5.29/A.5.30 の要求事項未対応</span></li>
+          </ul>
+        </div>
+      </div>
+      <div id="p5-req" class="tpanel">
+        <div class="req-sec"><div class="req-h">📌 機能要件</div>
+          <ul class="blist">
+            <li><span class="bdot d-am"></span><span>【FR-001】RTO/RPO管理台帳：全IT資産のRTO/RPO目標値設定・実績比較・ギャップ分析</span></li>
+            <li><span class="bdot d-am"></span><span>【FR-002】BCP手順デジタル化：災害種別（地震/水害/サイバー攻撃/停電）別の復旧手順書・判断フローチャート</span></li>
+            <li><span class="bdot d-am"></span><span>【FR-003】BCP訓練管理：訓練計画・実施記録・課題管理・改善アクションの追跡</span></li>
+            <li><span class="bdot d-am"></span><span>【FR-004】復旧状況ダッシュボード：インシデント発生時のリアルタイム復旧進捗・RTO達成見込み表示</span></li>
+            <li><span class="bdot d-am"></span><span>【FR-005】バックアップ連携：Backup-management APIと連携し最新リストアポイント・RPO適合状況を表示</span></li>
+            <li><span class="bdot d-am"></span><span>【FR-006】エスカレーション管理：復旧遅延時の自動エスカレーション・CTO/経営層への通知フロー</span></li>
+            <li><span class="bdot d-am"></span><span>【FR-007】事後レビュー（PIR）：インシデント後レビューの実施記録・改善策のBCP反映ワークフロー</span></li>
+          </ul>
+        </div>
+      </div>
+      <div id="p5-cmp" class="tpanel">
+        <div class="cmp-grid">
+          <div class="cmp-item"><div class="cmp-fw">🔵 ITSM / ISO 20000</div><div class="cmp-c">• ITサービス継続管理（必須）<br>• 可用性管理<br>• キャパシティ管理</div></div>
+          <div class="cmp-item"><div class="cmp-fw">🔷 ISO 27001:2022</div><div class="cmp-c">• A.5.29 事業継続計画<br>• A.5.30 BCM向けICT準備<br>• A.8.13 情報バックアップ</div></div>
+          <div class="cmp-item"><div class="cmp-fw">🟣 NIST CSF 2.0</div><div class="cmp-c">• RECOVER RC.RP（復旧計画）<br>• RECOVER RC.CO（通知）<br>• RESPOND RS.MA（管理）</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /new-grid -->
+</div>
+
+<!-- ═══════════════════════════════════════
+     PART 5: AEGIS-SIGHT 選択的統合
+═══════════════════════════════════════ -->
+<div class="dvd"></div>
+<div class="sec" id="s5">
+  <div class="sh">
+    <div class="si si-cy">🛡️</div>
+    <div><h2>PART 5｜AEGIS-SIGHT — IntegratedITAsset（IAMS）選択的統合</h2>
+    <p>プロジェクト名・リポジトリ名：<strong>AEGIS-SIGHT</strong>（Kensan196948G/AEGIS-SIGHT）に統一。IAMSの有用機能を選択的に移植</p></div>
+  </div>
+
+  <!-- 総合判定 -->
+  <div class="verdict-box fi">
+    <div class="score-wrap">
+      <div class="score-ring"><div class="score-n">78</div></div>
+      <div class="score-l">統合スコア / 100</div>
+    </div>
+    <div class="vt">
+      <h3>🛡️ 選択的統合推奨 — プロジェクト名・リポジトリ名は「AEGIS-SIGHT」に統一</h3>
+      <p>
+        AEGIS-SIGHT（Autonomous Endpoint Governance & Integrated Sight）は SKYSEA Client View の内製代替として設計されたエンドポイント統制システムです。IntegratedITAsset（IAMS）はITSM/IT資産ライフサイクル管理の広範な基盤です。管理レイヤーが異なるため「全部統合」ではなく、<strong>IAMSの価値ある機能だけを AEGIS-SIGHT に選択的移植</strong>する方針を推奨します。移植完了後に IAMSリポジトリは廃止します。
+      </p>
+    </div>
+  </div>
+
+  <!-- 統合フロー -->
+  <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:1rem;padding:1.2rem 1.4rem;box-shadow:var(--sh0);margin-bottom:1.4rem;" class="fi">
+    <div style="font-size:.82rem;font-weight:800;color:var(--teal);margin-bottom:.8rem;">📦 選択的統合フロー</div>
+    <div class="flow" style="margin-bottom:.7rem;">
+      <span class="ftag2">📊 IAMS（Prometheus/Grafana監視）</span>
+      <span class="farr">＋</span>
+      <span class="ftag2">📊 IAMS（PWA対応機能）</span>
+      <span class="farr">＋</span>
+      <span class="ftag2">📊 IAMS（調達管理・SAMライセンス）</span>
+      <span class="farr">＋</span>
+      <span class="ftag2">📊 IAMS（1,157テスト資産）</span>
+      <span class="farr">→ 選択移植先 →</span>
+      <span class="fresult">🛡️ AEGIS-SIGHT（統合強化版）</span>
+    </div>
+    <div class="flow">
+      <span class="ftag2">📊 IAMS（CMDB・インシデント・SLA管理 — ITSM-Systemと重複）</span>
+      <span class="farr">→ 移植しない（廃棄）</span>
+      <span class="fdel">🗑️ IntegratedITAsset リポジトリ 廃止・削除</span>
+    </div>
+  </div>
+
+  <!-- 選択的統合の詳細テーブル -->
+  <div style="font-weight:700;font-size:.86rem;margin-bottom:.6rem;">🔍 機能別 移植判定</div>
+  <div class="cmp-tbl-wrap fi">
+    <table class="ctbl">
+      <thead>
+        <tr>
+          <th>機能カテゴリ</th>
+          <th>AEGIS-SIGHT 側</th>
+          <th>IAMS 側</th>
+          <th>重複度</th>
+          <th>移植方針</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>デバイス資産台帳（CMDB）</strong></td>
+          <td style="font-size:.78rem;">◎ WMI/Agent自動収集<br>devices テーブル完備</td>
+          <td style="font-size:.78rem;">CI登録・依存関係マップ</td>
+          <td><span class="ov-f">🔴 完全重複</span></td>
+          <td style="font-size:.78rem;"><span class="ov-ok">✅ AEGIS採用</span><br>CI依存関係マップのみ追加移植</td>
+        </tr>
+        <tr>
+          <td><strong>インシデント管理</strong></td>
+          <td style="font-size:.78rem;">△「チケット連携API」記載のみ</td>
+          <td style="font-size:.78rem;">◎ 実装済み</td>
+          <td><span class="ov-f">🔴 ITSM-Systemと重複</span></td>
+          <td style="font-size:.78rem;"><span style="color:var(--red);">❌ 移植しない</span><br>ITSM-SystemのAPIと連携で対応</td>
+        </tr>
+        <tr>
+          <td><strong>SLA管理</strong></td>
+          <td style="font-size:.78rem;">◎ SLM実装済み</td>
+          <td style="font-size:.78rem;">◎ 実装済み</td>
+          <td><span class="ov-f">🔴 完全重複</span></td>
+          <td style="font-size:.78rem;"><span style="color:var(--red);">❌ 移植しない</span><br>ITSM-Systemに統合済み</td>
+        </tr>
+        <tr style="background:#f0fdf4;">
+          <td><strong>Prometheus / Grafana 監視</strong></td>
+          <td style="font-size:.78rem;">❌ 未実装</td>
+          <td style="font-size:.78rem;">◎ 実装済み</td>
+          <td><span class="ov-i">🟣 IAMS固有</span></td>
+          <td style="font-size:.78rem;"><span class="ov-ok">✅ IAMS から移植</span><br>Docker Composeにサービス追加</td>
+        </tr>
+        <tr style="background:#f0fdf4;">
+          <td><strong>PWA対応（オフラインUI）</strong></td>
+          <td style="font-size:.78rem;">❌ 未実装</td>
+          <td style="font-size:.78rem;">◎ Service Worker実装済み</td>
+          <td><span class="ov-i">🟣 IAMS固有</span></td>
+          <td style="font-size:.78rem;"><span class="ov-ok">✅ IAMS から移植</span><br>建設現場でのオフライン確認に有効</td>
+        </tr>
+        <tr style="background:#f0fdf4;">
+          <td><strong>調達管理（Procurement）</strong></td>
+          <td style="font-size:.78rem;">❌ 未実装</td>
+          <td style="font-size:.78rem;">◎ 調達モジュール実装済み</td>
+          <td><span class="ov-i">🟣 IAMS固有</span></td>
+          <td style="font-size:.78rem;"><span class="ov-ok">✅ IAMS から移植</span><br>資産ライフサイクル完結に必須</td>
+        </tr>
+        <tr style="background:#f0fdf4;">
+          <td><strong>SAMライセンス管理</strong></td>
+          <td style="font-size:.78rem;">△ SW一覧収集のみ</td>
+          <td style="font-size:.78rem;">◎ 期限アラート・SAM管理</td>
+          <td><span class="ov-p">🟡 部分重複</span></td>
+          <td style="font-size:.78rem;"><span class="ov-ok">✅ IAMS から移植</span><br>ライセンス期限アラート機能を追加</td>
+        </tr>
+        <tr style="background:#f0fdf4;">
+          <td><strong>1,157テスト資産</strong></td>
+          <td style="font-size:.78rem;">○ 80%+ カバレッジ目標（開発中）</td>
+          <td style="font-size:.78rem;">◎ Phase22完了</td>
+          <td><span class="ov-i">🟣 IAMS固有</span></td>
+          <td style="font-size:.78rem;"><span class="ov-ok">✅ pytest変換して活用</span><br>テスト設計の仕様書として参照</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 統合戦略4方針 -->
+  <div style="font-weight:700;font-size:.86rem;margin-bottom:.6rem;">⚙️ 統合実施4方針</div>
+  <div class="str-grid">
+    <div class="str-c fi">
+      <div class="str-hd" style="background:var(--blue-lt);">
+        <div class="str-num sn-bl">①</div>
+        <div class="str-hd-t"><h3>AEGIS-SIGHT を統合基盤に採用（コア決定）</h3><p>Docker + FastAPI + Next.js + PostgreSQL を全体の基盤技術スタックに決定</p></div>
+        <span class="badge b-re str-pri" style="background:var(--red-lt);color:#991b1b;border:1px solid #fca5a5;margin-left:auto;flex-shrink:0;">🔴 必須</span>
+      </div>
+      <div class="str-body">
+        <p>AEGIS-SIGHT v1.1の設計（Docker Compose完備・M365完全統合・ClaudeCode自律開発前提）を統合後システムの基盤として採用。IAMSのNode.jsバックエンドは廃止し、有用機能のみFastAPIに移植します。</p>
+        <ul class="blist">
+          <li><span class="bdot d-gr"></span><span>aegis-sight-infra の docker-compose.dev/prod.yml をそのまま採用</span></li>
+          <li><span class="bdot d-gr"></span><span>GitHub Actions 5ワークフロー（CI/CD + Trivy）を維持・強化</span></li>
+          <li><span class="bdot d-gr"></span><span>EntraID OIDC + JWT(RS256) 認証アーキテクチャを採用</span></li>
+          <li><span class="bdot d-am"></span><span>IAMSの RBAC（admin/operator/viewer/auditor 4ロール）をAEGIS側に追加実装</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="str-c fi">
+      <div class="str-hd" style="background:var(--green-lt);">
+        <div class="str-num sn-gr">②</div>
+        <div class="str-hd-t"><h3>DBスキーマ統合：CMDB一元化 ＋ 調達・ライセンス追加</h3><p>AEGIS devices テーブルを中核CMDBに。IAMSの調達・ライセンス管理テーブルを追加</p></div>
+        <span class="badge str-pri" style="background:var(--red-lt);color:#991b1b;border:1px solid #fca5a5;margin-left:auto;flex-shrink:0;">🔴 必須</span>
+      </div>
+      <div class="str-body">
+        <p>両システムとも PostgreSQL を使用しており、DBスキーマレベルでの統合が最も現実的です。Alembicマイグレーションで段階的に拡張します。</p>
+        <ul class="blist">
+          <li><span class="bdot d-gr"></span><span>AEGIS devices → 中核CMDB（CI: Configuration Item）テーブルとして拡張</span></li>
+          <li><span class="bdot d-gr"></span><span>ci_relationships テーブル追加（依存関係マップ）</span></li>
+          <li><span class="bdot d-gr"></span><span>software_licenses テーブル追加（SAMライセンス期限アラート）</span></li>
+          <li><span class="bdot d-gr"></span><span>procurement テーブル追加（調達→受領→廃棄ライフサイクル）</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="str-c fi">
+      <div class="str-hd" style="background:var(--amber-lt);">
+        <div class="str-num sn-am">③</div>
+        <div class="str-hd-t"><h3>監視・PWA機能を Next.js / Docker Compose へ移植</h3><p>Prometheus/Grafana + WebSocket リアルタイム通知 + PWA対応</p></div>
+        <span class="badge str-pri" style="background:var(--amber-lt);color:#92400e;border:1px solid #fcd34d;margin-left:auto;flex-shrink:0;">🟡 高優先</span>
+      </div>
+      <div class="str-body">
+        <p>AEGIS-SIGHTに不足しているインフラ可観測性とモバイル対応を、IAMSの実装を参照して追加します。</p>
+        <ul class="blist">
+          <li><span class="bdot d-am"></span><span>Docker Compose に prometheus + grafana サービスを追加</span></li>
+          <li><span class="bdot d-am"></span><span>FastAPI に /metrics エンドポイントを実装（prometheus-fastapi-instrumentator）</span></li>
+          <li><span class="bdot d-am"></span><span>Next.js に PWA（next-pwa）を追加。Service Workerでオフライン対応</span></li>
+          <li><span class="bdot d-am"></span><span>Socket.IO または Next.js Server-Sent Events でリアルタイム通知実装</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="str-c fi">
+      <div class="str-hd" style="background:var(--cyan-lt);">
+        <div class="str-num sn-cy">④</div>
+        <div class="str-hd-t"><h3>IAMS 1,157テストを pytest 変換して品質保証に活用</h3><p>Jest/Mocha形式 → pytest変換。テスト設計の仕様書として直接参照</p></div>
+        <span class="badge str-pri" style="background:var(--green-lt);color:#065f46;border:1px solid #86efac;margin-left:auto;flex-shrink:0;">🟢 中優先</span>
+      </div>
+      <div class="str-body">
+        <p>IAMSの1,157テスト資産はそのまま流用できませんが、「何をテストすべきか」という仕様として pytest/Vitest のテストケース作成に直接活用できます。</p>
+        <ul class="blist">
+          <li><span class="bdot d-cy"></span><span>1,157テストを「AEGIS既存機能」「移植対象機能」「廃棄機能」に分類</span></li>
+          <li><span class="bdot d-cy"></span><span>ITSM ワークフロー・SLA管理・監査ログのテストシナリオを重点的にpytest変換</span></li>
+          <li><span class="bdot d-cy"></span><span>ClaudeCode migration-agent のタスクとして変換作業を自律実行</span></li>
+          <li><span class="bdot d-cy"></span><span>Swagger 149エンドポイント仕様をFastAPI OpenAPI定義の参照資料として活用</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- メリット/リスク -->
+  <div class="rb2">
+    <div class="rb-b fi">
+      <div class="rb-t" style="color:var(--green);">✅ 統合のメリット</div>
+      <div class="rb-i"><div class="rbd rbd-g"></div><span><strong>保守コスト激減</strong> — 2リポジトリ保守 → AEGIS-SIGHT 1本に集約</span></div>
+      <div class="rb-i"><div class="rbd rbd-g"></div><span><strong>エンドポイント→ITSM直結</strong> — Defender異常検知 → 自動インシデント起票が実現</span></div>
+      <div class="rb-i"><div class="rbd rbd-g"></div><span><strong>IAMS 1,157テスト資産継承</strong> — pytest変換の設計仕様書として品質保証に活用</span></div>
+      <div class="rb-i"><div class="rbd rbd-g"></div><span><strong>調達〜廃棄完結</strong> — AEGIS監視 ＋ IAMS調達管理で資産ライフサイクル全体を管理</span></div>
+      <div class="rb-i"><div class="rbd rbd-g"></div><span><strong>現場PWA活用</strong> — 建設現場からオフライン資産確認が可能に</span></div>
+      <div class="rb-i"><div class="rbd rbd-g"></div><span><strong>SKYSEA相当＋ITSM</strong> — 商用製品2本分を AEGIS-SIGHT 1本で代替。ライセンス費70%以上削減</span></div>
+    </div>
+    <div class="rb-b fi">
+      <div class="rb-t" style="color:var(--red);">⚠️ 統合のリスク・注意点</div>
+      <div class="rb-i"><div class="rbd rbd-r"></div><span><strong>Node.js→Python移植工数</strong> — IAMSの有用機能をFastAPIに移植する工数が必要</span></div>
+      <div class="rb-i"><div class="rbd rbd-r"></div><span><strong>テスト書き換えコスト</strong> — IAMS 1,157テスト（Jest系）→ pytest への変換作業</span></div>
+      <div class="rb-i"><div class="rbd rbd-a"></div><span><strong>DBスキーマ移行</strong> — IAMSデータのPostgreSQL間マイグレーション（Alembic対応）</span></div>
+      <div class="rb-i"><div class="rbd rbd-a"></div><span><strong>開発期間の延長</strong> — AEGIS単独（20週）→ 統合開発（推定25〜28週）</span></div>
+      <div class="rb-i"><div class="rbd rbd-b"></div><span><strong>ClaudeCode文脈管理</strong> — 統合リポジトリ大規模化のためAgent分担設計に注意</span></div>
+    </div>
+  </div>
+
+  <!-- 統合後アーキテクチャ -->
+  <div style="font-weight:700;font-size:.86rem;margin-bottom:.5rem;">🏗️ AEGIS-SIGHT 統合後アーキテクチャ</div>
+  <div class="arch-box fi">
+╔═══════════════════════════════════════════════════════════════════════╗
+║  🛡️ AEGIS-SIGHT（選択的統合後）  Kensan196948G/AEGIS-SIGHT           ║
+║  Autonomous Endpoint Governance & Integrated Sight                   ║
+╚═══════════════════════════════════════════════════════════════════════╝
+【エンドポイント層】（AEGIS設計を継承）
+├── 💻 社内PC（Win11/10）  ── PowerShell 7 Agent（5〜30分間隔プッシュ）
+├── 🏗️ 現場PC（拠点外）   ── Offline Buffer（SQLite 7日分）→ 自動リトライ
+└── 🖥️ Windows Server     ── WMI / EventLog 収集
+          ↓ HTTPS 443（JWT RS256 + TLS1.2+）
+【Docker Compose バックエンド層】
+┌────────────────────────────────────────────────────────────────────┐
+│  [api]  Python FastAPI                                             │
+│    ├── /api/v1/telemetry       ← AEGIS: エージェント受信           │
+│    ├── /api/v1/assets          ← AEGIS: 資産台帳（CMDB拡張）       │
+│    ├── /api/v1/security/status ← AEGIS: Defender/BitLocker         │
+│    ├── /api/v1/licenses        ← IAMS移植: SAMライセンス管理        │
+│    ├── /api/v1/procurement     ← IAMS移植: 調達管理                │
+│    └── /metrics                ← IAMS移植: Prometheusメトリクス     │
+│                                                                    │
+│  [web]  Next.js 14 + PWA       ← AEGIS基盤 + IAMS PWA移植         │
+│  [postgres] PostgreSQL 16      ← 統合スキーマ（AEGIS + IAMS）      │
+│  [redis]    Redis 7            ← セッション/キャッシュ             │
+│  [nginx]    TLS終端 / リバースプロキシ                             │
+│  [prometheus] + [grafana]      ← IAMS移植                          │
+└────────────────────────────────────────────────────────────────────┘
+【Microsoft 365 統合層】（AEGIS設計を継承）
+├── 🔷 Entra ID → OIDC SSO / 条件付きアクセス
+├── 📱 Intune   → デバイスコンプライアンス連携
+└── 🛡️ Defender → EDR / 脅威インテリジェンス / 自動インシデント起票</div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PART 6: ロードマップ
+═══════════════════════════════════════ -->
+<div class="dvd"></div>
+<div class="sec" id="s6">
+  <div class="sh">
+    <div class="si si-or">🗺️</div>
+    <div><h2>PART 6｜統合ロードマップ（全体 18〜25ヶ月）</h2>
+    <p>IT部門7名体制での現実的な段階的移行計画 — Phase 0〜4</p></div>
+  </div>
+
+  <div class="rm">
+    <div class="rm-i">
+      <div class="rm-dot" style="background:var(--red);"></div>
+      <div class="rm-c fi">
+        <span class="rm-ph" style="color:var(--red);">⚡ Phase 0（即時：1ヶ月以内）</span>
+        <h4>リポジトリ整理 ＆ 削除実行</h4>
+        <p>Mirai-DX-Management-System（404）の即時削除。Mirai-Operational-Total → SharePoint移行開始。Appsuite-ITSM → DeskNet's Neo AppSuiteフォームへの移行計画策定。BCP手順書のSharePointページ化（即日可能）。</p>
+        <div class="rm-tasks">
+          <span class="rmt">🗑️ Mirai-DX 即時削除</span>
+          <span class="rmt">📱 SharePoint移行開始</span>
+          <span class="rmt">📋 AppSuite移行計画</span>
+          <span class="rmt">📄 BCP手順書デジタル化</span>
+          <span class="rmt">📋 機能インベントリ作成</span>
+        </div>
+      </div>
+    </div>
+    <div class="rm-i">
+      <div class="rm-dot" style="background:var(--orange);"></div>
+      <div class="rm-c fi">
+        <span class="rm-ph" style="color:var(--orange);">🔀 Phase 1（1〜4ヶ月）統合作業</span>
+        <h4>統合プランA・B 実施 ＋ AEGIS-SIGHT基盤構築開始</h4>
+        <p>ServiceMatrix・Backup-management → ITSM-System v3.0 統合。Mirai-IT-Knowledge → Enterprise AI HelpDesk System v2.0 統合。移植完了後3リポジトリ廃止。AEGIS-SIGHT Phase1（エージェント・API・CMDB・Docker基盤）着手。</p>
+        <div class="rm-tasks">
+          <span class="rmt">🔗 ITSM-System v3.0統合</span>
+          <span class="rmt">🤖 Enterprise AI HelpDesk System v2.0 統合</span>
+          <span class="rmt">🗑️ 統合元3リポジトリ廃止</span>
+          <span class="rmt">🛡️ AEGIS-SIGHT Phase1着手</span>
+          <span class="rmt">📊 DBスキーマ統合設計</span>
+          <span class="rmt">💻 500台エージェント配布</span>
+        </div>
+      </div>
+    </div>
+    <div class="rm-i">
+      <div class="rm-dot" style="background:var(--amber);"></div>
+      <div class="rm-c fi">
+        <span class="rm-ph" style="color:var(--amber);">🔐 Phase 2（5〜10ヶ月）セキュリティ ＋ AEGIS統合</span>
+        <h4>新規開発01・02着手 ＋ IAMS選択的移植</h4>
+        <p>ZeroTrust-ID-Governance・Construction-SIEM-Platform の新規開発開始。IAMS（Prometheus/Grafana・PWA・調達管理・SAMライセンス）をAEGIS-SIGHTに移植。M365完全統合（EntraID SSO/Intune/Defender）。IAMS旧リポジトリ廃止。</p>
+        <div class="rm-tasks">
+          <span class="rmt">🔐 ZeroTrust-ID構築</span>
+          <span class="rmt">🛡️ Construction-SIEM PoC</span>
+          <span class="rmt">📊 IAMS機能移植（Prometheus/PWA/調達）</span>
+          <span class="rmt">🔷 EntraID SSO/Intune連携</span>
+          <span class="rmt">🗑️ IAMSリポジトリ廃止</span>
+        </div>
+      </div>
+    </div>
+    <div class="rm-i">
+      <div class="rm-dot" style="background:var(--green);"></div>
+      <div class="rm-c fi">
+        <span class="rm-ph" style="color:var(--green);">📋 Phase 3（11〜16ヶ月）GRC ＆ 変更管理</span>
+        <h4>新規開発03・04着手 ＋ ISO27001内部監査実施</h4>
+        <p>Construction-GRC-System・IT-Change-CAB-Platform の新規開発。統合GRCシステムで初回ISO27001内部監査をシステム上で実施。IAMS 1,157テスト → pytest変換完了。</p>
+        <div class="rm-tasks">
+          <span class="rmt">📋 Construction-GRC構築</span>
+          <span class="rmt">🚀 IT-Change-CAB構築</span>
+          <span class="rmt">🔷 ISO27001内部監査実施</span>
+          <span class="rmt">🧪 1,157テスト→pytest変換完了</span>
+        </div>
+      </div>
+    </div>
+    <div class="rm-i">
+      <div class="rm-dot" style="background:var(--blue);"></div>
+      <div class="rm-c fi">
+        <span class="rm-ph" style="color:var(--blue);">🔄 Phase 4（17〜25ヶ月）BCP ＆ 全体完成</span>
+        <h4>新規開発05着手 ＋ 全体統合テスト ＋ 本番リリース</h4>
+        <p>IT-BCP-ITSCM-System 構築。全9システムのE2Eテスト・500台同時Locust負荷テスト。ISO20000・ISO27001・NIST CSF 2.0 準拠確認レポート生成。全廃止対象リポジトリの削除完了。運用安定化。</p>
+        <div class="rm-tasks">
+          <span class="rmt">🔄 IT-BCP-ITSCM構築</span>
+          <span class="rmt">🧪 E2Eテスト（Playwright）</span>
+          <span class="rmt">⚡ 500台同時負荷テスト</span>
+          <span class="rmt">📜 準拠確認レポート生成</span>
+          <span class="rmt">🗑️ 全廃止リポジトリ削除完了</span>
+          <span class="rmt">🚀 本番リリース</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PART 7: 次のステップ
+═══════════════════════════════════════ -->
+<div class="dvd"></div>
+<div class="sec" id="s7">
+  <div class="sh">
+    <div class="si si-gr">👣</div>
+    <div><h2>PART 7｜今すぐ着手できる 次のステップ（10件）</h2>
+    <p>優先順に整理。即日〜3ヶ月以内に実行可能なアクション一覧</p></div>
+  </div>
+
+  <div class="nxt-grid">
+    <div class="nxt fi"><div class="nxt-hd"><div class="nxt-n" style="background:var(--red);">1</div><h4>Mirai-DX-Management を即時削除</h4></div><p>GitHubで404のリポジトリ。管理インベントリから即座に除外し、開発計画・予算計画から削除。過去の関連ドキュメントに「廃止」と記録。</p><span class="nxt-time">⏱️ 即日可能</span></div>
+    <div class="nxt fi"><div class="nxt-hd"><div class="nxt-n" style="background:var(--red);">2</div><h4>BCP手順書のSharePointページ化</h4></div><p>紙/Word形式のBCP手順書をSharePointページに移行し、ランサムウェア攻撃時の初動フローチャートをオンライン参照できる状態に。システム構築前でも即日実施可能。</p><span class="nxt-time">⏱️ 1〜2週間（即日可）</span></div>
+    <div class="nxt fi"><div class="nxt-hd"><div class="nxt-n" style="background:var(--orange);">3</div><h4>SharePoint / AppSuite 移行実施</h4></div><p>Mirai-Operational-Total → SharePoint Online/Power Pages へ移行。Appsuite-ITSM → DeskNet's Neo AppSuiteフォームへ移行。移行完了後に両リポジトリを削除。</p><span class="nxt-time">⏱️ 2〜3週間</span></div>
+    <div class="nxt fi"><div class="nxt-hd"><div class="nxt-n" style="background:var(--orange);">4</div><h4>ITSM-System v3.0 統合計画策定・着手</h4></div><p>ServiceMatrix（GitHub連携）・Backup-management（3-2-1-1-0）の機能移植計画をClaudeCodeで着手。移植先のITSM-Systemに feature/servicematrix-merge ブランチを作成して開始。</p><span class="nxt-time">⏱️ 4ヶ月（移植3＋テスト1）</span></div>
+    <div class="nxt fi"><div class="nxt-hd"><div class="nxt-n" style="background:var(--amber);">5</div><h4>Enterprise AI HelpDesk System v2.0 統合計画着手</h4></div><p>Mirai-IT-Knowledge の SubAgent設計を <strong>Enterprise AI HelpDesk System</strong>（<code>Kensan196948G/Enterprise-AI-HelpDesk-System</code>）へ移植。Copilot Studioとの費用比較も同時実施し、APIコスト削減可否を判断してから統合先を最終決定。</p><span class="nxt-time">⏱️ 3ヶ月（移植2＋テスト1）</span></div>
+    <div class="nxt fi"><div class="nxt-hd"><div class="nxt-n" style="background:var(--amber);">6</div><h4>AEGIS-SIGHT 新リポジトリ作成・Phase1着手</h4></div><p>Kensan196948G/AEGIS-SIGHT リポジトリを作成し、aegis-sight-api/web/agent/infra/docs の5リポジトリ構成でClaudeCode自律開発を開始。500台エージェント配布を目標に。</p><span class="nxt-time">⏱️ 4週間（Phase1基盤）</span></div>
+    <div class="nxt fi"><div class="nxt-hd"><div class="nxt-n" style="background:var(--blue);">7</div><h4>EntraID/AD/HENGEONE ギャップ分析</h4></div><p>ユーザーライフサイクル管理の現状工数（月次何時間）を計測し、ZeroTrust-ID-Governance 開発の費用対効果を可視化。ISO27001 A.9の未対応項目を洗い出す。</p><span class="nxt-time">⏱️ 2〜3週間</span></div>
+    <div class="nxt fi"><div class="nxt-hd"><div class="nxt-n" style="background:var(--blue);">8</div><h4>SIEM構築 PoC（ELK Stack）</h4></div><p>ELK Stack（無償）をAzure VMで1台構成し、EntraID SigninLogsをFluentdで収集するPoC（2週間）を実施。M365 Sentinelとの費用比較も合わせて検討。</p><span class="nxt-time">⏱️ 2〜4週間</span></div>
+    <div class="nxt fi"><div class="nxt-hd"><div class="nxt-n" style="background:var(--purple);">9</div><h4>ISO27001/NIST CSF 2.0 ギャップ分析</h4></div><p>附属書A全93管理策・NIST CSF 2.0全機能に対する現状の実施状況をチェックリスト化。未対応項目を優先度付きで整理し、Construction-GRC-System 構築の要件に直接反映。</p><span class="nxt-time">⏱️ 1ヶ月</span></div>
+    <div class="nxt fi"><div class="nxt-hd"><div class="nxt-n" style="background:var(--purple);">10</div><h4>IAMS 1,157テストの棚卸し分類</h4></div><p>1,157テストを「AEGIS既存機能」「移植対象」「廃棄」に分類し、pytest変換優先度リストを作成。ClaudeCode migration-agentの最初のタスクとして指示する。</p><span class="nxt-time">⏱️ 1〜2週間</span></div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<footer>
+  <p>🏗️ みらい建設工業 IT部門 | ITシステム統廃合・統合分析 総合マスターレポート v2 | 2026.03.22</p>
+  <p>ITSM / ISO 20000 · ISO 27001 · NIST CSF 2.0 準拠 · GitHub全リポジトリ精査 + AEGIS-SIGHT要件定義書v1.1・詳細仕様書v1.1・IAMS Phase22仕様全文精査に基づき作成</p>
+</footer>
+
+<script>
+// ─── タブ切り替え ───
+function sw(btn, sid, tid) {
+  const card = btn.closest('.nc');
+  card.querySelectorAll('.tbn').forEach(b => b.classList.remove('active'));
+  card.querySelectorAll('.tpanel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  const t = document.getElementById(sid + '-' + tid);
+  if (t) t.classList.add('active');
+}
+
+// ─── スクロールフェードイン ───
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('in');
+  });
+}, { threshold: 0.06 });
+document.querySelectorAll('.fi').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

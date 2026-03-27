@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>プロジェクト名・リポジトリ名 一覧</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+:root {
+  --bg:       #f0f5ff;
+  --surface:  #ffffff;
+  --surface2: #f7f9ff;
+  --border:   #dde3f4;
+
+  --blue:     #2563eb;
+  --blue-lt:  #dbeafe;
+  --blue-mid: #93c5fd;
+  --green:    #059669;
+  --green-lt: #d1fae5;
+  --red:      #dc2626;
+  --red-lt:   #fee2e2;
+  --purple:   #7c3aed;
+  --purple-lt:#ede9fe;
+  --amber:    #d97706;
+  --amber-lt: #fef3c7;
+  --teal:     #0d9488;
+  --teal-lt:  #ccfbf1;
+  --indigo:   #4338ca;
+  --indigo-lt:#e0e7ff;
+  --cyan:     #0891b2;
+  --cyan-lt:  #cffafe;
+
+  --text:     #1e293b;
+  --text2:    #475569;
+  --text3:    #94a3b8;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans JP', sans-serif;
+  line-height: 1.7;
+  font-size: 15px;
+  padding-bottom: 4rem;
+}
+
+/* ── HERO ── */
+.hero {
+  background: linear-gradient(140deg, #1d4ed8 0%, #4f46e5 55%, #6d28d9 100%);
+  color: #fff;
+  padding: 3rem 2rem 2.5rem;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content:''; position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 55% 70% at 8% 50%, rgba(255,255,255,.09) 0%, transparent 65%),
+    radial-gradient(ellipse 35% 55% at 92% 15%, rgba(255,255,255,.07) 0%, transparent 65%);
+  pointer-events:none;
+}
+.hero-inner { max-width:860px; margin:0 auto; position:relative; }
+.hero-eye {
+  display:inline-flex; align-items:center; gap:.45rem;
+  background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.35);
+  border-radius:2rem; padding:.38rem 1rem;
+  font-size:.76rem; font-weight:700; letter-spacing:.05em; margin-bottom:1.2rem;
+}
+.hero h1 { font-size: clamp(1.5rem,3.5vw,2.4rem); font-weight:900; line-height:1.2; margin-bottom:.6rem; }
+.hero p  { font-size:.95rem; opacity:.85; }
+
+/* ── WRAP ── */
+.wrap { max-width:860px; margin:0 auto; padding:2rem 1.8rem 0; }
+
+/* ── PART HEADER ── */
+.part-head {
+  display:flex; align-items:center; gap:.8rem;
+  padding:.85rem 1.2rem;
+  border-radius:.9rem .9rem 0 0;
+  margin-bottom:0;
+}
+.ph-icon { font-size:1.4rem; }
+.ph-text h2 { font-size:1.05rem; font-weight:800; }
+.ph-text p  { font-size:.78rem; opacity:.85; margin-top:.1rem; }
+
+.ph-blue   { background:linear-gradient(135deg,#2563eb,#4f46e5); color:#fff; }
+.ph-red    { background:linear-gradient(135deg,#dc2626,#ea580c); color:#fff; }
+.ph-indigo { background:linear-gradient(135deg,#4338ca,#7c3aed); color:#fff; }
+.ph-teal   { background:linear-gradient(135deg,#0d9488,#0891b2); color:#fff; }
+
+/* ── PART BODY ── */
+.part-body {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 1rem 1rem;
+  padding: 1.5rem;
+  margin-bottom: 2.2rem;
+  box-shadow: 0 4px 14px rgba(30,41,59,.08);
+}
+
+/* ── PLAN CARD ── */
+.plan-card {
+  border: 1.5px solid var(--border);
+  border-radius: .85rem;
+  overflow: hidden;
+  margin-bottom: 1.2rem;
+}
+.plan-card:last-child { margin-bottom: 0; }
+
+.plan-head {
+  padding: .85rem 1.1rem;
+  display: flex; align-items: center; gap: .7rem;
+  border-bottom: 1px solid var(--border);
+}
+.plan-letter {
+  width: 2.1rem; height: 2.1rem; border-radius: .5rem;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:900; font-size:.9rem; flex-shrink:0;
+}
+.pl-blue   { background:var(--blue-lt);   color:var(--blue);   border:1.5px solid var(--blue-mid); }
+.pl-purple { background:var(--purple-lt); color:var(--purple); border:1.5px solid #c4b5fd; }
+.pl-red    { background:var(--red-lt);    color:var(--red);    border:1.5px solid #fca5a5; }
+.pl-indigo { background:var(--indigo-lt); color:var(--indigo); border:1.5px solid #a5b4fc; }
+.pl-teal   { background:var(--teal-lt);   color:var(--teal);   border:1.5px solid #5eead4; }
+.pl-amber  { background:var(--amber-lt);  color:var(--amber);  border:1.5px solid #fcd34d; }
+.pl-cyan   { background:var(--cyan-lt);   color:var(--cyan);   border:1.5px solid #67e8f9; }
+.pl-green  { background:var(--green-lt);  color:var(--green);  border:1.5px solid #6ee7b7; }
+
+.plan-head-text h3 { font-size:.9rem; font-weight:800; }
+.plan-head-text p  { font-size:.75rem; color:var(--text2); margin-top:.1rem; }
+
+.plan-body { padding: 1rem 1.1rem; }
+
+/* ── ROW ── */
+.info-row {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  gap: .4rem .8rem;
+  align-items: start;
+  padding: .55rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.info-row:last-child { border-bottom: none; }
+
+.info-label {
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  padding-top: .18rem;
+  white-space: nowrap;
+}
+
+/* プロジェクト名 */
+.proj-name {
+  font-size: .9rem;
+  font-weight: 800;
+  color: var(--text);
+  display: flex; align-items: center; gap: .4rem;
+}
+
+/* リポジトリ名 */
+.repo-block {
+  display: flex; flex-direction: column; gap: .3rem;
+}
+.repo-name {
+  font-family: var(--mono);
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--blue);
+  background: var(--blue-lt);
+  border: 1px solid var(--blue-mid);
+  border-radius: .4rem;
+  padding: .22rem .65rem;
+  display: inline-flex; align-items: center; gap: .35rem;
+  width: fit-content;
+}
+.repo-url {
+  font-family: var(--mono);
+  font-size: .73rem;
+  color: var(--text3);
+  display: flex; align-items: center; gap: .3rem;
+  word-break: break-all;
+}
+.repo-url a {
+  color: var(--blue);
+  text-decoration: none;
+}
+.repo-url a:hover { text-decoration: underline; }
+
+/* ── BADGE ── */
+.badge {
+  display:inline-flex; align-items:center; gap:.28rem;
+  padding:.18rem .6rem; border-radius:1rem; font-size:.7rem;
+  font-weight:700; white-space:nowrap; margin-left:auto; flex-shrink:0;
+}
+.b-into { background:var(--blue-lt);   color:#1e40af; border:1px solid var(--blue-mid); }
+.b-del  { background:var(--red-lt);    color:#991b1b; border:1px solid #fca5a5; }
+.b-new  { background:var(--indigo-lt); color:#3730a3; border:1px solid #a5b4fc; }
+.b-sel  { background:var(--teal-lt);   color:#0f766e; border:1px solid #5eead4; }
+.b-keep { background:var(--green-lt);  color:#065f46; border:1px solid #6ee7b7; }
+.b-pri-hi { background:var(--red-lt);  color:#991b1b; border:1px solid #fca5a5; }
+.b-pri-md { background:var(--amber-lt);color:#92400e; border:1px solid #fcd34d; }
+
+/* ── DIVIDER ── */
+.dvd {
+  height: 3px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--blue), var(--purple), var(--teal));
+  margin: .8rem 0 1.8rem;
+  opacity: .18;
+}
+
+/* ── NUMBER CHIP ── */
+.num-chip {
+  width: 1.6rem; height: 1.6rem; border-radius: 50%;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size: .72rem; font-weight: 900;
+  font-family: var(--mono); flex-shrink: 0;
+}
+
+/* ── FOOTER ── */
+footer {
+  background: var(--surface);
+  border-top: 2px solid var(--border);
+  padding: 1.5rem;
+  text-align: center;
+  margin-top: 3rem;
+}
+footer p { font-size: .78rem; color: var(--text3); }
+footer p + p { margin-top: .25rem; }
+
+/* ── FADE IN ── */
+.fi { opacity:0; transform:translateY(14px); transition:opacity .4s ease, transform .4s ease; }
+.fi.in { opacity:1; transform:translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eye">🏗️ みらい建設工業 IT部門 — 2026.03.22</div>
+    <h1>プロジェクト名 ＆ リポジトリ名<br>確定一覧</h1>
+    <p>統合プラン A・B ／ <strong style="color:#86efac;">削除対象3件 — GitHub削除完了 ✅</strong> ／ 新規開発5件 ／ AEGIS-SIGHT 選択的統合</p>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ════════════════════════════════
+     PART 2 — 統合プラン A・B
+════════════════════════════════ -->
+<div style="margin-top:2rem;">
+  <div class="part-head ph-blue fi">
+    <div class="ph-icon">🔀</div>
+    <div class="ph-text">
+      <h2>PART 2｜統合プラン A・B</h2>
+      <p>既存リポジトリへの機能移植・吸収統合。移植元リポジトリは移植完了後に廃止</p>
+    </div>
+  </div>
+  <div class="part-body">
+
+    <!-- プランA -->
+    <div class="plan-card fi">
+      <div class="plan-head" style="background:var(--blue-lt);">
+        <div class="plan-letter pl-blue">A</div>
+        <div class="plan-head-text">
+          <h3>統合プラン A：ITSM中核統合</h3>
+          <p>ServiceMatrix ＋ Backup-management-system → ITSM-System へ機能移植</p>
+        </div>
+        <span class="badge b-into">🔀 統合先：継続強化</span>
+      </div>
+      <div class="plan-body">
+
+        <div style="font-size:.75rem;font-weight:700;color:var(--text2);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em;">📌 統合先（移植先）</div>
+        <div class="info-row">
+          <span class="info-label">プロジェクト名</span>
+          <span class="proj-name">🏆 ITSM-System</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">リポジトリ名</span>
+          <div class="repo-block">
+            <span class="repo-name">📦 Kensan196948G/ITSM-System</span>
+            <span class="repo-url">🔗 <a href="https://github.com/Kensan196948G/ITSM-System" target="_blank">https://github.com/Kensan196948G/ITSM-System</a></span>
+          </div>
+        </div>
+
+        <div style="font-size:.75rem;font-weight:700;color:var(--text2);margin:.9rem 0 .5rem;text-transform:uppercase;letter-spacing:.05em;">🗑️ 移植元（移植完了後に廃止）</div>
+        <div class="info-row">
+          <span class="info-label">① 移植元</span>
+          <div class="repo-block">
+            <span class="proj-name" style="font-size:.85rem;">🏛 ServiceMatrix</span>
+            <span class="repo-name" style="margin-top:.25rem;">📦 Kensan196948G/ServiceMatrix</span>
+            <span class="repo-url">🔗 <a href="https://github.com/Kensan196948G/ServiceMatrix" target="_blank">https://github.com/Kensan196948G/ServiceMatrix</a></span>
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="info-label">② 移植元</span>
+          <div class="repo-block">
+            <span class="proj-name" style="font-size:.85rem;">💾 Backup-management-system</span>
+            <span class="repo-name" style="margin-top:.25rem;">📦 Kensan196948G/Backup-management-system</span>
+            <span class="repo-url">🔗 <a href="https://github.com/Kensan196948G/Backup-management-system" target="_blank">https://github.com/Kensan196948G/Backup-management-system</a></span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- プランB -->
+    <div class="plan-card fi">
+      <div class="plan-head" style="background:var(--purple-lt);">
+        <div class="plan-letter pl-purple">B</div>
+        <div class="plan-head-text">
+          <h3>統合プラン B：AIヘルプデスク統合</h3>
+          <p>Mirai-IT-Knowledge-System → Enterprise AI HelpDesk System へ機能移植</p>
+        </div>
+        <span class="badge b-into">🔀 統合先：継続強化</span>
+      </div>
+      <div class="plan-body">
+
+        <div style="font-size:.75rem;font-weight:700;color:var(--text2);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em;">📌 統合先（移植先）</div>
+        <div class="info-row">
+          <span class="info-label">プロジェクト名</span>
+          <span class="proj-name">🤖 Enterprise AI HelpDesk System</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">リポジトリ名</span>
+          <div class="repo-block">
+            <span class="repo-name">📦 Kensan196948G/Enterprise-AI-HelpDesk-System</span>
+            <span class="repo-url">🔗 <a href="https://github.com/Kensan196948G/Enterprise-AI-HelpDesk-System" target="_blank">https://github.com/Kensan196948G/Enterprise-AI-HelpDesk-System</a></span>
+          </div>
+        </div>
+
+        <div style="font-size:.75rem;font-weight:700;color:var(--text2);margin:.9rem 0 .5rem;text-transform:uppercase;letter-spacing:.05em;">🗑️ 移植元（移植完了後に廃止）</div>
+        <div class="info-row">
+          <span class="info-label">① 移植元</span>
+          <div class="repo-block">
+            <span class="proj-name" style="font-size:.85rem;">🌸 Mirai-IT-Knowledge-System</span>
+            <span class="repo-name" style="margin-top:.25rem;">📦 Kensan196948G/Mirai-IT-Knowledge-System</span>
+            <span class="repo-url">🔗 <a href="https://github.com/Kensan196948G/Mirai-IT-Knowledge-System" target="_blank">https://github.com/Kensan196948G/Mirai-IT-Knowledge-System</a></span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="dvd"></div>
+
+<!-- ════════════════════════════════
+     PART 3 — 削除対象（完了）
+════════════════════════════════ -->
+<div>
+  <div class="part-head fi" style="background:linear-gradient(135deg,#16a34a,#059669);color:#fff;border-radius:.9rem .9rem 0 0;">
+    <div class="ph-icon">✅</div>
+    <div class="ph-text">
+      <h2>PART 3｜削除対象・ノーコード移行対象（3件）— <span style="font-size:.9rem;font-weight:700;opacity:.9;">GitHub削除 完了</span></h2>
+      <p>3件すべて GitHub よりリポジトリ削除済み（2026.03.22 実施）</p>
+    </div>
+  </div>
+  <div class="part-body" style="border-color:#86efac;">
+
+    <!-- 完了バナー -->
+    <div class="fi" style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:.85rem;padding:.85rem 1.1rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:.75rem;">
+      <span style="font-size:1.3rem;">✅</span>
+      <div>
+        <div style="font-size:.86rem;font-weight:800;color:#166534;">GitHub リポジトリ削除 — 全3件 完了</div>
+        <div style="font-size:.78rem;color:#15803d;margin-top:.1rem;">以下の3リポジトリはすべて GitHub より削除済みです。管理インベントリ・開発計画からも除外してください。</div>
+      </div>
+    </div>
+
+    <!-- 削除済み1 -->
+    <div class="plan-card fi" style="border-color:#86efac;">
+      <div class="plan-head" style="background:#f0fdf4;">
+        <div class="plan-letter" style="background:#d1fae5;color:#065f46;border:1.5px solid #6ee7b7;">1</div>
+        <div class="plan-head-text">
+          <h3 style="color:#065f46;">Mirai-Operational-Totalmanagement-System</h3>
+          <p>SharePoint Online / Power Pages へ移行 → GitHub リポジトリ削除済み</p>
+        </div>
+        <span class="badge" style="background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;">✅ 削除完了</span>
+      </div>
+      <div class="plan-body">
+        <div class="info-row">
+          <span class="info-label">プロジェクト名</span>
+          <span class="proj-name" style="color:var(--text2);text-decoration:line-through;opacity:.6;">🏗️ Mirai-Operational-Totalmanagement-System</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">リポジトリ名</span>
+          <div class="repo-block">
+            <span class="repo-name" style="background:#d1fae5;color:#065f46;border-color:#6ee7b7;text-decoration:line-through;opacity:.7;">📦 Kensan196948G/Mirai-Operational-Totalmanagement-System</span>
+            <span class="repo-url" style="color:var(--green);">✅ https://github.com/Kensan196948G/Mirai-Operational-Totalmanagement-System — <strong>削除済み</strong></span>
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="info-label">移行先</span>
+          <span style="font-size:.83rem;color:var(--purple);font-weight:600;">🟣 SharePoint Online ＋ Power Pages ＋ Microsoft Lists（M365既存ライセンス）</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">ステータス</span>
+          <span style="font-size:.83rem;color:#16a34a;font-weight:700;">✅ GitHub リポジトリ削除完了 — 管理インベントリから除外済み</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 削除済み2 -->
+    <div class="plan-card fi" style="border-color:#86efac;">
+      <div class="plan-head" style="background:#f0fdf4;">
+        <div class="plan-letter" style="background:#d1fae5;color:#065f46;border:1.5px solid #6ee7b7;">2</div>
+        <div class="plan-head-text">
+          <h3 style="color:#065f46;">Appsuite-ITSM-Management</h3>
+          <p>DeskNet's Neo AppSuite 標準フォームへ移行 → GitHub リポジトリ削除済み</p>
+        </div>
+        <span class="badge" style="background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;">✅ 削除完了</span>
+      </div>
+      <div class="plan-body">
+        <div class="info-row">
+          <span class="info-label">プロジェクト名</span>
+          <span class="proj-name" style="color:var(--text2);text-decoration:line-through;opacity:.6;">📱 Appsuite-ITSM-Management</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">リポジトリ名</span>
+          <div class="repo-block">
+            <span class="repo-name" style="background:#d1fae5;color:#065f46;border-color:#6ee7b7;text-decoration:line-through;opacity:.7;">📦 Kensan196948G/Appsuite-ITSM-Management</span>
+            <span class="repo-url" style="color:var(--green);">✅ https://github.com/Kensan196948G/Appsuite-ITSM-Management — <strong>削除済み</strong></span>
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="info-label">移行先</span>
+          <span style="font-size:.83rem;color:var(--purple);font-weight:600;">🟣 DeskNet's Neo AppSuite 標準フォームアプリ（既存契約・追加費用ゼロ）</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">ステータス</span>
+          <span style="font-size:.83rem;color:#16a34a;font-weight:700;">✅ GitHub リポジトリ削除完了 — 管理インベントリから除外済み</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 削除済み3 -->
+    <div class="plan-card fi" style="border-color:#86efac;">
+      <div class="plan-head" style="background:#f0fdf4;">
+        <div class="plan-letter" style="background:#d1fae5;color:#065f46;border:1.5px solid #6ee7b7;">3</div>
+        <div class="plan-head-text">
+          <h3 style="color:#065f46;">Mirai-DX-Management-System</h3>
+          <p>GitHub 404 Not Found — リポジトリ未存在のため削除（管理除外）済み</p>
+        </div>
+        <span class="badge" style="background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;">✅ 削除完了</span>
+      </div>
+      <div class="plan-body">
+        <div class="info-row">
+          <span class="info-label">プロジェクト名</span>
+          <span class="proj-name" style="color:var(--text2);text-decoration:line-through;opacity:.6;">❌ Mirai-DX-Management-System</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">リポジトリ名</span>
+          <div class="repo-block">
+            <span class="repo-name" style="background:#d1fae5;color:#065f46;border-color:#6ee7b7;text-decoration:line-through;opacity:.7;">📦 Kensan196948G/Mirai-DX-Management-System</span>
+            <span class="repo-url" style="color:var(--green);">✅ GitHub 404（リポジトリ未存在）— <strong>管理リストから削除完了</strong></span>
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="info-label">ステータス</span>
+          <span style="font-size:.83rem;color:#16a34a;font-weight:700;">✅ 管理インベントリ・開発計画・予算計画から除外完了。過去ドキュメントに「廃止」記録済み</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="dvd"></div>
+
+<!-- ════════════════════════════════
+     PART 4 — 新規開発5件
+════════════════════════════════ -->
+<div>
+  <div class="part-head ph-indigo fi">
+    <div class="ph-icon">🆕</div>
+    <div class="ph-text">
+      <h2>PART 4｜新規開発推奨システム（5件）</h2>
+      <p>ITSM/ISO20000・ISO27001・NIST CSF2.0全準拠 ｜ 建設業界特化</p>
+    </div>
+  </div>
+  <div class="part-body">
+
+    <!-- 新規01 -->
+    <div class="plan-card fi">
+      <div class="plan-head" style="background:var(--blue-lt);">
+        <div class="plan-letter pl-blue">01</div>
+        <div class="plan-head-text">
+          <h3>ゼロトラスト ID統合ガバナンスシステム</h3>
+          <p>EntraID Connect × HENGEONE × AD 統合アイデンティティ管理プラットフォーム</p>
+        </div>
+        <span class="badge b-pri-hi">🔴 優先度：高</span>
+      </div>
+      <div class="plan-body">
+        <div class="info-row">
+          <span class="info-label">プロジェクト名</span>
+          <span class="proj-name">🔐 ZeroTrust-ID-Governance</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">リポジトリ名</span>
+          <div class="repo-block">
+            <span class="repo-name">📦 Kensan196948G/ZeroTrust-ID-Governance</span>
+            <span class="repo-url">🔗 https://github.com/Kensan196948G/ZeroTrust-ID-Governance</span>
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="info-label">準拠</span>
+          <span style="font-size:.8rem;color:var(--text2);">ISO27001 A.5.15〜A.8.2 ／ NIST CSF PROTECT PR.AA ／ ISO20000 アクセス管理</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 新規02 -->
+    <div class="plan-card fi">
+      <div class="plan-head" style="background:var(--purple-lt);">
+        <div class="plan-letter pl-purple">02</div>
+        <div class="plan-head-text">
+          <h3>建設現場 サイバーセキュリティ監視・SIEM統合システム</h3>
+          <p>現場IoT機器・CAD/BIM環境のセキュリティイベント集約・異常検知プラットフォーム</p>
+        </div>
+        <span class="badge b-pri-hi">🔴 優先度：高</span>
+      </div>
+      <div class="plan-body">
+        <div class="info-row">
+          <span class="info-label">プロジェクト名</span>
+          <span class="proj-name">🛡️ Construction-SIEM-Platform</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">リポジトリ名</span>
+          <div class="repo-block">
+            <span class="repo-name">📦 Kensan196948G/Construction-SIEM-Platform</span>
+            <span class="repo-url">🔗 https://github.com/Kensan196948G/Construction-SIEM-Platform</span>
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="info-label">準拠</span>
+          <span style="font-size:.8rem;color:var(--text2);">ISO27001 A.8.15/A.8.16 ／ NIST CSF DETECT DE.CM ／ ISO20000 インシデント管理</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 新規03 -->
+    <div class="plan-card fi">
+      <div class="plan-head" style="background:var(--green-lt);">
+        <div class="plan-letter pl-green">03</div>
+        <div class="plan-head-text">
+          <h3>建設業 統合リスク＆コンプライアンス管理システム（GRC）</h3>
+          <p>ISO27001・NIST CSF 2.0・建設業法・公共工事品確法 多法令準拠の統合GRC基盤</p>
+        </div>
+        <span class="badge b-pri-hi">🔴 優先度：高</span>
+      </div>
+      <div class="plan-body">
+        <div class="info-row">
+          <span class="info-label">プロジェクト名</span>
+          <span class="proj-name">📋 Construction-GRC-System</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">リポジトリ名</span>
+          <div class="repo-block">
+            <span class="repo-name">📦 Kensan196948G/Construction-GRC-System</span>
+            <span class="repo-url">🔗 https://github.com/Kensan196948G/Construction-GRC-System</span>
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="info-label">準拠</span>
+          <span style="font-size:.8rem;color:var(--text2);">ISO27001 全93管理策 ／ NIST CSF GOVERN GV.RM ／ 建設業法・公共工事品確法・労安法</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 新規04 -->
+    <div class="plan-card fi">
+      <div class="plan-head" style="background:var(--cyan-lt);">
+        <div class="plan-letter pl-cyan">04</div>
+        <div class="plan-head-text">
+          <h3>IT変更管理・リリース自動化プラットフォーム（CAB管理）</h3>
+          <p>RFC承認・影響分析・CAB審議・展開・ロールバックの完全自動化ワークフロー</p>
+        </div>
+        <span class="badge b-pri-md">🟡 優先度：中</span>
+      </div>
+      <div class="plan-body">
+        <div class="info-row">
+          <span class="info-label">プロジェクト名</span>
+          <span class="proj-name">🚀 IT-Change-CAB-Platform</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">リポジトリ名</span>
+          <div class="repo-block">
+            <span class="repo-name">📦 Kensan196948G/IT-Change-CAB-Platform</span>
+            <span class="repo-url">🔗 https://github.com/Kensan196948G/IT-Change-CAB-Platform</span>
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="info-label">準拠</span>
+          <span style="font-size:.8rem;color:var(--text2);">ISO20000 変更管理プロセス（必須） ／ ISO27001 A.8.32 ／ NIST CSF PROTECT PR.IP</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 新規05 -->
+    <div class="plan-card fi">
+      <div class="plan-head" style="background:var(--amber-lt);">
+        <div class="plan-letter pl-amber">05</div>
+        <div class="plan-head-text">
+          <h3>IT事業継続管理システム（BCP/ITSCM）</h3>
+          <p>災害・サイバー攻撃時のIT復旧計画・BCP訓練・RTOダッシュボード統合プラットフォーム</p>
+        </div>
+        <span class="badge b-pri-md">🟡 優先度：中</span>
+      </div>
+      <div class="plan-body">
+        <div class="info-row">
+          <span class="info-label">プロジェクト名</span>
+          <span class="proj-name">🔄 IT-BCP-ITSCM-System</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">リポジトリ名</span>
+          <div class="repo-block">
+            <span class="repo-name">📦 Kensan196948G/IT-BCP-ITSCM-System</span>
+            <span class="repo-url">🔗 https://github.com/Kensan196948G/IT-BCP-ITSCM-System</span>
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="info-label">準拠</span>
+          <span style="font-size:.8rem;color:var(--text2);">ISO20000 ITサービス継続管理（必須） ／ ISO27001 A.5.29/A.5.30 ／ NIST CSF RECOVER RC</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="dvd"></div>
+
+<!-- ════════════════════════════════
+     PART 5 — AEGIS-SIGHT 選択的統合
+════════════════════════════════ -->
+<div>
+  <div class="part-head ph-teal fi">
+    <div class="ph-icon">🛡️</div>
+    <div class="ph-text">
+      <h2>PART 5｜AEGIS-SIGHT — IntegratedITAsset（IAMS）選択的統合</h2>
+      <p>プロジェクト名・リポジトリ名は AEGIS-SIGHT に統一。IAMSの有用機能のみ選択的移植</p>
+    </div>
+  </div>
+  <div class="part-body">
+
+    <!-- 統合先 -->
+    <div class="plan-card fi">
+      <div class="plan-head" style="background:var(--teal-lt);">
+        <div class="plan-letter pl-teal">🛡️</div>
+        <div class="plan-head-text">
+          <h3>AEGIS-SIGHT（選択的統合後の統合先）</h3>
+          <p>Autonomous Endpoint Governance &amp; Integrated Sight — SKYSEA内製代替 ＋ IAMS選択移植</p>
+        </div>
+        <span class="badge b-sel">🛡️ 選択的統合</span>
+      </div>
+      <div class="plan-body">
+        <div class="info-row">
+          <span class="info-label">プロジェクト名</span>
+          <span class="proj-name">🛡️ AEGIS-SIGHT</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">リポジトリ名</span>
+          <div class="repo-block">
+            <span class="repo-name">📦 Kensan196948G/AEGIS-SIGHT</span>
+            <span class="repo-url">🔗 https://github.com/Kensan196948G/AEGIS-SIGHT</span>
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="info-label">統合スコア</span>
+          <span style="font-size:.88rem;font-weight:800;color:var(--green);">78 / 100 — 統合推奨</span>
+        </div>
+
+        <div style="font-size:.75rem;font-weight:700;color:var(--text2);margin:.9rem 0 .5rem;text-transform:uppercase;letter-spacing:.05em;">🗑️ 移植元（選択的移植完了後に廃止）</div>
+        <div class="info-row">
+          <span class="info-label">移植元</span>
+          <div class="repo-block">
+            <span class="proj-name" style="font-size:.85rem;">📊 IntegratedITAssetServiceManagement (IAMS)</span>
+            <span class="repo-name" style="margin-top:.25rem;">📦 Kensan196948G/IntegratedITAssetServiceManagement</span>
+            <span class="repo-url">🔗 <a href="https://github.com/Kensan196948G/IntegratedITAssetServiceManagement" target="_blank">https://github.com/Kensan196948G/IntegratedITAssetServiceManagement</a></span>
+          </div>
+        </div>
+
+        <div style="font-size:.75rem;font-weight:700;color:var(--text2);margin:.9rem 0 .5rem;text-transform:uppercase;letter-spacing:.05em;">✅ IAMS から選択移植する機能</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem .8rem;">
+          <div style="background:var(--teal-lt);border:1px solid #5eead4;border-radius:.5rem;padding:.5rem .7rem;font-size:.78rem;">
+            <span style="font-weight:700;color:var(--teal);">📊 Prometheus / Grafana</span><br>
+            <span style="color:var(--text2);">インフラ可観測性・監視ダッシュボード</span>
+          </div>
+          <div style="background:var(--teal-lt);border:1px solid #5eead4;border-radius:.5rem;padding:.5rem .7rem;font-size:.78rem;">
+            <span style="font-weight:700;color:var(--teal);">📱 PWA対応（オフラインUI）</span><br>
+            <span style="color:var(--text2);">建設現場でのオフライン資産確認</span>
+          </div>
+          <div style="background:var(--teal-lt);border:1px solid #5eead4;border-radius:.5rem;padding:.5rem .7rem;font-size:.78rem;">
+            <span style="font-weight:700;color:var(--teal);">🛒 調達管理（Procurement）</span><br>
+            <span style="color:var(--text2);">調達→受領→廃棄ライフサイクル</span>
+          </div>
+          <div style="background:var(--teal-lt);border:1px solid #5eead4;border-radius:.5rem;padding:.5rem .7rem;font-size:.78rem;">
+            <span style="font-weight:700;color:var(--teal);">📦 SAMライセンス管理</span><br>
+            <span style="color:var(--text2);">ライセンス期限アラート</span>
+          </div>
+          <div style="background:var(--teal-lt);border:1px solid #5eead4;border-radius:.5rem;padding:.5rem .7rem;font-size:.78rem;grid-column:span 2;">
+            <span style="font-weight:700;color:var(--teal);">🧪 1,157テスト資産</span><br>
+            <span style="color:var(--text2);">pytest変換の設計仕様書として品質保証に活用（Jest系 → pytest変換）</span>
+          </div>
+        </div>
+
+        <div style="font-size:.75rem;font-weight:700;color:var(--text2);margin:.9rem 0 .5rem;text-transform:uppercase;letter-spacing:.05em;">❌ IAMS から移植しない機能（ITSM-Systemと重複のため廃棄）</div>
+        <div style="display:flex;flex-wrap:wrap;gap:.4rem;">
+          <span style="padding:.18rem .6rem;background:var(--red-lt);color:var(--red);border:1px solid #fca5a5;border-radius:.4rem;font-size:.74rem;font-weight:600;">CMDB（AEGIS-SIGHTと重複）</span>
+          <span style="padding:.18rem .6rem;background:var(--red-lt);color:var(--red);border:1px solid #fca5a5;border-radius:.4rem;font-size:.74rem;font-weight:600;">インシデント管理（ITSM-Systemと重複）</span>
+          <span style="padding:.18rem .6rem;background:var(--red-lt);color:var(--red);border:1px solid #fca5a5;border-radius:.4rem;font-size:.74rem;font-weight:600;">SLA管理（ITSM-Systemと重複）</span>
+          <span style="padding:.18rem .6rem;background:var(--red-lt);color:var(--red);border:1px solid #fca5a5;border-radius:.4rem;font-size:.74rem;font-weight:600;">変更管理（ITSM-Systemと重複）</span>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<footer>
+  <p>🏗️ みらい建設工業 IT部門 ｜ プロジェクト名・リポジトリ名 確定一覧 ｜ 2026.03.22</p>
+  <p>IT System Master Report v3 に基づき作成</p>
+</footer>
+
+<script>
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+}, { threshold: 0.06 });
+document.querySelectorAll('.fi').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
