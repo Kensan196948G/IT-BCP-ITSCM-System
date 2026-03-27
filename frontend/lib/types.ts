@@ -293,6 +293,59 @@ export interface ExerciseReport {
   recommendations: string[];
 }
 
+// ---- Incident Command (Phase 2) ----
+
+export interface IncidentTask {
+  id: string;
+  incident_id: string;
+  task_title: string;
+  description?: string;
+  assigned_to?: string;
+  assigned_team?: string;
+  priority: string;            // critical / high / medium / low
+  status: string;              // pending / in_progress / completed / blocked
+  target_system?: string;
+  due_hours?: number;
+  started_at?: string;
+  completed_at?: string;
+  notes?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface SituationReport {
+  id: string;
+  incident_id: string;
+  report_number: number;
+  report_time: string;
+  reporter?: string;
+  summary: string;
+  systems_status?: Record<string, string>;
+  tasks_summary?: Record<string, number>;
+  next_actions?: string[];
+  escalation_status?: string;
+  audience: string;            // internal / management / executive / external
+  created_at?: string;
+}
+
+export interface TaskStatistics {
+  total: number;
+  pending: number;
+  in_progress: number;
+  completed: number;
+  blocked: number;
+  completion_rate: number;
+}
+
+export interface IncidentCommandDashboard {
+  incident: ActiveIncident;
+  tasks: IncidentTask[];
+  task_statistics: TaskStatistics;
+  latest_report?: SituationReport;
+  reports_count: number;
+  rto_statuses: RTOStatus[];
+}
+
 // API response wrapper
 export interface ApiResponse<T> {
   data: T;

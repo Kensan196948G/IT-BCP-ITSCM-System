@@ -14,6 +14,9 @@ import type {
   BCPScenario,
   ExerciseRTORecord,
   ExerciseReport,
+  IncidentTask,
+  SituationReport,
+  IncidentCommandDashboard,
 } from "./types";
 
 const API_BASE_URL =
@@ -159,6 +162,52 @@ export const incidents = {
 
   rtoDashboard: (incidentId: string) =>
     fetchAPI<RTOStatus[]>(`/api/v1/incidents/${incidentId}/rto-status`),
+
+  commandDashboard: (incidentId: string) =>
+    fetchAPI<IncidentCommandDashboard>(
+      `/api/incidents/${incidentId}/command-dashboard`
+    ),
+
+  createTask: (
+    incidentId: string,
+    data: Omit<IncidentTask, "id" | "incident_id" | "created_at" | "updated_at">
+  ) =>
+    fetchAPI<IncidentTask>(`/api/incidents/${incidentId}/tasks`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  listTasks: (incidentId: string) =>
+    fetchAPI<IncidentTask[]>(`/api/incidents/${incidentId}/tasks`),
+
+  updateTask: (incidentId: string, taskId: string, data: Partial<IncidentTask>) =>
+    fetchAPI<IncidentTask>(`/api/incidents/${incidentId}/tasks/${taskId}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  createReport: (
+    incidentId: string,
+    data: Omit<SituationReport, "id" | "incident_id" | "created_at">
+  ) =>
+    fetchAPI<SituationReport>(
+      `/api/incidents/${incidentId}/situation-reports`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    ),
+
+  listReports: (incidentId: string) =>
+    fetchAPI<SituationReport[]>(
+      `/api/incidents/${incidentId}/situation-reports`
+    ),
+
+  autoGenerateReport: (incidentId: string) =>
+    fetchAPI<SituationReport>(
+      `/api/incidents/${incidentId}/situation-reports/auto-generate`,
+      { method: "POST" }
+    ),
 };
 
 // Dashboard API

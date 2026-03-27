@@ -50,7 +50,10 @@ tags_metadata = [
     },
     {
         "name": "incidents",
-        "description": "アクティブBCPインシデントの追跡・管理。RTO進捗のリアルタイム監視を含みます。",
+        "description": (
+            "アクティブBCPインシデントの追跡・管理。RTO進捗のリアルタイム監視、"
+            "タスク管理、状況報告、戦況室ダッシュボードを含みます。"
+        ),
     },
     {
         "name": "dashboard",
