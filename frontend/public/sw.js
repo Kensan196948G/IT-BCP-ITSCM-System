@@ -1,5 +1,13 @@
-const CACHE_NAME = 'bcp-itscm-v1';
-const CRITICAL_ASSETS = ['/', '/plans', '/rto-monitor', '/incidents'];
+const CACHE_NAME = 'bcp-itscm-v2';
+const CRITICAL_ASSETS = [
+  '/',
+  '/plans',
+  '/procedures',
+  '/contacts',
+  '/rto-monitor',
+  '/incidents',
+  '/offline',
+];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -22,44 +30,52 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
+
   const url = new URL(event.request.url);
+
+  // Skip WebSocket and API requests from caching
+  if (url.pathname.startsWith('/ws') || url.pathname.startsWith('/api')) {
+    return;
+  }
+
   const isCritical = CRITICAL_ASSETS.some(
     (asset) => url.pathname === asset || url.pathname === asset + '/'
   );
 
   if (isCritical) {
-    // Cache-first for BCP critical resources
+    // Stale-while-revalidate for BCP critical resources
     event.respondWith(
       caches.match(event.request).then((cached) => {
-        if (cached) {
-          // Update cache in background
-          fetch(event.request).then((response) => {
+        const fetchPromise = fetch(event.request)
+          .then((response) => {
             if (response.ok) {
+              const clone = response.clone();
               caches.open(CACHE_NAME).then((cache) => {
-                cache.put(event.request, response);
+                cache.put(event.request, clone);
               });
             }
-          }).catch(() => {});
-          return cached;
-        }
-        return fetch(event.request).then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, clone);
+            return response;
+          })
+          .catch(() => {
+            // Network failed, return cached or offline page
+            return cached || caches.match('/offline');
           });
-          return response;
-        });
+
+        return cached || fetchPromise;
       })
     );
   } else {
-    // Network-first for other resources
+    // Network-first for other resources, fallback to offline page
     event.respondWith(
       fetch(event.request)
         .then((response) => {
           return response;
         })
         .catch(() => {
-          return caches.match(event.request);
+          return caches.match(event.request).then((cached) => {
+            return cached || caches.match('/offline');
+          });
         })
     );
   }

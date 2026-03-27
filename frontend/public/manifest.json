@@ -1,9 +1,44 @@
 {
-  "name": "IT-BCP-ITSCM-System",
+  "name": "IT-BCP-ITSCM-System - IT事業継続管理",
   "short_name": "BCP-ITSCM",
+  "description": "災害・サイバー攻撃時のIT復旧計画・BCP訓練・RTOダッシュボード統合プラットフォーム",
   "start_url": "/",
   "display": "standalone",
+  "orientation": "any",
   "theme_color": "#1e40af",
   "background_color": "#f8fafc",
-  "icons": []
+  "scope": "/",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "RTOモニタリング",
+      "url": "/rto-monitor",
+      "description": "RTO復旧状況のリアルタイム確認"
+    },
+    {
+      "name": "緊急連絡網",
+      "url": "/contacts",
+      "description": "緊急連絡先・ベンダー連絡先"
+    },
+    {
+      "name": "復旧手順書",
+      "url": "/procedures",
+      "description": "IT復旧手順書の参照"
+    }
+  ]
 }
