@@ -14,6 +14,8 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from apps.monitoring import metrics_collector
 from apps.routers import (
+    audit,
+    auth,
     bia,
     contacts,
     dashboard,
@@ -100,6 +102,14 @@ tags_metadata = [
     {
         "name": "runbook",
         "description": "運用ランブック。デプロイチェックリスト、ロールバック手順、DRフェイルオーバー、インシデント対応プレイブックを提供します。",
+    },
+    {
+        "name": "auth",
+        "description": "JWT認証・RBAC。ログイン、トークン発行・検証、ロールベースアクセス制御を提供します。",
+    },
+    {
+        "name": "audit",
+        "description": "監査ログ。ISO20000準拠の監査証跡、ログエクスポート、インシデント別ログ検索を提供します。",
     },
 ]
 
@@ -231,6 +241,8 @@ app.include_router(scenarios.router)
 app.include_router(notifications.router)
 app.include_router(monitoring.router)
 app.include_router(runbook.router)
+app.include_router(auth.router)
+app.include_router(audit.router)
 app.include_router(ws.router)
 
 

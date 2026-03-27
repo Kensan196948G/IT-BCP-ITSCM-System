@@ -983,6 +983,61 @@ class ChecklistItemResult(BaseModel):
     evidence: str
 
 
+# ---- Auth / JWT ----
+
+
+class LoginRequest(BaseModel):
+    """Schema for login request (simplified)."""
+
+    user_id: str = Field(..., max_length=100)
+    password: str = Field("", max_length=200)
+    role: str = Field("viewer", pattern=r"^(admin|operator|viewer|auditor)$")
+
+
+class TokenResponse(BaseModel):
+    """Schema for JWT token response."""
+
+    access_token: str
+    token_type: str = "bearer"
+
+
+class UserInfo(BaseModel):
+    """Schema for current user info."""
+
+    user_id: str
+    role: str
+    permissions: list[str]
+
+
+# ---- AuditLog ----
+
+
+class AuditLogResponse(BaseModel):
+    """Schema for a single audit log entry."""
+
+    id: str
+    timestamp: str
+    user_id: str | None = None
+    user_role: str | None = None
+    action: str
+    resource_type: str
+    resource_id: str | None = None
+    details: dict | None = None
+    ip_address: str | None = None
+    user_agent: str | None = None
+    status: str = "success"
+
+
+class AuditLogExportResponse(BaseModel):
+    """Schema for audit log export (ISO20000)."""
+
+    format: str = "json"
+    exported_at: str
+    total_count: int
+    standard: str = "ISO20000-ITSCM"
+    logs: list[AuditLogResponse]
+
+
 class ISO20000ReportResponse(BaseModel):
     """Schema for ISO20000 ITSCM Compliance Report (RPT-004)."""
 
