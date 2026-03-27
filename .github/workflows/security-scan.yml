@@ -1,0 +1,74 @@
+name: Security Scan
+
+on:
+  schedule:
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+jobs:
+  dependency-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pip-audit
+        run: pip install pip-audit
+
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+
+      - name: Run pip audit (backend)
+        run: |
+          cd backend
+          pip-audit
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Run npm audit (frontend)
+        run: |
+          cd frontend
+          npm audit --audit-level=high
+
+  container-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build backend image for scanning
+        run: docker build -t bcp-backend:scan ./backend
+
+      - name: Trivy scan backend image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: bcp-backend:scan
+          format: table
+          severity: "CRITICAL,HIGH"
+        continue-on-error: true
+
+      - name: Build frontend image for scanning
+        run: docker build -t bcp-frontend:scan ./frontend
+
+      - name: Trivy scan frontend image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: bcp-frontend:scan
+          format: table
+          severity: "CRITICAL,HIGH"
+        continue-on-error: true
