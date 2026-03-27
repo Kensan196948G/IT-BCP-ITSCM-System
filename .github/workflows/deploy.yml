@@ -1,0 +1,203 @@
+name: Deploy to Azure
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      region:
+        description: "Target region"
+        required: true
+        type: choice
+        options:
+          - east-japan
+          - west-japan
+          - both
+
+env:
+  REGISTRY: ghcr.io
+  BACKEND_IMAGE: ghcr.io/${{ github.repository }}/backend
+  FRONTEND_IMAGE: ghcr.io/${{ github.repository }}/frontend
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ${{ env.BACKEND_IMAGE }}:${{ github.sha }}
+            ${{ env.BACKEND_IMAGE }}:latest
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: |
+            ${{ env.FRONTEND_IMAGE }}:${{ github.sha }}
+            ${{ env.FRONTEND_IMAGE }}:latest
+
+  deploy-staging:
+    if: inputs.environment == 'staging'
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy backend container app
+        env:
+          IMAGE: ${{ env.BACKEND_IMAGE }}:${{ github.sha }}
+          RG: ${{ secrets.AZURE_RESOURCE_GROUP }}
+        run: |
+          az containerapp update \
+            --name bcp-backend-staging \
+            --resource-group "$RG" \
+            --image "$IMAGE"
+
+      - name: Deploy frontend container app
+        env:
+          IMAGE: ${{ env.FRONTEND_IMAGE }}:${{ github.sha }}
+          RG: ${{ secrets.AZURE_RESOURCE_GROUP }}
+        run: |
+          az containerapp update \
+            --name bcp-frontend-staging \
+            --resource-group "$RG" \
+            --image "$IMAGE"
+
+      - name: Health check
+        env:
+          BACKEND_URL: ${{ secrets.STAGING_BACKEND_URL }}
+        run: |
+          echo "Waiting for deployment to settle..."
+          sleep 30
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${BACKEND_URL}/api/health" || echo "000")
+          if [ "$STATUS" = "200" ]; then
+            echo "Health check passed (HTTP $STATUS)"
+          else
+            echo "Health check failed (HTTP $STATUS)"
+            exit 1
+          fi
+
+      - name: Notify deployment result
+        if: always()
+        env:
+          DEPLOY_SHA: ${{ github.sha }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          if [ "$JOB_STATUS" = "success" ]; then
+            echo "Staging deployment succeeded for $DEPLOY_SHA"
+          else
+            echo "Staging deployment failed for $DEPLOY_SHA"
+          fi
+
+  deploy-production:
+    if: inputs.environment == 'production'
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy to East Japan
+        if: inputs.region == 'east-japan' || inputs.region == 'both'
+        env:
+          BACKEND_IMG: ${{ env.BACKEND_IMAGE }}:${{ github.sha }}
+          FRONTEND_IMG: ${{ env.FRONTEND_IMAGE }}:${{ github.sha }}
+          RG: ${{ secrets.AZURE_RESOURCE_GROUP }}
+        run: |
+          az containerapp update \
+            --name bcp-backend-prod-east \
+            --resource-group "$RG" \
+            --image "$BACKEND_IMG"
+          az containerapp update \
+            --name bcp-frontend-prod-east \
+            --resource-group "$RG" \
+            --image "$FRONTEND_IMG"
+
+      - name: Deploy to West Japan
+        if: inputs.region == 'west-japan' || inputs.region == 'both'
+        env:
+          BACKEND_IMG: ${{ env.BACKEND_IMAGE }}:${{ github.sha }}
+          FRONTEND_IMG: ${{ env.FRONTEND_IMAGE }}:${{ github.sha }}
+          RG: ${{ secrets.AZURE_RESOURCE_GROUP }}
+        run: |
+          az containerapp update \
+            --name bcp-backend-prod-west \
+            --resource-group "$RG" \
+            --image "$BACKEND_IMG"
+          az containerapp update \
+            --name bcp-frontend-prod-west \
+            --resource-group "$RG" \
+            --image "$FRONTEND_IMG"
+
+      - name: Health check East Japan
+        if: inputs.region == 'east-japan' || inputs.region == 'both'
+        env:
+          HEALTH_URL: ${{ secrets.PROD_EAST_BACKEND_URL }}
+        run: |
+          sleep 30
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${HEALTH_URL}/api/health" || echo "000")
+          echo "East Japan health: HTTP $STATUS"
+          [ "$STATUS" = "200" ] || exit 1
+
+      - name: Health check West Japan
+        if: inputs.region == 'west-japan' || inputs.region == 'both'
+        env:
+          HEALTH_URL: ${{ secrets.PROD_WEST_BACKEND_URL }}
+        run: |
+          sleep 30
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${HEALTH_URL}/api/health" || echo "000")
+          echo "West Japan health: HTTP $STATUS"
+          [ "$STATUS" = "200" ] || exit 1
+
+      - name: Notify deployment result
+        if: always()
+        env:
+          DEPLOY_SHA: ${{ github.sha }}
+          DEPLOY_REGION: ${{ inputs.region }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          if [ "$JOB_STATUS" = "success" ]; then
+            echo "Production deployment succeeded for $DEPLOY_SHA (region: $DEPLOY_REGION)"
+          else
+            echo "Production deployment failed for $DEPLOY_SHA (region: $DEPLOY_REGION)"
+          fi

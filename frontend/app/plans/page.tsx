@@ -1,6 +1,7 @@
 "use client";
 
-import { useSystems } from "../../lib/hooks";
+import { useOfflineSync } from "../../lib/use-offline-sync";
+import { systems } from "../../lib/api";
 import type { ITSystemBCP } from "../../lib/types";
 
 const mockPlans: ITSystemBCP[] = [
@@ -34,10 +35,27 @@ function formatHours(hours: number): string {
   return `${hours}時間`;
 }
 
-export default function PlansPage() {
-  const { data, loading, error } = useSystems();
+function formatSyncTime(isoString: string | null): string {
+  if (!isoString) return "-";
+  try {
+    const d = new Date(isoString);
+    return d.toLocaleString("ja-JP");
+  } catch {
+    return "-";
+  }
+}
 
-  // API失敗時はモックデータにフォールバック
+export default function PlansPage() {
+  const {
+    data,
+    loading,
+    error,
+    isOnline,
+    lastSyncTime,
+    isSyncing,
+  } = useOfflineSync<ITSystemBCP[]>("systems", () => systems.list());
+
+  // API失敗時またはオフラインでキャッシュなし時はモックデータにフォールバック
   const plans = error || !data ? mockPlans : data;
 
   if (loading) {
@@ -55,11 +73,30 @@ export default function PlansPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-slate-800">BCP計画管理</h2>
-        {error && (
-          <span className="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-700">
-            オフラインモード（モックデータ表示中）
+        <div className="flex items-center gap-3">
+          {/* オフラインバッジ */}
+          {!isOnline && (
+            <span className="rounded bg-amber-100 px-2 py-1 text-xs font-medium text-amber-700">
+              オフラインデータ使用中
+            </span>
+          )}
+          {/* 同期中 */}
+          {isSyncing && (
+            <span className="rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
+              同期中...
+            </span>
+          )}
+          {/* API エラー時 */}
+          {error && isOnline && (
+            <span className="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-700">
+              オフラインモード（モックデータ表示中）
+            </span>
+          )}
+          {/* 最終同期時刻 */}
+          <span className="text-xs text-slate-400">
+            最終同期: {formatSyncTime(lastSyncTime)}
           </span>
-        )}
+        </div>
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
