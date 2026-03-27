@@ -1,0 +1,82 @@
+# IT-BCP-ITSCM-System Terraform Variables Example
+# Copy this file to terraform.tfvars and update values for your environment.
+#
+# IMPORTANT: Never commit terraform.tfvars to version control.
+#            The .gitignore should exclude *.tfvars files.
+
+# ============================================================================
+# Production Environment
+# ============================================================================
+
+environment         = "production"
+resource_group_name = "bcp-itscm-rg"
+
+# Database credentials (use environment variables or secret manager in CI/CD)
+# export TF_VAR_postgres_admin_password="your-secure-password"
+postgres_admin_username = "bcpadmin"
+postgres_admin_password = ""
+
+# Region configuration
+primary_region = "japaneast"
+dr_region      = "japanwest"
+
+# Container Apps scaling
+primary_container_replicas = 3
+dr_container_replicas      = 2
+
+# Database SKUs
+primary_postgres_sku = "GP_Standard_D4s_v3"
+dr_postgres_sku      = "GP_Standard_D2s_v3"
+
+# Redis Cache
+primary_redis_sku = "Premium"
+dr_redis_sku      = "Standard"
+redis_capacity    = 1
+
+# Front Door
+frontdoor_sku = "Premium_AzureFrontDoor"
+
+# Monitoring & Backup
+log_analytics_retention_days = 90
+backup_retention_days        = 35
+
+# Security
+ssl_enforcement_enabled = true
+auto_failover_enabled   = true
+
+# Tags
+tags = {
+  Project     = "IT-BCP-ITSCM-System"
+  ManagedBy   = "Terraform"
+  CostCenter  = "IT-BCP"
+  Compliance  = "ISO20000,ISO27001"
+}
+
+# ============================================================================
+# Staging Environment (uncomment and adjust)
+# ============================================================================
+# environment                  = "staging"
+# resource_group_name          = "bcp-itscm-staging-rg"
+# primary_container_replicas   = 2
+# dr_container_replicas        = 1
+# primary_postgres_sku         = "GP_Standard_D2s_v3"
+# dr_postgres_sku              = "B_Standard_B1ms"
+# primary_redis_sku            = "Standard"
+# dr_redis_sku                 = "Basic"
+# log_analytics_retention_days = 30
+# backup_retention_days        = 7
+
+# ============================================================================
+# Development Environment (uncomment and adjust)
+# ============================================================================
+# environment                  = "development"
+# resource_group_name          = "bcp-itscm-dev-rg"
+# primary_container_replicas   = 1
+# dr_container_replicas        = 0
+# primary_postgres_sku         = "B_Standard_B1ms"
+# dr_postgres_sku              = "B_Standard_B1ms"
+# primary_redis_sku            = "Basic"
+# dr_redis_sku                 = "Basic"
+# log_analytics_retention_days = 7
+# backup_retention_days        = 7
+# auto_failover_enabled        = false

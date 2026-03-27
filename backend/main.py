@@ -22,6 +22,7 @@ from apps.routers import (
     monitoring,
     notifications,
     procedures,
+    runbook,
     scenarios,
     systems,
     ws,
@@ -95,6 +96,10 @@ tags_metadata = [
     {
         "name": "monitoring",
         "description": "監視・メトリクス・ヘルスプローブ。Prometheusフォーマットメトリクス、Kubernetes互換プローブを提供します。",
+    },
+    {
+        "name": "runbook",
+        "description": "運用ランブック。デプロイチェックリスト、ロールバック手順、DRフェイルオーバー、インシデント対応プレイブックを提供します。",
     },
 ]
 
@@ -225,6 +230,7 @@ app.include_router(bia.router)
 app.include_router(scenarios.router)
 app.include_router(notifications.router)
 app.include_router(monitoring.router)
+app.include_router(runbook.router)
 app.include_router(ws.router)
 
 
