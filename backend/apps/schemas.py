@@ -3,7 +3,7 @@
 import uuid
 from datetime import date, datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 # ---- ITSystemBCP ----
@@ -25,6 +25,13 @@ class ITSystemBCPCreate(BaseModel):
     last_dr_test: date | None = None
     last_test_rto: float | None = None
     is_active: bool = True
+
+    @field_validator("system_name")
+    @classmethod
+    def system_name_not_blank(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("system_name must not be blank")
+        return v.strip()
 
 
 class ITSystemBCPUpdate(BaseModel):
@@ -87,6 +94,14 @@ class BCPExerciseCreate(BaseModel):
     findings: dict | None = None
     improvements: dict | None = None
     lessons_learned: str | None = None
+
+    @field_validator("exercise_type")
+    @classmethod
+    def validate_exercise_type(cls, v: str) -> str:
+        allowed = ("tabletop", "functional", "full_scale")
+        if v not in allowed:
+            raise ValueError(f"exercise_type must be one of {allowed}")
+        return v
 
 
 class BCPExerciseUpdate(BaseModel):
@@ -153,6 +168,14 @@ class ActiveIncidentCreate(BaseModel):
     estimated_impact: str | None = None
     resolved_at: datetime | None = None
     actual_rto_hours: float | None = None
+
+    @field_validator("severity")
+    @classmethod
+    def validate_severity(cls, v: str) -> str:
+        allowed = ("p1", "p2", "p3")
+        if v not in allowed:
+            raise ValueError(f"severity must be one of {allowed}")
+        return v
 
 
 class ActiveIncidentUpdate(BaseModel):
