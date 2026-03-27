@@ -1,13 +1,16 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { systems, exercises, incidents, dashboard } from "./api";
+import { systems, exercises, incidents, dashboard, procedures, contacts } from "./api";
 import type {
   ITSystemBCP,
   BCPExercise,
   ActiveIncident,
   DashboardReadiness,
   RTOOverview,
+  RecoveryProcedure,
+  EmergencyContact,
+  VendorContact,
 } from "./types";
 
 interface UseApiResult<T> {
@@ -73,4 +76,16 @@ export function useDashboard(): UseApiResult<DashboardReadiness> {
 
 export function useRTOOverview(): UseApiResult<RTOOverview> {
   return useApi(() => dashboard.rtoOverview());
+}
+
+export function useProcedures(): UseApiResult<RecoveryProcedure[]> {
+  return useApi(() => procedures.list());
+}
+
+export function useEmergencyContacts(): UseApiResult<EmergencyContact[]> {
+  return useApi(() => contacts.emergency.list());
+}
+
+export function useVendorContacts(): UseApiResult<VendorContact[]> {
+  return useApi(() => contacts.vendors.list());
 }

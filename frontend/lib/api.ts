@@ -5,6 +5,9 @@ import type {
   DashboardReadiness,
   RTOOverview,
   RTOStatus,
+  RecoveryProcedure,
+  EmergencyContact,
+  VendorContact,
 } from "./types";
 
 const API_BASE_URL =
@@ -134,6 +137,59 @@ export const dashboard = {
 
   rtoOverview: () =>
     fetchAPI<RTOOverview>("/api/v1/dashboard/rto-overview"),
+};
+
+// Procedures API
+export const procedures = {
+  list: () => fetchAPI<RecoveryProcedure[]>("/api/procedures"),
+
+  get: (id: string) => fetchAPI<RecoveryProcedure>(`/api/procedures/${id}`),
+
+  create: (data: Omit<RecoveryProcedure, "id" | "created_at" | "updated_at">) =>
+    fetchAPI<RecoveryProcedure>("/api/procedures", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  update: (id: string, data: Partial<RecoveryProcedure>) =>
+    fetchAPI<RecoveryProcedure>(`/api/procedures/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  delete: (id: string) =>
+    fetchAPI<void>(`/api/procedures/${id}`, {
+      method: "DELETE",
+    }),
+};
+
+// Contacts API
+export const contacts = {
+  emergency: {
+    list: () => fetchAPI<EmergencyContact[]>("/api/contacts/emergency"),
+
+    get: (id: string) =>
+      fetchAPI<EmergencyContact>(`/api/contacts/emergency/${id}`),
+
+    create: (data: Omit<EmergencyContact, "id" | "created_at" | "updated_at">) =>
+      fetchAPI<EmergencyContact>("/api/contacts/emergency", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+  },
+
+  vendors: {
+    list: () => fetchAPI<VendorContact[]>("/api/contacts/vendors"),
+
+    get: (id: string) =>
+      fetchAPI<VendorContact>(`/api/contacts/vendors/${id}`),
+
+    create: (data: Omit<VendorContact, "id" | "created_at" | "updated_at">) =>
+      fetchAPI<VendorContact>("/api/contacts/vendors", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+  },
 };
 
 export { fetchAPI };

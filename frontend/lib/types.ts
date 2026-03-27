@@ -143,6 +143,61 @@ export interface RTOMonitorSystem {
   status: string;            // on_track / at_risk / overdue / recovered / not_started
 }
 
+export interface RecoveryProcedure {
+  id: string;
+  procedure_id: string;
+  system_name: string;
+  scenario_type: string;
+  title: string;
+  version: string;
+  priority_order: number;
+  pre_requisites?: string;
+  procedure_steps: { step: number; description: string; duration_minutes?: number }[];
+  estimated_time_hours?: number;
+  responsible_team?: string;
+  last_reviewed?: string;
+  review_cycle_months: number;
+  status: string;             // active / draft / archived
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface EmergencyContact {
+  id: string;
+  name: string;
+  role: string;
+  department?: string;
+  phone_primary?: string;
+  phone_secondary?: string;
+  email?: string;
+  teams_id?: string;
+  escalation_level: number;
+  escalation_group: string;
+  notification_channels?: string[];
+  is_active: boolean;
+  notes?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface VendorContact {
+  id: string;
+  vendor_name: string;
+  service_name: string;
+  contract_id?: string;
+  support_level?: string;    // premier / standard / basic
+  phone_primary?: string;
+  phone_emergency?: string;
+  email_support?: string;
+  sla_response_hours?: number;
+  sla_resolution_hours?: number;
+  contract_expiry?: string;
+  notes?: string;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
 // API response wrapper
 export interface ApiResponse<T> {
   data: T;
