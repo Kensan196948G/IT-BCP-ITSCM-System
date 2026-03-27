@@ -13,6 +13,7 @@ const navItems = [
   { href: "/exercises", label: "訓練管理", icon: "\u{1F3CB}\uFE0F" },
   { href: "/scenarios", label: "シナリオ", icon: "\u{1F3AD}" },
   { href: "/incidents", label: "インシデント", icon: "\u{1F6A8}" },
+  { href: "/notifications", label: "通知管理", icon: "\u{1F514}" },
   { href: "/rto-monitor", label: "RTOモニタ", icon: "\u{1F4C8}" },
   { href: "/reports", label: "レポート", icon: "\u{1F4CB}" },
   { href: "/settings", label: "設定", icon: "\u2699\uFE0F" },

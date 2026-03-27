@@ -887,6 +887,92 @@ class ExerciseTrendReportResponse(BaseModel):
     improvement_completion_rate: float
 
 
+# ---- Notification / Escalation ----
+
+
+class NotificationSendRequest(BaseModel):
+    """Schema for sending a notification manually."""
+
+    notification_type: str = Field(..., pattern=r"^(teams|email|sms)$")
+    recipient: str = Field(..., max_length=200)
+    subject: str = Field(..., max_length=300)
+    body: str
+    incident_id: uuid.UUID | None = None
+
+
+class NotificationLogResponse(BaseModel):
+    """Schema for notification log response."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    incident_id: uuid.UUID | None = None
+    notification_type: str
+    recipient: str
+    subject: str
+    body: str
+    status: str
+    sent_at: datetime | None = None
+    error_message: str | None = None
+    metadata: dict | None = None
+    created_at: datetime
+
+
+class EscalationLevel(BaseModel):
+    """A single escalation level definition."""
+
+    level: int
+    role: str
+    delay_minutes: int
+    channels: list[str]
+
+
+class EscalationPlanResponse(BaseModel):
+    """Schema for escalation plan response."""
+
+    severity: str
+    plan_name: str
+    levels: list[EscalationLevel]
+
+
+class EscalationContact(BaseModel):
+    """Contact info for escalation trigger."""
+
+    role: str
+    name: str
+    email: str | None = None
+    teams_id: str | None = None
+
+
+class EscalationTriggerRequest(BaseModel):
+    """Schema for triggering an escalation."""
+
+    incident_id: uuid.UUID
+    severity: str = Field(..., pattern=r"^(p1|p2|p3)$")
+    contacts: list[EscalationContact] = Field(default_factory=list)
+
+
+class EscalationTriggerResponse(BaseModel):
+    """Schema for escalation trigger response."""
+
+    incident_id: uuid.UUID
+    severity: str
+    plan_name: str
+    notifications_queued: int
+    notifications: list[NotificationLogResponse]
+
+
+class EscalationStatusResponse(BaseModel):
+    """Schema for escalation status."""
+
+    incident_id: uuid.UUID
+    total_notifications: int
+    sent: int
+    pending: int
+    failed: int
+    notifications: list[NotificationLogResponse]
+
+
 class ChecklistItemResult(BaseModel):
     """Result for a single ISO20000 checklist item."""
 
