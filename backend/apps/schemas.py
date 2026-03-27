@@ -683,3 +683,126 @@ class InjectRequest(BaseModel):
     """Schema for injecting a scenario step into an exercise."""
 
     inject_index: int = Field(..., ge=0)
+
+
+# ---- IncidentTask ----
+
+TASK_PRIORITIES = r"^(critical|high|medium|low)$"
+TASK_STATUSES = r"^(pending|in_progress|completed|blocked)$"
+
+
+class IncidentTaskCreate(BaseModel):
+    """Schema for creating a new incident task."""
+
+    task_title: str = Field(..., max_length=300)
+    description: str | None = None
+    assigned_to: str | None = Field(None, max_length=100)
+    assigned_team: str | None = Field(None, max_length=100)
+    priority: str = Field("medium", pattern=TASK_PRIORITIES)
+    status: str = Field("pending", pattern=TASK_STATUSES)
+    target_system: str | None = Field(None, max_length=100)
+    due_hours: float | None = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    notes: str | None = None
+
+
+class IncidentTaskUpdate(BaseModel):
+    """Schema for updating an incident task."""
+
+    task_title: str | None = Field(None, max_length=300)
+    description: str | None = None
+    assigned_to: str | None = Field(None, max_length=100)
+    assigned_team: str | None = Field(None, max_length=100)
+    priority: str | None = Field(None, pattern=TASK_PRIORITIES)
+    status: str | None = Field(None, pattern=TASK_STATUSES)
+    target_system: str | None = Field(None, max_length=100)
+    due_hours: float | None = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    notes: str | None = None
+
+
+class IncidentTaskResponse(BaseModel):
+    """Schema for incident task response."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    incident_id: uuid.UUID
+    task_title: str
+    description: str | None = None
+    assigned_to: str | None = None
+    assigned_team: str | None = None
+    priority: str
+    status: str
+    target_system: str | None = None
+    due_hours: float | None = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    notes: str | None = None
+    created_at: datetime
+    updated_at: datetime
+
+
+# ---- SituationReport ----
+
+AUDIENCE_TYPES = r"^(internal|management|executive|external)$"
+
+
+class SituationReportCreate(BaseModel):
+    """Schema for creating a new situation report."""
+
+    report_number: int = Field(..., ge=1)
+    report_time: datetime | None = None
+    reporter: str | None = Field(None, max_length=100)
+    summary: str
+    systems_status: dict | None = None
+    tasks_summary: dict | None = None
+    next_actions: list | None = None
+    escalation_status: str | None = Field(None, max_length=50)
+    audience: str = Field("internal", pattern=AUDIENCE_TYPES)
+
+
+class SituationReportResponse(BaseModel):
+    """Schema for situation report response."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    incident_id: uuid.UUID
+    report_number: int
+    report_time: datetime
+    reporter: str | None = None
+    summary: str
+    systems_status: dict | None = None
+    tasks_summary: dict | None = None
+    next_actions: list | None = None
+    escalation_status: str | None = None
+    audience: str
+    created_at: datetime
+
+
+# ---- IncidentCommandDashboard ----
+
+
+class TaskStatistics(BaseModel):
+    """Task completion statistics."""
+
+    total: int = 0
+    pending: int = 0
+    in_progress: int = 0
+    completed: int = 0
+    blocked: int = 0
+    completion_rate: float = 0.0
+
+
+class IncidentCommandDashboard(BaseModel):
+    """Command dashboard data combining incident, tasks, reports, and RTO status."""
+
+    incident: ActiveIncidentResponse
+    tasks: list[IncidentTaskResponse] = Field(default_factory=list)
+    task_statistics: TaskStatistics = Field(default_factory=TaskStatistics)
+    latest_report: SituationReportResponse | None = None
+    reports_count: int = 0
+    rto_statuses: list[RTOStatusResponse] = Field(default_factory=list)

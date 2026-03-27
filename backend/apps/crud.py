@@ -13,7 +13,9 @@ from apps.models import (
     EmergencyContact,
     ExerciseRTORecord,
     ITSystemBCP,
+    IncidentTask,
     RecoveryProcedure,
+    SituationReport,
     VendorContact,
 )
 
@@ -401,4 +403,81 @@ async def create_rto_record(db: AsyncSession, data: dict) -> ExerciseRTORecord:
 async def get_rto_records_by_exercise(db: AsyncSession, exercise_id: uuid.UUID) -> list[ExerciseRTORecord]:
     """Get all RTO records for a given exercise."""
     result = await db.execute(select(ExerciseRTORecord).where(ExerciseRTORecord.exercise_id == exercise_id))
+    return list(result.scalars().all())
+
+
+# ---- IncidentTask CRUD ----
+
+
+async def create_incident_task(db: AsyncSession, data: dict) -> IncidentTask:
+    """Create a new incident task record."""
+    obj = IncidentTask(**data)
+    db.add(obj)
+    await db.flush()
+    await db.refresh(obj)
+    return obj
+
+
+async def get_incident_task(db: AsyncSession, task_id: uuid.UUID) -> IncidentTask | None:
+    """Get a single incident task by ID."""
+    result = await db.execute(select(IncidentTask).where(IncidentTask.id == task_id))
+    return result.scalar_one_or_none()
+
+
+async def get_incident_tasks_by_incident(db: AsyncSession, incident_id: uuid.UUID) -> list[IncidentTask]:
+    """Get all tasks for a given incident."""
+    result = await db.execute(
+        select(IncidentTask).where(IncidentTask.incident_id == incident_id).order_by(IncidentTask.created_at)
+    )
+    return list(result.scalars().all())
+
+
+async def update_incident_task(db: AsyncSession, task_id: uuid.UUID, data: dict) -> IncidentTask | None:
+    """Update an incident task record."""
+    obj = await get_incident_task(db, task_id)
+    if obj is None:
+        return None
+    for key, value in data.items():
+        if value is not None:
+            setattr(obj, key, value)
+    await db.flush()
+    await db.refresh(obj)
+    return obj
+
+
+async def delete_incident_task(db: AsyncSession, task_id: uuid.UUID) -> bool:
+    """Delete an incident task record."""
+    obj = await get_incident_task(db, task_id)
+    if obj is None:
+        return False
+    await db.delete(obj)
+    await db.flush()
+    return True
+
+
+# ---- SituationReport CRUD ----
+
+
+async def create_situation_report(db: AsyncSession, data: dict) -> SituationReport:
+    """Create a new situation report record."""
+    obj = SituationReport(**data)
+    db.add(obj)
+    await db.flush()
+    await db.refresh(obj)
+    return obj
+
+
+async def get_situation_report(db: AsyncSession, report_id: uuid.UUID) -> SituationReport | None:
+    """Get a single situation report by ID."""
+    result = await db.execute(select(SituationReport).where(SituationReport.id == report_id))
+    return result.scalar_one_or_none()
+
+
+async def get_situation_reports_by_incident(db: AsyncSession, incident_id: uuid.UUID) -> list[SituationReport]:
+    """Get all situation reports for a given incident."""
+    result = await db.execute(
+        select(SituationReport)
+        .where(SituationReport.incident_id == incident_id)
+        .order_by(SituationReport.report_number)
+    )
     return list(result.scalars().all())

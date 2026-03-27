@@ -6,8 +6,23 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps import crud
+from apps.incident_commander import (
+    generate_situation_report,
+    get_command_dashboard,
+)
 from apps.rto_tracker import RTOTracker
-from apps.schemas import ActiveIncidentCreate, ActiveIncidentResponse, ActiveIncidentUpdate, RTOStatusResponse
+from apps.schemas import (
+    ActiveIncidentCreate,
+    ActiveIncidentResponse,
+    ActiveIncidentUpdate,
+    IncidentCommandDashboard,
+    IncidentTaskCreate,
+    IncidentTaskResponse,
+    IncidentTaskUpdate,
+    RTOStatusResponse,
+    SituationReportCreate,
+    SituationReportResponse,
+)
 from database import get_db
 
 router = APIRouter(prefix="/api/incidents", tags=["incidents"])
@@ -86,3 +101,137 @@ async def incident_rto_dashboard(
             results.append(status_info)
 
     return results
+
+
+# ---------------------------------------------------------------------------
+# Command Dashboard
+# ---------------------------------------------------------------------------
+
+
+@router.get(
+    "/{incident_id}/command-dashboard",
+    response_model=IncidentCommandDashboard,
+)
+async def command_dashboard(
+    incident_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+) -> object:
+    """Get the full command dashboard (war room) for an incident."""
+    result = await get_command_dashboard(db, incident_id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Incident not found")
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Incident Tasks
+# ---------------------------------------------------------------------------
+
+
+@router.post(
+    "/{incident_id}/tasks",
+    response_model=IncidentTaskResponse,
+    status_code=201,
+)
+async def create_task(
+    incident_id: uuid.UUID,
+    payload: IncidentTaskCreate,
+    db: AsyncSession = Depends(get_db),
+) -> object:
+    """Create a new task for an incident."""
+    incident = await crud.get_incident(db, incident_id)
+    if incident is None:
+        raise HTTPException(status_code=404, detail="Incident not found")
+    data = payload.model_dump()
+    data["incident_id"] = incident_id
+    return await crud.create_incident_task(db, data)
+
+
+@router.get(
+    "/{incident_id}/tasks",
+    response_model=list[IncidentTaskResponse],
+)
+async def list_tasks(
+    incident_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+) -> list:
+    """Get all tasks for an incident."""
+    incident = await crud.get_incident(db, incident_id)
+    if incident is None:
+        raise HTTPException(status_code=404, detail="Incident not found")
+    return await crud.get_incident_tasks_by_incident(db, incident_id)
+
+
+@router.put(
+    "/{incident_id}/tasks/{task_id}",
+    response_model=IncidentTaskResponse,
+)
+async def update_task(
+    incident_id: uuid.UUID,
+    task_id: uuid.UUID,
+    payload: IncidentTaskUpdate,
+    db: AsyncSession = Depends(get_db),
+) -> object:
+    """Update a task for an incident."""
+    incident = await crud.get_incident(db, incident_id)
+    if incident is None:
+        raise HTTPException(status_code=404, detail="Incident not found")
+    obj = await crud.update_incident_task(db, task_id, payload.model_dump(exclude_unset=True))
+    if obj is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return obj
+
+
+# ---------------------------------------------------------------------------
+# Situation Reports
+# ---------------------------------------------------------------------------
+
+
+@router.post(
+    "/{incident_id}/situation-reports",
+    response_model=SituationReportResponse,
+    status_code=201,
+)
+async def create_situation_report_endpoint(
+    incident_id: uuid.UUID,
+    payload: SituationReportCreate,
+    db: AsyncSession = Depends(get_db),
+) -> object:
+    """Create a new situation report for an incident."""
+    incident = await crud.get_incident(db, incident_id)
+    if incident is None:
+        raise HTTPException(status_code=404, detail="Incident not found")
+    data = payload.model_dump()
+    data["incident_id"] = incident_id
+    return await crud.create_situation_report(db, data)
+
+
+@router.get(
+    "/{incident_id}/situation-reports",
+    response_model=list[SituationReportResponse],
+)
+async def list_situation_reports(
+    incident_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+) -> list:
+    """Get all situation reports for an incident."""
+    incident = await crud.get_incident(db, incident_id)
+    if incident is None:
+        raise HTTPException(status_code=404, detail="Incident not found")
+    return await crud.get_situation_reports_by_incident(db, incident_id)
+
+
+@router.post(
+    "/{incident_id}/situation-reports/auto-generate",
+    response_model=SituationReportResponse,
+    status_code=201,
+)
+async def auto_generate_situation_report(
+    incident_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+) -> object:
+    """Auto-generate a situation report for an incident."""
+    report_data = await generate_situation_report(db, incident_id)
+    if report_data is None:
+        raise HTTPException(status_code=404, detail="Incident not found")
+    return await crud.create_situation_report(db, report_data)

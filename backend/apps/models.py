@@ -241,3 +241,48 @@ class ActiveIncident(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
+
+
+class IncidentTask(Base):
+    """Tasks assigned during an active incident."""
+
+    __tablename__ = "incident_tasks"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    # References active_incidents.id (no FK constraint)
+    incident_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    task_title: Mapped[str] = mapped_column(String(300), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    assigned_to: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    assigned_team: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    priority: Mapped[str] = mapped_column(String(20), default="medium")  # critical/high/medium/low
+    status: Mapped[str] = mapped_column(String(20), default="pending")  # pending/in_progress/completed/blocked
+    target_system: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    due_hours: Mapped[float | None] = mapped_column(Float, nullable=True)  # deadline: N hours from occurrence
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
+class SituationReport(Base):
+    """Situation reports for an active incident."""
+
+    __tablename__ = "situation_reports"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    # References active_incidents.id (no FK constraint)
+    incident_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    report_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    report_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    reporter: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    summary: Mapped[str] = mapped_column(Text, nullable=False)
+    systems_status: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    tasks_summary: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    next_actions: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    escalation_status: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    audience: Mapped[str] = mapped_column(String(50), default="internal")  # internal/management/executive/external
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
