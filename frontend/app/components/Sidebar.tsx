@@ -15,6 +15,7 @@ const navItems = [
   { href: "/incidents", label: "インシデント", icon: "\u{1F6A8}" },
   { href: "/notifications", label: "通知管理", icon: "\u{1F514}" },
   { href: "/rto-monitor", label: "RTOモニタ", icon: "\u{1F4C8}" },
+  { href: "/audit", label: "監査ログ", icon: "\u{1F50D}" },
   { href: "/reports", label: "レポート", icon: "\u{1F4CB}" },
   { href: "/runbook", label: "運用ランブック", icon: "\u{1F4D6}" },
   { href: "/system-status", label: "システム状態", icon: "\u{1F4BB}" },
