@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from apps.routers import bia, contacts, dashboard, exercises, incidents, procedures, scenarios, systems
+from apps.routers import bia, contacts, dashboard, exercises, incidents, procedures, scenarios, systems, ws
 from config import settings
 
 logger = logging.getLogger(__name__)
@@ -187,6 +187,7 @@ app.include_router(procedures.router)
 app.include_router(contacts.router)
 app.include_router(bia.router)
 app.include_router(scenarios.router)
+app.include_router(ws.router)
 
 
 # ---------------------------------------------------------------------------

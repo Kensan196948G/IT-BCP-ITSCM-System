@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRTOOverview } from "../../lib/hooks";
 import type { RTOMonitorSystem, RTOOverview } from "../../lib/types";
 
@@ -60,13 +61,99 @@ function RTOCard({ sys }: { sys: RTOMonitorSystem }) {
   );
 }
 
+type WsStatus = "connecting" | "connected" | "disconnected";
+
+interface WsRtoData {
+  type: string;
+  timestamp: string;
+  systems: Array<{
+    system_name: string;
+    rto_target_hours: number;
+    status: string;
+    elapsed_hours: number;
+    remaining_hours: number;
+    overdue_hours?: number;
+  }>;
+  summary: {
+    total: number;
+    on_track: number;
+    at_risk: number;
+    overdue: number;
+  };
+}
+
 export default function RtoMonitorPage() {
   const { data, loading, error } = useRTOOverview();
+  const [wsStatus, setWsStatus] = useState<WsStatus>("disconnected");
+  const [wsData, setWsData] = useState<WsRtoData | null>(null);
+  const [lastUpdate, setLastUpdate] = useState<string | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
 
-  // API失敗時はモックデータにフォールバック
-  const rtoData = error || !data ? mockRtoData : data;
+  const connectWebSocket = useCallback(() => {
+    try {
+      const wsUrl =
+        (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000")
+          .replace("http://", "ws://")
+          .replace("https://", "wss://") + "/ws/rto-dashboard";
 
-  if (loading) {
+      setWsStatus("connecting");
+      const ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
+
+      ws.onopen = () => {
+        setWsStatus("connected");
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data) as WsRtoData;
+          if (msg.type === "rto_snapshot" || msg.type === "rto_update") {
+            setWsData(msg);
+            setLastUpdate(new Date().toLocaleTimeString("ja-JP"));
+          }
+        } catch {
+          // ignore parse errors
+        }
+      };
+
+      ws.onclose = () => {
+        setWsStatus("disconnected");
+        wsRef.current = null;
+      };
+
+      ws.onerror = () => {
+        setWsStatus("disconnected");
+      };
+    } catch {
+      setWsStatus("disconnected");
+    }
+  }, []);
+
+  useEffect(() => {
+    connectWebSocket();
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+    };
+  }, [connectWebSocket]);
+
+  // Convert WS data to display format
+  const wsDisplayData: RTOOverview | null = wsData
+    ? {
+        systems: wsData.systems.map((s) => ({
+          name: s.system_name,
+          rto_target_minutes: s.rto_target_hours * 60,
+          elapsed_minutes: s.elapsed_hours * 60,
+          status: s.status,
+        })),
+      }
+    : null;
+
+  // Use WS data if available, else API, else mock
+  const rtoData = wsDisplayData || (error || !data ? mockRtoData : data);
+
+  if (loading && !wsData) {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
@@ -81,12 +168,71 @@ export default function RtoMonitorPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-slate-800">RTOモニタリング</h2>
-        {error && (
-          <span className="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-700">
-            オフラインモード（モックデータ表示中）
-          </span>
-        )}
+        <div className="flex items-center gap-3">
+          {/* WebSocket status indicator */}
+          <div className="flex items-center gap-2">
+            <span
+              className={`inline-block h-2.5 w-2.5 rounded-full ${
+                wsStatus === "connected"
+                  ? "bg-green-500"
+                  : wsStatus === "connecting"
+                    ? "animate-pulse bg-yellow-500"
+                    : "bg-red-400"
+              }`}
+            />
+            <span className="text-xs text-slate-500">
+              {wsStatus === "connected"
+                ? "リアルタイム接続中"
+                : wsStatus === "connecting"
+                  ? "接続中..."
+                  : "切断中"}
+            </span>
+          </div>
+
+          {wsStatus === "disconnected" && (
+            <button
+              onClick={connectWebSocket}
+              className="rounded bg-blue-600 px-3 py-1 text-xs text-white hover:bg-blue-700"
+            >
+              再接続
+            </button>
+          )}
+
+          {lastUpdate && (
+            <span className="text-xs text-slate-400">
+              最終更新: {lastUpdate}
+            </span>
+          )}
+
+          {error && !wsData && (
+            <span className="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-700">
+              オフラインモード（モックデータ表示中）
+            </span>
+          )}
+        </div>
       </div>
+
+      {/* WS summary bar */}
+      {wsData && wsData.summary && (
+        <div className="grid grid-cols-4 gap-3">
+          <div className="rounded-lg border border-slate-200 bg-white p-3 text-center">
+            <p className="text-2xl font-bold text-slate-800">{wsData.summary.total}</p>
+            <p className="text-xs text-slate-500">総数</p>
+          </div>
+          <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-center">
+            <p className="text-2xl font-bold text-green-700">{wsData.summary.on_track}</p>
+            <p className="text-xs text-green-600">順調</p>
+          </div>
+          <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3 text-center">
+            <p className="text-2xl font-bold text-yellow-700">{wsData.summary.at_risk}</p>
+            <p className="text-xs text-yellow-600">リスクあり</p>
+          </div>
+          <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-center">
+            <p className="text-2xl font-bold text-red-700">{wsData.summary.overdue}</p>
+            <p className="text-xs text-red-600">超過</p>
+          </div>
+        </div>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {rtoData.systems.map((sys) => (

@@ -4,8 +4,16 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps import crud
+from apps.report_generator import ReportGenerator
 from apps.rto_tracker import RTOTracker
-from apps.schemas import DashboardResponse, RTOStatusResponse
+from apps.schemas import (
+    DashboardResponse,
+    ExerciseTrendReportResponse,
+    ISO20000ReportResponse,
+    RTOComplianceReportResponse,
+    RTOStatusResponse,
+    ReadinessReportResponse,
+)
 from database import get_db
 
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
@@ -67,3 +75,96 @@ async def get_rto_overview(
         results.append(status_info)
 
     return results
+
+
+# ---------------------------------------------------------------------------
+# Report endpoints (Phase 2)
+# ---------------------------------------------------------------------------
+
+
+async def _build_report_generator(db: AsyncSession) -> ReportGenerator:
+    """Build a ReportGenerator with data from the database."""
+    all_systems = await crud.get_all_systems(db)
+    all_exercises = await crud.get_all_exercises(db)
+    all_incidents = await crud.get_all_incidents(db)
+
+    systems_data = [
+        {
+            "system_name": s.system_name,
+            "system_type": getattr(s, "system_type", None),
+            "criticality": getattr(s, "criticality", None),
+            "rto_target_hours": s.rto_target_hours,
+            "rpo_target_hours": getattr(s, "rpo_target_hours", 0),
+            "fallback_system": getattr(s, "fallback_system", None),
+            "last_dr_test": getattr(s, "last_dr_test", None),
+            "last_test_rto": getattr(s, "last_test_rto", None),
+        }
+        for s in all_systems
+    ]
+
+    exercises_data = [
+        {
+            "exercise_id": getattr(e, "exercise_id", None),
+            "title": getattr(e, "title", None),
+            "exercise_type": getattr(e, "exercise_type", None),
+            "scheduled_date": getattr(e, "scheduled_date", None),
+            "status": getattr(e, "status", None),
+            "overall_result": getattr(e, "overall_result", None),
+            "findings": getattr(e, "findings", None),
+            "improvements": getattr(e, "improvements", None),
+        }
+        for e in all_exercises
+    ]
+
+    incidents_data = [
+        {
+            "incident_id": getattr(i, "incident_id", None),
+            "status": getattr(i, "status", None),
+            "affected_systems": getattr(i, "affected_systems", None),
+            "occurred_at": getattr(i, "occurred_at", None),
+            "resolved_at": getattr(i, "resolved_at", None),
+        }
+        for i in all_incidents
+    ]
+
+    return ReportGenerator(
+        systems=systems_data,
+        exercises=exercises_data,
+        incidents=incidents_data,
+    )
+
+
+@router.get("/reports/readiness", response_model=ReadinessReportResponse)
+async def get_readiness_report(
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """Generate BCP Readiness Report (RPT-001)."""
+    gen = await _build_report_generator(db)
+    return gen.generate_readiness_report()
+
+
+@router.get("/reports/rto-compliance", response_model=RTOComplianceReportResponse)
+async def get_rto_compliance_report(
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """Generate RTO/RPO Compliance Report (RPT-002)."""
+    gen = await _build_report_generator(db)
+    return gen.generate_rto_compliance_report()
+
+
+@router.get("/reports/exercise-trends", response_model=ExerciseTrendReportResponse)
+async def get_exercise_trend_report(
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """Generate Exercise Trend Report (RPT-003)."""
+    gen = await _build_report_generator(db)
+    return gen.generate_exercise_trend_report()
+
+
+@router.get("/reports/iso20000", response_model=ISO20000ReportResponse)
+async def get_iso20000_report(
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """Generate ISO20000 ITSCM Compliance Report (RPT-004)."""
+    gen = await _build_report_generator(db)
+    return gen.generate_iso20000_report()

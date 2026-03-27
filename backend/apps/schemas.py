@@ -806,3 +806,106 @@ class IncidentCommandDashboard(BaseModel):
     latest_report: SituationReportResponse | None = None
     reports_count: int = 0
     rto_statuses: list[RTOStatusResponse] = Field(default_factory=list)
+
+
+# ---- Report Responses ----
+
+
+class SystemReadinessDetail(BaseModel):
+    """Detail for a single system in the readiness report."""
+
+    system_name: str
+    rto_target_hours: float
+    rpo_target_hours: float
+    last_test_rto_hours: float | None = None
+    rto_achieved: bool
+    tested: bool
+    has_fallback: bool
+    readiness_score: float
+
+
+class ReadinessReportResponse(BaseModel):
+    """Schema for BCP Readiness Report (RPT-001)."""
+
+    report_id: str
+    report_type: str
+    generated_at: str
+    overall_score: float
+    total_systems: int
+    tested_systems: int
+    rto_met_systems: int
+    system_readiness: list[SystemReadinessDetail]
+    untested_systems: list[str]
+    recommendations: list[str]
+
+
+class SystemComplianceDetail(BaseModel):
+    """Detail for a single system in the compliance report."""
+
+    system_name: str
+    rto_target_hours: float
+    rto_actual_hours: float | None = None
+    deviation_hours: float | None = None
+    compliant: bool
+    trend: str
+
+
+class RTOComplianceReportResponse(BaseModel):
+    """Schema for RTO/RPO Compliance Report (RPT-002)."""
+
+    report_id: str
+    report_type: str
+    generated_at: str
+    compliance_rate: float
+    total_systems: int
+    compliant_systems: int
+    system_compliance: list[SystemComplianceDetail]
+    overdue_systems: list[str]
+
+
+class YearlyTrendEntry(BaseModel):
+    """Yearly exercise trend data."""
+
+    year: int
+    exercise_count: int
+    completed: int
+    pass_count: int
+    achievement_rate: float = 0.0
+
+
+class ExerciseTrendReportResponse(BaseModel):
+    """Schema for Exercise Trend Report (RPT-003)."""
+
+    report_id: str
+    report_type: str
+    generated_at: str
+    total_exercises: int
+    yearly_trends: list[YearlyTrendEntry]
+    common_issues: dict = Field(default_factory=dict)
+    total_improvements: int
+    completed_improvements: int
+    improvement_completion_rate: float
+
+
+class ChecklistItemResult(BaseModel):
+    """Result for a single ISO20000 checklist item."""
+
+    id: str
+    requirement: str
+    category: str
+    compliant: bool
+    evidence: str
+
+
+class ISO20000ReportResponse(BaseModel):
+    """Schema for ISO20000 ITSCM Compliance Report (RPT-004)."""
+
+    report_id: str
+    report_type: str
+    generated_at: str
+    compliance_rate: float
+    total_items: int
+    compliant_items: int
+    checklist_results: list[ChecklistItemResult]
+    non_compliant_items: list[ChecklistItemResult]
+    next_audit_actions: list[str]

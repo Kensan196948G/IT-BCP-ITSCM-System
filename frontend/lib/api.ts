@@ -17,6 +17,10 @@ import type {
   IncidentTask,
   SituationReport,
   IncidentCommandDashboard,
+  ReadinessReport,
+  RTOComplianceReport,
+  ExerciseTrendReport,
+  ISO20000Report,
 } from "./types";
 
 const API_BASE_URL =
@@ -217,6 +221,20 @@ export const dashboard = {
 
   rtoOverview: () =>
     fetchAPI<RTOOverview>("/api/v1/dashboard/rto-overview"),
+
+  reports: {
+    readiness: () =>
+      fetchAPI<ReadinessReport>("/api/dashboard/reports/readiness"),
+
+    rtoCompliance: () =>
+      fetchAPI<RTOComplianceReport>("/api/dashboard/reports/rto-compliance"),
+
+    exerciseTrends: () =>
+      fetchAPI<ExerciseTrendReport>("/api/dashboard/reports/exercise-trends"),
+
+    iso20000: () =>
+      fetchAPI<ISO20000Report>("/api/dashboard/reports/iso20000"),
+  },
 };
 
 // Procedures API
