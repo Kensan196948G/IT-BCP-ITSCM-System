@@ -1,0 +1,75 @@
+"""Tests for Dashboard API endpoints (mocked DB)."""
+
+from unittest.mock import AsyncMock, patch
+
+from tests.conftest import MockIncident, MockSystem
+
+
+# ---------------------------------------------------------------------------
+# GET /api/dashboard/readiness
+# ---------------------------------------------------------------------------
+
+
+@patch("apps.crud.get_active_incidents", new_callable=AsyncMock)
+@patch("apps.crud.get_all_systems", new_callable=AsyncMock)
+def test_readiness_no_incidents(mock_systems: AsyncMock, mock_incidents: AsyncMock, client) -> None:
+    """Readiness endpoint should return 100% when there are no active incidents."""
+    mock_systems.return_value = [MockSystem(), MockSystem(system_name="Email System", rto_target_hours=8.0)]
+    mock_incidents.return_value = []
+
+    response = client.get("/api/dashboard/readiness")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total_systems"] == 2
+    assert data["active_incidents"] == 0
+    assert data["readiness_score"] == 100.0
+
+
+@patch("apps.crud.get_active_incidents", new_callable=AsyncMock)
+@patch("apps.crud.get_all_systems", new_callable=AsyncMock)
+def test_readiness_with_incident(mock_systems: AsyncMock, mock_incidents: AsyncMock, client) -> None:
+    """Readiness endpoint should reflect active incident impact."""
+    mock_systems.return_value = [MockSystem()]
+    mock_incidents.return_value = [MockIncident(affected_systems=["Core Banking System"])]
+
+    response = client.get("/api/dashboard/readiness")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["active_incidents"] == 1
+    assert len(data["rto_statuses"]) == 1
+
+
+# ---------------------------------------------------------------------------
+# GET /api/dashboard/rto-overview
+# ---------------------------------------------------------------------------
+
+
+@patch("apps.crud.get_active_incidents", new_callable=AsyncMock)
+@patch("apps.crud.get_all_systems", new_callable=AsyncMock)
+def test_rto_overview(mock_systems: AsyncMock, mock_incidents: AsyncMock, client) -> None:
+    """RTO overview should list all systems with their RTO status."""
+    mock_systems.return_value = [
+        MockSystem(system_name="System A", rto_target_hours=4.0),
+        MockSystem(system_name="System B", rto_target_hours=8.0),
+    ]
+    mock_incidents.return_value = []
+
+    response = client.get("/api/dashboard/rto-overview")
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+    assert len(data) == 2
+    names = {item["system_name"] for item in data}
+    assert names == {"System A", "System B"}
+
+
+@patch("apps.crud.get_active_incidents", new_callable=AsyncMock)
+@patch("apps.crud.get_all_systems", new_callable=AsyncMock)
+def test_rto_overview_empty(mock_systems: AsyncMock, mock_incidents: AsyncMock, client) -> None:
+    """RTO overview should return empty list when no systems exist."""
+    mock_systems.return_value = []
+    mock_incidents.return_value = []
+
+    response = client.get("/api/dashboard/rto-overview")
+    assert response.status_code == 200
+    assert response.json() == []
