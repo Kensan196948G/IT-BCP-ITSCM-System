@@ -173,9 +173,12 @@ gantt
 
     section Phase 1: 基盤構築
     環境構築・認証基盤         :done, p1a, 2026-03-27, 2d
-    バックエンドAPI基盤        :active, p1b, 2026-03-27, 14d
-    フロントエンド基盤         :active, p1c, 2026-03-27, 14d
-    DB設計・マイグレーション    :p1d, after p1b, 7d
+    バックエンドAPI基盤        :done, p1b, 2026-03-27, 1d
+    フロントエンド基盤         :done, p1c, 2026-03-27, 1d
+    DB設計・マイグレーション    :done, p1d, 2026-03-27, 1d
+    API接続・動的表示          :done, p1e, 2026-03-27, 1d
+    セキュリティ強化           :done, p1f, 2026-03-27, 1d
+    Docker環境                :done, p1g, 2026-03-27, 1d
 
     section Phase 2: コア機能
     BCP計画管理               :p2a, after p1d, 21d
@@ -196,7 +199,7 @@ gantt
 
 | フェーズ | 期間 | 進捗 | ステータス |
 |:---------|:-----|:----:|:----------:|
-| 🏗️ Phase 1: 基盤構築 | 2ヶ月 | ██░░░░░░░░ 20% | 🔵 進行中 |
+| 🏗️ Phase 1: 基盤構築 | 2ヶ月 | ██████████ 100% | ✅ 完了 |
 | ⚙️ Phase 2: コア機能 | 3ヶ月 | ░░░░░░░░░░ 0% | ⚪ 未着手 |
 | 🚀 Phase 3: 高度機能 | 2ヶ月 | ░░░░░░░░░░ 0% | ⚪ 未着手 |
 | 🌐 Phase 4: DR・本番 | 1ヶ月 | ░░░░░░░░░░ 0% | ⚪ 未着手 |
@@ -218,22 +221,29 @@ IT-BCP-ITSCM-System/
 │   └── 08_コンプライアンス(Compliance)/ # ISO/NIST準拠対応表（4件）
 ├── 📁 backend/                        # Python FastAPI バックエンド
 │   ├── apps/                          # アプリケーションモジュール
-│   │   ├── models.py                  # SQLAlchemy モデル
-│   │   ├── schemas.py                 # Pydantic スキーマ
-│   │   ├── crud.py                    # CRUD操作
-│   │   ├── rto_tracker.py             # RTOトラッカー
-│   │   └── routers/                   # APIルーター
-│   ├── tests/                         # テスト
-│   ├── main.py                        # FastAPI エントリポイント
-│   └── requirements.txt               # Python依存関係
+│   │   ├── models.py                  # SQLAlchemy モデル（3テーブル）
+│   │   ├── schemas.py                 # Pydantic スキーマ（バリデーション強化）
+│   │   ├── crud.py                    # CRUD操作（ページネーション対応）
+│   │   ├── rto_tracker.py             # RTOトラッカー（5ステータス判定）
+│   │   └── routers/                   # APIルーター（4ルーター）
+│   ├── alembic/                       # DBマイグレーション
+│   ├── scripts/                       # シードデータ投入
+│   ├── tests/                         # テスト（61件）
+│   ├── main.py                        # FastAPI + セキュリティミドルウェア
+│   ├── config.py                      # 環境設定
+│   ├── database.py                    # DB接続（AsyncSession）
+│   └── Dockerfile                     # コンテナビルド
 ├── 📁 frontend/                       # Next.js 14 フロントエンド
-│   ├── app/                           # App Router ページ
+│   ├── app/                           # App Router ページ（7ページ）
 │   │   ├── page.tsx                   # ダッシュボード
 │   │   ├── plans/                     # BCP計画管理
 │   │   ├── exercises/                 # 訓練管理
 │   │   ├── incidents/                 # インシデント管理
-│   │   └── rto-monitor/               # RTOモニタリング
-│   └── public/                        # 静的ファイル・PWA
+│   │   ├── rto-monitor/               # RTOモニタリング
+│   │   └── components/                # 共通コンポーネント
+│   ├── lib/                           # API接続・型定義・フック
+│   ├── public/                        # PWA（manifest.json + sw.js）
+│   └── Dockerfile                     # コンテナビルド
 ├── 📁 scripts/                        # ClaudeOS自動化スクリプト
 │   ├── project-sync.sh                # GitHub Project状態同期
 │   ├── create-issue.sh                # Issue自動生成
