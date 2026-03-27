@@ -425,6 +425,118 @@ class ActiveIncidentResponse(BaseModel):
     updated_at: datetime
 
 
+# ---- BIAAssessment ----
+
+
+IMPACT_LEVELS = r"^(none|low|medium|high|critical)$"
+BIA_STATUSES = r"^(draft|reviewed|approved)$"
+
+
+class BIAAssessmentCreate(BaseModel):
+    """Schema for creating a new BIA assessment."""
+
+    assessment_id: str = Field(..., max_length=20)
+    system_name: str = Field(..., max_length=100)
+    assessment_date: date
+    assessor: str | None = Field(None, max_length=100)
+    business_processes: list = Field(...)
+    financial_impact_per_hour: float | None = None
+    financial_impact_per_day: float | None = None
+    max_tolerable_downtime_hours: float | None = None
+    regulatory_risks: list | None = None
+    reputation_impact: str | None = Field(None, pattern=IMPACT_LEVELS)
+    operational_impact: str | None = Field(None, pattern=IMPACT_LEVELS)
+    recommended_rto_hours: float | None = None
+    recommended_rpo_hours: float | None = None
+    risk_score: int | None = Field(None, ge=1, le=100)
+    mitigation_measures: list | None = None
+    status: str = Field("draft", pattern=BIA_STATUSES)
+    notes: str | None = None
+
+    @field_validator("assessment_id")
+    @classmethod
+    def assessment_id_not_blank(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("assessment_id must not be blank")
+        return v.strip()
+
+
+class BIAAssessmentUpdate(BaseModel):
+    """Schema for updating a BIA assessment."""
+
+    system_name: str | None = Field(None, max_length=100)
+    assessment_date: date | None = None
+    assessor: str | None = Field(None, max_length=100)
+    business_processes: list | None = None
+    financial_impact_per_hour: float | None = None
+    financial_impact_per_day: float | None = None
+    max_tolerable_downtime_hours: float | None = None
+    regulatory_risks: list | None = None
+    reputation_impact: str | None = Field(None, pattern=IMPACT_LEVELS)
+    operational_impact: str | None = Field(None, pattern=IMPACT_LEVELS)
+    recommended_rto_hours: float | None = None
+    recommended_rpo_hours: float | None = None
+    risk_score: int | None = Field(None, ge=1, le=100)
+    mitigation_measures: list | None = None
+    status: str | None = Field(None, pattern=BIA_STATUSES)
+    notes: str | None = None
+
+
+class BIAAssessmentResponse(BaseModel):
+    """Schema for BIA assessment response."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    assessment_id: str
+    system_name: str
+    assessment_date: date
+    assessor: str | None = None
+    business_processes: list
+    financial_impact_per_hour: float | None = None
+    financial_impact_per_day: float | None = None
+    max_tolerable_downtime_hours: float | None = None
+    regulatory_risks: list | None = None
+    reputation_impact: str | None = None
+    operational_impact: str | None = None
+    recommended_rto_hours: float | None = None
+    recommended_rpo_hours: float | None = None
+    risk_score: int | None = None
+    mitigation_measures: list | None = None
+    status: str
+    notes: str | None = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class BIASummaryResponse(BaseModel):
+    """Schema for BIA summary overview."""
+
+    total_assessments: int
+    average_risk_score: float | None = None
+    max_risk_score: int | None = None
+    highest_risk_system: str | None = None
+    impact_distribution: dict = Field(default_factory=dict)
+    average_financial_impact_per_day: float | None = None
+    status_distribution: dict = Field(default_factory=dict)
+
+
+class RiskMatrixEntry(BaseModel):
+    """Single cell in the risk matrix."""
+
+    impact_level: int  # 1-5
+    likelihood_level: int  # 1-5
+    system_name: str
+    risk_score: int
+
+
+class RiskMatrixResponse(BaseModel):
+    """Schema for the risk matrix API response."""
+
+    entries: list[RiskMatrixEntry]
+    matrix: list[list[int]]  # 5x5 count matrix
+
+
 # ---- RTO / Dashboard ----
 
 

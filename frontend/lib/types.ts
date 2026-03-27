@@ -198,6 +198,53 @@ export interface VendorContact {
   updated_at?: string;
 }
 
+// ---- BIA ----
+
+export interface BIAAssessment {
+  id: string;
+  assessment_id: string;
+  system_name: string;
+  assessment_date: string;
+  assessor?: string;
+  business_processes: string[];
+  financial_impact_per_hour?: number;
+  financial_impact_per_day?: number;
+  max_tolerable_downtime_hours?: number;
+  regulatory_risks?: string[];
+  reputation_impact?: string;    // none / low / medium / high / critical
+  operational_impact?: string;   // none / low / medium / high / critical
+  recommended_rto_hours?: number;
+  recommended_rpo_hours?: number;
+  risk_score?: number;           // 1-100
+  mitigation_measures?: string[];
+  status: string;                // draft / reviewed / approved
+  notes?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface BIASummary {
+  total_assessments: number;
+  average_risk_score?: number;
+  max_risk_score?: number;
+  highest_risk_system?: string;
+  impact_distribution: Record<string, number>;
+  average_financial_impact_per_day?: number;
+  status_distribution: Record<string, number>;
+}
+
+export interface RiskMatrixEntry {
+  impact_level: number;      // 1-5
+  likelihood_level: number;  // 1-5
+  system_name: string;
+  risk_score: number;
+}
+
+export interface RiskMatrixData {
+  entries: RiskMatrixEntry[];
+  matrix: number[][];         // 5x5
+}
+
 // API response wrapper
 export interface ApiResponse<T> {
   data: T;

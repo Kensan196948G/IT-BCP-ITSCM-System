@@ -4,7 +4,16 @@ import uuid
 from datetime import date as date_type
 from datetime import datetime
 
-from sqlalchemy import Boolean, Date, DateTime, Float, Integer, String, Text, func
+from sqlalchemy import (
+    Boolean,
+    Date,
+    DateTime,
+    Float,
+    Integer,
+    String,
+    Text,
+    func,
+)
 from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -128,6 +137,35 @@ class BCPExercise(Base):
     findings: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     improvements: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     lessons_learned: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
+class BIAAssessment(Base):
+    """Business Impact Analysis assessment table."""
+
+    __tablename__ = "bia_assessments"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    assessment_id: Mapped[str] = mapped_column(String(20), unique=True, nullable=False)
+    system_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    assessment_date: Mapped[date_type] = mapped_column(Date, nullable=False)
+    assessor: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    business_processes: Mapped[list] = mapped_column(JSON, nullable=False)
+    financial_impact_per_hour: Mapped[float | None] = mapped_column(Float, nullable=True)
+    financial_impact_per_day: Mapped[float | None] = mapped_column(Float, nullable=True)
+    max_tolerable_downtime_hours: Mapped[float | None] = mapped_column(Float, nullable=True)
+    regulatory_risks: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    reputation_impact: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    operational_impact: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    recommended_rto_hours: Mapped[float | None] = mapped_column(Float, nullable=True)
+    recommended_rpo_hours: Mapped[float | None] = mapped_column(Float, nullable=True)
+    risk_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    mitigation_measures: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="draft")
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
