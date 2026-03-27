@@ -39,10 +39,38 @@ async def lifespan(application: FastAPI) -> AsyncGenerator[None, None]:
 # Application
 # ---------------------------------------------------------------------------
 
+tags_metadata = [
+    {
+        "name": "systems",
+        "description": "ITシステムBCP登録・管理。RTO/RPO目標値、代替手段、DR試験結果を管理します。",
+    },
+    {
+        "name": "exercises",
+        "description": "BCP訓練・演習の計画・実施・結果管理。Tabletop/Functional/Full-scale演習に対応。",
+    },
+    {
+        "name": "incidents",
+        "description": "アクティブBCPインシデントの追跡・管理。RTO進捗のリアルタイム監視を含みます。",
+    },
+    {
+        "name": "dashboard",
+        "description": "BCP準備状況ダッシュボード。全システムのRTO状況と準備スコアを提供します。",
+    },
+]
+
 app = FastAPI(
-    title=settings.APP_NAME,
-    description="IT事業継続管理システム API",
-    version=settings.APP_VERSION,
+    title="IT-BCP-ITSCM-System API",
+    description=(
+        "ISO20000/ISO27001/NIST CSF準拠のIT事業継続計画(BCP)・ITサービス継続管理(ITSCM) API。\n\n"
+        "主な機能:\n"
+        "- ITシステムのRTO/RPO目標管理\n"
+        "- BCP訓練・演習の計画と結果管理\n"
+        "- アクティブインシデントのリアルタイム追跡\n"
+        "- BCP準備状況ダッシュボード"
+    ),
+    version="0.1.0",
+    docs_url="/docs",
+    openapi_tags=tags_metadata,
     lifespan=lifespan,
 )
 
