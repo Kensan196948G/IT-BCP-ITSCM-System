@@ -11,6 +11,9 @@ import type {
   BIAAssessment,
   BIASummary,
   RiskMatrixData,
+  BCPScenario,
+  ExerciseRTORecord,
+  ExerciseReport,
 } from "./types";
 
 const API_BASE_URL =
@@ -109,6 +112,31 @@ export const exercises = {
       method: "PUT",
       body: JSON.stringify(data),
     }),
+
+  start: (id: string) =>
+    fetchAPI<BCPExercise>(`/api/exercises/${id}/start`, {
+      method: "POST",
+    }),
+
+  inject: (id: string, inject_index: number) =>
+    fetchAPI<Record<string, unknown>>(`/api/exercises/${id}/inject`, {
+      method: "POST",
+      body: JSON.stringify({ inject_index }),
+    }),
+
+  recordRto: (id: string, data: { system_name: string; rto_target_hours: number; rto_actual_hours?: number; recorded_by?: string; notes?: string }) =>
+    fetchAPI<ExerciseRTORecord>(`/api/exercises/${id}/rto-record`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  complete: (id: string) =>
+    fetchAPI<BCPExercise>(`/api/exercises/${id}/complete`, {
+      method: "POST",
+    }),
+
+  report: (id: string) =>
+    fetchAPI<ExerciseReport>(`/api/exercises/${id}/report`),
 };
 
 // Incidents API
@@ -221,6 +249,19 @@ export const biaApi = {
   summary: () => fetchAPI<BIASummary>("/api/bia/summary"),
 
   riskMatrix: () => fetchAPI<RiskMatrixData>("/api/bia/risk-matrix"),
+};
+
+// Scenarios API
+export const scenariosApi = {
+  list: () => fetchAPI<BCPScenario[]>("/api/scenarios"),
+
+  get: (id: string) => fetchAPI<BCPScenario>(`/api/scenarios/${id}`),
+
+  create: (data: Omit<BCPScenario, "id" | "created_at" | "updated_at">) =>
+    fetchAPI<BCPScenario>("/api/scenarios", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
 };
 
 export { fetchAPI };

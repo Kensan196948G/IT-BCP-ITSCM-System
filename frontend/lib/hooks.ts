@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { systems, exercises, incidents, dashboard, procedures, contacts, biaApi } from "./api";
+import { systems, exercises, incidents, dashboard, procedures, contacts, biaApi, scenariosApi } from "./api";
 import type {
   ITSystemBCP,
   BCPExercise,
@@ -14,6 +14,7 @@ import type {
   BIAAssessment,
   BIASummary,
   RiskMatrixData,
+  BCPScenario,
 } from "./types";
 
 interface UseApiResult<T> {
@@ -103,4 +104,8 @@ export function useBIASummary(): UseApiResult<BIASummary> {
 
 export function useBIARiskMatrix(): UseApiResult<RiskMatrixData> {
   return useApi(() => biaApi.riskMatrix());
+}
+
+export function useScenarios(): UseApiResult<BCPScenario[]> {
+  return useApi(() => scenariosApi.list());
 }

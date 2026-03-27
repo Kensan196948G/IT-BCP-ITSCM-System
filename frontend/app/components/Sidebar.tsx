@@ -11,6 +11,7 @@ const navItems = [
   { href: "/contacts", label: "連絡網", icon: "\u{1F4DE}" },
   { href: "/bia", label: "BIA分析", icon: "\u{1F4C9}" },
   { href: "/exercises", label: "訓練管理", icon: "\u{1F3CB}\uFE0F" },
+  { href: "/scenarios", label: "シナリオ", icon: "\u{1F3AD}" },
   { href: "/incidents", label: "インシデント", icon: "\u{1F6A8}" },
   { href: "/rto-monitor", label: "RTOモニタ", icon: "\u{1F4C8}" },
   { href: "/settings", label: "設定", icon: "\u2699\uFE0F" },

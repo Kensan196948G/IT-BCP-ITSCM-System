@@ -9,6 +9,7 @@ from sqlalchemy import (
     Date,
     DateTime,
     Float,
+    ForeignKey,
     Integer,
     String,
     Text,
@@ -166,10 +167,51 @@ class BIAAssessment(Base):
     mitigation_measures: Mapped[list | None] = mapped_column(JSON, nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="draft")
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    scenario_ref_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("bcp_scenarios.id"), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
+
+
+class BCPScenario(Base):
+    """BCP scenario templates for tabletop exercises."""
+
+    __tablename__ = "bcp_scenarios"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    scenario_id: Mapped[str] = mapped_column(String(20), unique=True, nullable=False)
+    title: Mapped[str] = mapped_column(String(200), nullable=False)
+    scenario_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+    initial_inject: Mapped[str] = mapped_column(Text, nullable=False)
+    injects: Mapped[list] = mapped_column(JSON, nullable=False)
+    affected_systems: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    expected_duration_hours: Mapped[float | None] = mapped_column(Float, nullable=True)
+    difficulty: Mapped[str] = mapped_column(String(20), default="medium")
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
+class ExerciseRTORecord(Base):
+    """RTO achievement records per exercise per system."""
+
+    __tablename__ = "exercise_rto_records"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    exercise_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("bcp_exercises.id"), nullable=False)
+    system_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    rto_target_hours: Mapped[float] = mapped_column(Float, nullable=False)
+    rto_actual_hours: Mapped[float | None] = mapped_column(Float, nullable=True)
+    achieved: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    recorded_by: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 
 class ActiveIncident(Base):
