@@ -201,8 +201,8 @@ gantt
 |:---------|:-----|:----:|:----------:|
 | 🏗️ Phase 1: 基盤構築 | 2ヶ月 | ██████████ 100% | ✅ 完了 |
 | ⚙️ Phase 2: コア機能 | 3ヶ月 | ██████████ 100% | ✅ 完了 |
-| 🚀 Phase 3: 高度機能 | 2ヶ月 | ██░░░░░░░░ 20% | 🔵 進行中 |
-| 🌐 Phase 4: DR・本番 | 1ヶ月 | ░░░░░░░░░░ 0% | ⚪ 未着手 |
+| 🚀 Phase 3: 高度機能 | 2ヶ月 | ████████░░ 80% | 🔵 進行中 |
+| 🌐 Phase 4: DR・本番 | 1ヶ月 | ██░░░░░░░░ 20% | 🔵 進行中 |
 
 ---
 
@@ -244,6 +244,10 @@ IT-BCP-ITSCM-System/
 │   ├── lib/                           # API接続・型定義・フック
 │   ├── public/                        # PWA（manifest.json + sw.js）
 │   └── Dockerfile                     # コンテナビルド
+├── 📁 infrastructure/                 # Terraform IaC
+│   └── terraform/                     # Azure マルチリージョン構成
+│       ├── main.tf                    # Front Door + East/West Japan
+│       └── modules/region/            # リージョンモジュール
 ├── 📁 scripts/                        # ClaudeOS自動化スクリプト
 │   ├── project-sync.sh                # GitHub Project状態同期
 │   ├── create-issue.sh                # Issue自動生成
