@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from apps.models import (
     ActiveIncident,
     BCPExercise,
+    BIAAssessment,
     EmergencyContact,
     ITSystemBCP,
     RecoveryProcedure,
@@ -287,3 +288,50 @@ async def get_active_incidents(db: AsyncSession) -> list[ActiveIncident]:
     """Get all incidents with active or recovering status."""
     result = await db.execute(select(ActiveIncident).where(ActiveIncident.status.in_(["active", "recovering"])))
     return list(result.scalars().all())
+
+
+# ---- BIAAssessment CRUD ----
+
+
+async def create_bia_assessment(db: AsyncSession, data: dict) -> BIAAssessment:
+    """Create a new BIA assessment record."""
+    obj = BIAAssessment(**data)
+    db.add(obj)
+    await db.flush()
+    await db.refresh(obj)
+    return obj
+
+
+async def get_bia_assessment(db: AsyncSession, assessment_id: uuid.UUID) -> BIAAssessment | None:
+    """Get a single BIA assessment record by ID."""
+    result = await db.execute(select(BIAAssessment).where(BIAAssessment.id == assessment_id))
+    return result.scalar_one_or_none()
+
+
+async def get_all_bia_assessments(db: AsyncSession, skip: int = 0, limit: int = 100) -> list[BIAAssessment]:
+    """Get all BIA assessment records with pagination."""
+    result = await db.execute(select(BIAAssessment).offset(skip).limit(limit))
+    return list(result.scalars().all())
+
+
+async def update_bia_assessment(db: AsyncSession, assessment_id: uuid.UUID, data: dict) -> BIAAssessment | None:
+    """Update a BIA assessment record."""
+    obj = await get_bia_assessment(db, assessment_id)
+    if obj is None:
+        return None
+    for key, value in data.items():
+        if value is not None:
+            setattr(obj, key, value)
+    await db.flush()
+    await db.refresh(obj)
+    return obj
+
+
+async def delete_bia_assessment(db: AsyncSession, assessment_id: uuid.UUID) -> bool:
+    """Delete a BIA assessment record."""
+    obj = await get_bia_assessment(db, assessment_id)
+    if obj is None:
+        return False
+    await db.delete(obj)
+    await db.flush()
+    return True

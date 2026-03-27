@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from apps.routers import contacts, dashboard, exercises, incidents, procedures, systems
+from apps.routers import bia, contacts, dashboard, exercises, incidents, procedures, systems
 from config import settings
 
 logger = logging.getLogger(__name__)
@@ -63,6 +63,10 @@ tags_metadata = [
     {
         "name": "contacts",
         "description": "緊急連絡先・ベンダー連絡先の管理。エスカレーション体制とSLA情報を含みます。",
+    },
+    {
+        "name": "bia",
+        "description": "ビジネスインパクト分析(BIA)。リスクスコア算出、財務影響評価、リスクマトリクスを提供します。",
     },
 ]
 
@@ -174,6 +178,7 @@ app.include_router(incidents.router)
 app.include_router(dashboard.router)
 app.include_router(procedures.router)
 app.include_router(contacts.router)
+app.include_router(bia.router)
 
 
 # ---------------------------------------------------------------------------

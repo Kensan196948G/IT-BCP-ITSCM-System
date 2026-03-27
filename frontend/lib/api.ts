@@ -8,6 +8,9 @@ import type {
   RecoveryProcedure,
   EmergencyContact,
   VendorContact,
+  BIAAssessment,
+  BIASummary,
+  RiskMatrixData,
 } from "./types";
 
 const API_BASE_URL =
@@ -190,6 +193,34 @@ export const contacts = {
         body: JSON.stringify(data),
       }),
   },
+};
+
+// BIA API
+export const biaApi = {
+  list: () => fetchAPI<BIAAssessment[]>("/api/bia"),
+
+  get: (id: string) => fetchAPI<BIAAssessment>(`/api/bia/${id}`),
+
+  create: (data: Omit<BIAAssessment, "id" | "created_at" | "updated_at">) =>
+    fetchAPI<BIAAssessment>("/api/bia", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  update: (id: string, data: Partial<BIAAssessment>) =>
+    fetchAPI<BIAAssessment>(`/api/bia/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  delete: (id: string) =>
+    fetchAPI<void>(`/api/bia/${id}`, {
+      method: "DELETE",
+    }),
+
+  summary: () => fetchAPI<BIASummary>("/api/bia/summary"),
+
+  riskMatrix: () => fetchAPI<RiskMatrixData>("/api/bia/risk-matrix"),
 };
 
 export { fetchAPI };
