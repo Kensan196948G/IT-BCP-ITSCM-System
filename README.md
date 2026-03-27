@@ -186,13 +186,15 @@ gantt
     訓練管理                  :p2c, after p2a, 14d
 
     section Phase 3: 高度機能
-    RTOダッシュボード          :p3a, after p2b, 14d
-    PWAオフライン             :p3b, after p3a, 7d
-    通知連携                  :p3c, after p3a, 7d
+    WebSocket RTOダッシュボード :done, p3a, 2026-03-27, 1d
+    PWAオフライン(IndexedDB)   :done, p3b, 2026-03-27, 1d
+    通知連携(Teams/Email)      :done, p3c, 2026-03-27, 1d
 
     section Phase 4: DR・本番
-    マルチリージョンDR         :p4a, after p3b, 14d
-    本番デプロイ              :p4b, after p4a, 7d
+    Terraform マルチリージョン  :done, p4a, 2026-03-27, 1d
+    デプロイWF+監視基盤        :done, p4b, 2026-03-27, 1d
+    運用ランブック+E2Eテスト    :done, p4c, 2026-03-27, 1d
+    JWT認証+監査ログ           :done, p4d, 2026-03-27, 1d
 ```
 
 ### 📌 フェーズ進捗
