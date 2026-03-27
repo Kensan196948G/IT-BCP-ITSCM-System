@@ -75,6 +75,206 @@ class ITSystemBCPResponse(BaseModel):
     updated_at: datetime
 
 
+# ---- RecoveryProcedure ----
+
+
+class RecoveryProcedureCreate(BaseModel):
+    """Schema for creating a new recovery procedure."""
+
+    procedure_id: str = Field(..., max_length=20)
+    system_name: str = Field(..., max_length=100)
+    scenario_type: str = Field(..., max_length=50)
+    title: str = Field(..., max_length=300)
+    version: str = Field("1.0", max_length=20)
+    priority_order: int = Field(..., ge=1)
+    pre_requisites: str | None = None
+    procedure_steps: list = Field(...)
+    estimated_time_hours: float | None = None
+    responsible_team: str | None = Field(None, max_length=100)
+    last_reviewed: date | None = None
+    review_cycle_months: int = 12
+    status: str = Field("active", pattern=r"^(active|draft|archived)$")
+
+    @field_validator("procedure_id")
+    @classmethod
+    def procedure_id_not_blank(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("procedure_id must not be blank")
+        return v.strip()
+
+
+class RecoveryProcedureUpdate(BaseModel):
+    """Schema for updating a recovery procedure."""
+
+    system_name: str | None = Field(None, max_length=100)
+    scenario_type: str | None = Field(None, max_length=50)
+    title: str | None = Field(None, max_length=300)
+    version: str | None = Field(None, max_length=20)
+    priority_order: int | None = Field(None, ge=1)
+    pre_requisites: str | None = None
+    procedure_steps: list | None = None
+    estimated_time_hours: float | None = None
+    responsible_team: str | None = Field(None, max_length=100)
+    last_reviewed: date | None = None
+    review_cycle_months: int | None = None
+    status: str | None = Field(None, pattern=r"^(active|draft|archived)$")
+
+
+class RecoveryProcedureResponse(BaseModel):
+    """Schema for recovery procedure response."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    procedure_id: str
+    system_name: str
+    scenario_type: str
+    title: str
+    version: str
+    priority_order: int
+    pre_requisites: str | None = None
+    procedure_steps: list
+    estimated_time_hours: float | None = None
+    responsible_team: str | None = None
+    last_reviewed: date | None = None
+    review_cycle_months: int
+    status: str
+    created_at: datetime
+    updated_at: datetime
+
+
+# ---- EmergencyContact ----
+
+
+class EmergencyContactCreate(BaseModel):
+    """Schema for creating a new emergency contact."""
+
+    name: str = Field(..., max_length=100)
+    role: str = Field(..., max_length=100)
+    department: str | None = Field(None, max_length=100)
+    phone_primary: str | None = Field(None, max_length=20)
+    phone_secondary: str | None = Field(None, max_length=20)
+    email: str | None = Field(None, max_length=200)
+    teams_id: str | None = Field(None, max_length=200)
+    escalation_level: int = Field(..., ge=1)
+    escalation_group: str = Field(..., max_length=50)
+    notification_channels: list[str] | None = None
+    is_active: bool = True
+    notes: str | None = None
+
+    @field_validator("name")
+    @classmethod
+    def name_not_blank(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("name must not be blank")
+        return v.strip()
+
+
+class EmergencyContactUpdate(BaseModel):
+    """Schema for updating an emergency contact."""
+
+    name: str | None = Field(None, max_length=100)
+    role: str | None = Field(None, max_length=100)
+    department: str | None = Field(None, max_length=100)
+    phone_primary: str | None = Field(None, max_length=20)
+    phone_secondary: str | None = Field(None, max_length=20)
+    email: str | None = Field(None, max_length=200)
+    teams_id: str | None = Field(None, max_length=200)
+    escalation_level: int | None = Field(None, ge=1)
+    escalation_group: str | None = Field(None, max_length=50)
+    notification_channels: list[str] | None = None
+    is_active: bool | None = None
+    notes: str | None = None
+
+
+class EmergencyContactResponse(BaseModel):
+    """Schema for emergency contact response."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    name: str
+    role: str
+    department: str | None = None
+    phone_primary: str | None = None
+    phone_secondary: str | None = None
+    email: str | None = None
+    teams_id: str | None = None
+    escalation_level: int
+    escalation_group: str
+    notification_channels: list[str] | None = None
+    is_active: bool
+    notes: str | None = None
+    created_at: datetime
+    updated_at: datetime
+
+
+# ---- VendorContact ----
+
+
+class VendorContactCreate(BaseModel):
+    """Schema for creating a new vendor contact."""
+
+    vendor_name: str = Field(..., max_length=200)
+    service_name: str = Field(..., max_length=200)
+    contract_id: str | None = Field(None, max_length=100)
+    support_level: str | None = Field(None, pattern=r"^(premier|standard|basic)$")
+    phone_primary: str | None = Field(None, max_length=20)
+    phone_emergency: str | None = Field(None, max_length=20)
+    email_support: str | None = Field(None, max_length=200)
+    sla_response_hours: float | None = None
+    sla_resolution_hours: float | None = None
+    contract_expiry: date | None = None
+    notes: str | None = None
+    is_active: bool = True
+
+    @field_validator("vendor_name")
+    @classmethod
+    def vendor_name_not_blank(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("vendor_name must not be blank")
+        return v.strip()
+
+
+class VendorContactUpdate(BaseModel):
+    """Schema for updating a vendor contact."""
+
+    vendor_name: str | None = Field(None, max_length=200)
+    service_name: str | None = Field(None, max_length=200)
+    contract_id: str | None = Field(None, max_length=100)
+    support_level: str | None = Field(None, pattern=r"^(premier|standard|basic)$")
+    phone_primary: str | None = Field(None, max_length=20)
+    phone_emergency: str | None = Field(None, max_length=20)
+    email_support: str | None = Field(None, max_length=200)
+    sla_response_hours: float | None = None
+    sla_resolution_hours: float | None = None
+    contract_expiry: date | None = None
+    notes: str | None = None
+    is_active: bool | None = None
+
+
+class VendorContactResponse(BaseModel):
+    """Schema for vendor contact response."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    vendor_name: str
+    service_name: str
+    contract_id: str | None = None
+    support_level: str | None = None
+    phone_primary: str | None = None
+    phone_emergency: str | None = None
+    email_support: str | None = None
+    sla_response_hours: float | None = None
+    sla_resolution_hours: float | None = None
+    contract_expiry: date | None = None
+    notes: str | None = None
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+
+
 # ---- BCPExercise ----
 
 

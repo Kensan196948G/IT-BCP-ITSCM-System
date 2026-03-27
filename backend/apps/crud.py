@@ -5,7 +5,14 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from apps.models import ActiveIncident, BCPExercise, ITSystemBCP
+from apps.models import (
+    ActiveIncident,
+    BCPExercise,
+    EmergencyContact,
+    ITSystemBCP,
+    RecoveryProcedure,
+    VendorContact,
+)
 
 
 # ---- ITSystemBCP CRUD ----
@@ -48,6 +55,153 @@ async def update_system(db: AsyncSession, system_id: uuid.UUID, data: dict) -> I
 async def delete_system(db: AsyncSession, system_id: uuid.UUID) -> bool:
     """Delete an IT system BCP record."""
     obj = await get_system(db, system_id)
+    if obj is None:
+        return False
+    await db.delete(obj)
+    await db.flush()
+    return True
+
+
+# ---- RecoveryProcedure CRUD ----
+
+
+async def create_procedure(db: AsyncSession, data: dict) -> RecoveryProcedure:
+    """Create a new recovery procedure record."""
+    obj = RecoveryProcedure(**data)
+    db.add(obj)
+    await db.flush()
+    await db.refresh(obj)
+    return obj
+
+
+async def get_procedure(db: AsyncSession, procedure_id: uuid.UUID) -> RecoveryProcedure | None:
+    """Get a single recovery procedure record by ID."""
+    result = await db.execute(select(RecoveryProcedure).where(RecoveryProcedure.id == procedure_id))
+    return result.scalar_one_or_none()
+
+
+async def get_all_procedures(db: AsyncSession, skip: int = 0, limit: int = 100) -> list[RecoveryProcedure]:
+    """Get all recovery procedure records with pagination."""
+    result = await db.execute(select(RecoveryProcedure).offset(skip).limit(limit))
+    return list(result.scalars().all())
+
+
+async def update_procedure(db: AsyncSession, procedure_id: uuid.UUID, data: dict) -> RecoveryProcedure | None:
+    """Update a recovery procedure record."""
+    obj = await get_procedure(db, procedure_id)
+    if obj is None:
+        return None
+    for key, value in data.items():
+        if value is not None:
+            setattr(obj, key, value)
+    await db.flush()
+    await db.refresh(obj)
+    return obj
+
+
+async def delete_procedure(db: AsyncSession, procedure_id: uuid.UUID) -> bool:
+    """Delete a recovery procedure record."""
+    obj = await get_procedure(db, procedure_id)
+    if obj is None:
+        return False
+    await db.delete(obj)
+    await db.flush()
+    return True
+
+
+# ---- EmergencyContact CRUD ----
+
+
+async def create_emergency_contact(db: AsyncSession, data: dict) -> EmergencyContact:
+    """Create a new emergency contact record."""
+    obj = EmergencyContact(**data)
+    db.add(obj)
+    await db.flush()
+    await db.refresh(obj)
+    return obj
+
+
+async def get_emergency_contact(db: AsyncSession, contact_id: uuid.UUID) -> EmergencyContact | None:
+    """Get a single emergency contact record by ID."""
+    result = await db.execute(select(EmergencyContact).where(EmergencyContact.id == contact_id))
+    return result.scalar_one_or_none()
+
+
+async def get_all_emergency_contacts(db: AsyncSession, skip: int = 0, limit: int = 100) -> list[EmergencyContact]:
+    """Get all emergency contact records with pagination."""
+    result = await db.execute(select(EmergencyContact).offset(skip).limit(limit))
+    return list(result.scalars().all())
+
+
+async def update_emergency_contact(db: AsyncSession, contact_id: uuid.UUID, data: dict) -> EmergencyContact | None:
+    """Update an emergency contact record."""
+    obj = await get_emergency_contact(db, contact_id)
+    if obj is None:
+        return None
+    for key, value in data.items():
+        if value is not None:
+            setattr(obj, key, value)
+    await db.flush()
+    await db.refresh(obj)
+    return obj
+
+
+async def delete_emergency_contact(db: AsyncSession, contact_id: uuid.UUID) -> bool:
+    """Delete an emergency contact record."""
+    obj = await get_emergency_contact(db, contact_id)
+    if obj is None:
+        return False
+    await db.delete(obj)
+    await db.flush()
+    return True
+
+
+async def get_emergency_contacts_by_escalation_group(db: AsyncSession, group: str) -> list[EmergencyContact]:
+    """Get emergency contacts filtered by escalation group."""
+    result = await db.execute(select(EmergencyContact).where(EmergencyContact.escalation_group == group))
+    return list(result.scalars().all())
+
+
+# ---- VendorContact CRUD ----
+
+
+async def create_vendor_contact(db: AsyncSession, data: dict) -> VendorContact:
+    """Create a new vendor contact record."""
+    obj = VendorContact(**data)
+    db.add(obj)
+    await db.flush()
+    await db.refresh(obj)
+    return obj
+
+
+async def get_vendor_contact(db: AsyncSession, contact_id: uuid.UUID) -> VendorContact | None:
+    """Get a single vendor contact record by ID."""
+    result = await db.execute(select(VendorContact).where(VendorContact.id == contact_id))
+    return result.scalar_one_or_none()
+
+
+async def get_all_vendor_contacts(db: AsyncSession, skip: int = 0, limit: int = 100) -> list[VendorContact]:
+    """Get all vendor contact records with pagination."""
+    result = await db.execute(select(VendorContact).offset(skip).limit(limit))
+    return list(result.scalars().all())
+
+
+async def update_vendor_contact(db: AsyncSession, contact_id: uuid.UUID, data: dict) -> VendorContact | None:
+    """Update a vendor contact record."""
+    obj = await get_vendor_contact(db, contact_id)
+    if obj is None:
+        return None
+    for key, value in data.items():
+        if value is not None:
+            setattr(obj, key, value)
+    await db.flush()
+    await db.refresh(obj)
+    return obj
+
+
+async def delete_vendor_contact(db: AsyncSession, contact_id: uuid.UUID) -> bool:
+    """Delete a vendor contact record."""
+    obj = await get_vendor_contact(db, contact_id)
     if obj is None:
         return False
     await db.delete(obj)

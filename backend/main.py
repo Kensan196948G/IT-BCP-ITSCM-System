@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from apps.routers import dashboard, exercises, incidents, systems
+from apps.routers import contacts, dashboard, exercises, incidents, procedures, systems
 from config import settings
 
 logger = logging.getLogger(__name__)
@@ -55,6 +55,14 @@ tags_metadata = [
     {
         "name": "dashboard",
         "description": "BCP準備状況ダッシュボード。全システムのRTO状況と準備スコアを提供します。",
+    },
+    {
+        "name": "recovery-procedures",
+        "description": "復旧手順書の管理。シナリオ別の復旧手順、優先順位、レビューサイクルを管理します。",
+    },
+    {
+        "name": "contacts",
+        "description": "緊急連絡先・ベンダー連絡先の管理。エスカレーション体制とSLA情報を含みます。",
     },
 ]
 
@@ -164,6 +172,8 @@ app.include_router(systems.router)
 app.include_router(exercises.router)
 app.include_router(incidents.router)
 app.include_router(dashboard.router)
+app.include_router(procedures.router)
+app.include_router(contacts.router)
 
 
 # ---------------------------------------------------------------------------
