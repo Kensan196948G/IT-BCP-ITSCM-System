@@ -21,6 +21,9 @@ import type {
   RTOComplianceReport,
   ExerciseTrendReport,
   ISO20000Report,
+  NotificationLog,
+  EscalationPlan,
+  EscalationStatus,
 } from "./types";
 
 const API_BASE_URL =
@@ -329,6 +332,51 @@ export const scenariosApi = {
       method: "POST",
       body: JSON.stringify(data),
     }),
+};
+
+// Notifications API
+export const notifications = {
+  send: (data: {
+    notification_type: string;
+    recipient: string;
+    subject: string;
+    body: string;
+    incident_id?: string;
+  }) =>
+    fetchAPI<NotificationLog>("/api/notifications/send", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  logs: () => fetchAPI<NotificationLog[]>("/api/notifications/logs"),
+
+  logsByIncident: (incidentId: string) =>
+    fetchAPI<NotificationLog[]>(`/api/notifications/logs/${incidentId}`),
+};
+
+// Escalation API
+export const escalation = {
+  trigger: (data: {
+    incident_id: string;
+    severity: string;
+    contacts?: { role: string; name: string; email?: string; teams_id?: string }[];
+  }) =>
+    fetchAPI<{
+      incident_id: string;
+      severity: string;
+      plan_name: string;
+      notifications_queued: number;
+      notifications: NotificationLog[];
+    }>("/api/escalation/trigger", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  plan: (severity: string) =>
+    fetchAPI<EscalationPlan>(`/api/escalation/plan/${severity}`),
+
+  status: (incidentId: string) =>
+    fetchAPI<EscalationStatus>(`/api/escalation/status/${incidentId}`),
 };
 
 export { fetchAPI };

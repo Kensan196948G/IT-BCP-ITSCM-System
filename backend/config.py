@@ -25,6 +25,15 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "dev-secret-key-change-in-production"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
+    # Notification
+    TEAMS_WEBHOOK_URL: str = ""
+    SMTP_HOST: str = ""
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    SMTP_FROM: str = "noreply@itbcp.local"
+    NOTIFICATION_DRY_RUN: bool = True
+
     # CORS
     CORS_ORIGINS: list[str] = [
         "http://localhost:3000",

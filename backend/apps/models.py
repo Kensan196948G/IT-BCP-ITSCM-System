@@ -268,6 +268,24 @@ class IncidentTask(Base):
     )
 
 
+class NotificationLog(Base):
+    """Notification log records for tracking all sent notifications."""
+
+    __tablename__ = "notification_logs"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    incident_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
+    notification_type: Mapped[str] = mapped_column(String(30), nullable=False)  # teams/email/sms
+    recipient: Mapped[str] = mapped_column(String(200), nullable=False)
+    subject: Mapped[str] = mapped_column(String(300), nullable=False)
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+    status: Mapped[str] = mapped_column(String(20), default="pending")  # pending/sent/failed
+    sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    extra_data: Mapped[dict | None] = mapped_column("metadata", JSON, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
 class SituationReport(Base):
     """Situation reports for an active incident."""
 

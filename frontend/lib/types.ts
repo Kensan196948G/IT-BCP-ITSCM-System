@@ -432,6 +432,44 @@ export interface ISO20000Report {
   next_audit_actions: string[];
 }
 
+// ---- Notification / Escalation (Phase 3) ----
+
+export interface NotificationLog {
+  id: string;
+  incident_id?: string;
+  notification_type: string;   // teams / email / sms
+  recipient: string;
+  subject: string;
+  body: string;
+  status: string;              // pending / sent / failed
+  sent_at?: string;
+  error_message?: string;
+  metadata?: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface EscalationLevel {
+  level: number;
+  role: string;
+  delay_minutes: number;
+  channels: string[];
+}
+
+export interface EscalationPlan {
+  severity: string;
+  plan_name: string;
+  levels: EscalationLevel[];
+}
+
+export interface EscalationStatus {
+  incident_id: string;
+  total_notifications: number;
+  sent: number;
+  pending: number;
+  failed: number;
+  notifications: NotificationLog[];
+}
+
 // API response wrapper
 export interface ApiResponse<T> {
   data: T;

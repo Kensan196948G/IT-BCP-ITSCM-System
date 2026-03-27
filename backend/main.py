@@ -12,7 +12,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from apps.routers import bia, contacts, dashboard, exercises, incidents, procedures, scenarios, systems, ws
+from apps.routers import (
+    bia,
+    contacts,
+    dashboard,
+    exercises,
+    incidents,
+    notifications,
+    procedures,
+    scenarios,
+    systems,
+    ws,
+)
 from config import settings
 
 logger = logging.getLogger(__name__)
@@ -74,6 +85,10 @@ tags_metadata = [
     {
         "name": "scenarios",
         "description": "BCPシナリオ管理。テーブルトップ演習用のシナリオテンプレートとインジェクションを管理します。",
+    },
+    {
+        "name": "notifications",
+        "description": "通知連携・エスカレーション自動化。Teams/Email通知送信、エスカレーション計画・発動・状況追跡を管理します。",
     },
 ]
 
@@ -187,6 +202,7 @@ app.include_router(procedures.router)
 app.include_router(contacts.router)
 app.include_router(bia.router)
 app.include_router(scenarios.router)
+app.include_router(notifications.router)
 app.include_router(ws.router)
 
 
