@@ -13,3 +13,7 @@ strict = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+filterwarnings = [
+    # python-jose uses datetime.utcnow() internally; suppress until upstream fixes
+    "ignore::DeprecationWarning:jose",
+]
