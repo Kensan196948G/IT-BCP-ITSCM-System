@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps import crud
+from apps.models import ActiveIncident
 from apps.rto_tracker import RTOTracker
 from apps.schemas import (
     ActiveIncidentResponse,
@@ -40,9 +41,9 @@ async def get_task_statistics(db: AsyncSession, incident_id: uuid.UUID) -> TaskS
     )
 
 
-async def _get_rto_statuses(db: AsyncSession, incident: object) -> list[dict]:
+async def _get_rto_statuses(db: AsyncSession, incident: ActiveIncident) -> list[dict]:
     """Get RTO statuses for an incident's affected systems."""
-    affected_names = getattr(incident, "affected_systems", None) or []
+    affected_names = incident.affected_systems or []
     if not affected_names:
         return []
 
