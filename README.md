@@ -12,7 +12,8 @@
   <a href="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml"><img src="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml/badge.svg" alt="CI"></a>
   <img src="https://img.shields.io/badge/tests-331_passed-brightgreen?style=flat-square" alt="Tests">
   <img src="https://img.shields.io/badge/coverage-92%25-brightgreen?style=flat-square" alt="Coverage">
-  <img src="https://img.shields.io/badge/PRs-29_merged-blue?style=flat-square" alt="PRs">
+  <img src="https://img.shields.io/badge/PRs-32_merged-blue?style=flat-square" alt="PRs">
+  <img src="https://img.shields.io/badge/STABLE-3%2F3_✅-brightgreen?style=flat-square" alt="STABLE">
   <img src="https://img.shields.io/badge/security-CVE_patched-brightgreen?style=flat-square&logo=shield" alt="Security">
 </p>
 
@@ -344,6 +345,7 @@ npm run dev
 ## 🔐 セキュリティ対応状況（2026-04-02 更新）
 
 > ClaudeOS v4 自律開発セッション中に検出・対応した脆弱性のトラッキング
+> セキュリティポリシー詳細: [SECURITY.md](./SECURITY.md)
 
 ### ✅ 修正済み脆弱性
 
@@ -352,6 +354,7 @@ npm run dev
 | `next` | 14.2.21 | **14.2.35** | [GHSA-f82v-jwr5-mffw](https://github.com/advisories/GHSA-f82v-jwr5-mffw) Authorization Bypass | 🔴 Critical | 2026-04-02 |
 | `python-jose` | 3.3.0 | **3.5.0** | PYSEC-2024-232/233 | 🟠 High | 2026-04-02 |
 | `black` | 24.10.0 | **26.3.1** | CalVer更新・セキュリティパッチ | 🟡 Medium | 2026-04-02 |
+| `SECURITY.md` | — | **新規作成** | ISO 27001 A.5.29脆弱性開示ポリシー整備 | ✅ Compliance | 2026-04-02 |
 
 ### ⚠️ 既知の未解消脆弱性（追跡中）
 
