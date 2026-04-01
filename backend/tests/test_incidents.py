@@ -5,7 +5,6 @@ from unittest.mock import AsyncMock, patch
 
 from tests.conftest import FIXED_UUID, MockIncident, MockSystem, sample_incident_payload
 
-
 # ---------------------------------------------------------------------------
 # GET /api/incidents  (list)
 # ---------------------------------------------------------------------------

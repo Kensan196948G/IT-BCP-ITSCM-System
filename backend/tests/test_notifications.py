@@ -7,7 +7,6 @@ import pytest
 from apps.escalation_engine import EscalationEngine
 from apps.notification_service import NotificationService
 
-
 # ---------------------------------------------------------------------------
 # NotificationService tests
 # ---------------------------------------------------------------------------

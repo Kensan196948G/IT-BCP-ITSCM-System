@@ -7,7 +7,6 @@ import pytest
 from apps.report_generator import ReportGenerator
 from tests.conftest import MockExercise, MockSystem
 
-
 # ---------------------------------------------------------------------------
 # ReportGenerator unit tests
 # ---------------------------------------------------------------------------

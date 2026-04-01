@@ -19,7 +19,6 @@ from apps.models import (
     VendorContact,
 )
 
-
 # ---- ITSystemBCP CRUD ----
 
 
