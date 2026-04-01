@@ -5,7 +5,6 @@ from unittest.mock import AsyncMock, patch
 
 from tests.conftest import FIXED_NOW, FIXED_UUID, MockIncident, MockSystem
 
-
 # ---------------------------------------------------------------------------
 # Mock helpers
 # ---------------------------------------------------------------------------

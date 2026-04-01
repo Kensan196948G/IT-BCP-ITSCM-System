@@ -4,7 +4,6 @@ from fastapi.testclient import TestClient
 
 from apps.audit_service import AuditService
 
-
 # ---------------------------------------------------------------------------
 # AuditService unit tests
 # ---------------------------------------------------------------------------

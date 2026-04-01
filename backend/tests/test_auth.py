@@ -5,7 +5,6 @@ from fastapi.testclient import TestClient
 
 from apps.auth import ROLE_PERMISSIONS, ROLES, auth_service
 
-
 # ---------------------------------------------------------------------------
 # Token generation / verification
 # ---------------------------------------------------------------------------

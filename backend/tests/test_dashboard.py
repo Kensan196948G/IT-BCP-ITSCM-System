@@ -4,7 +4,6 @@ from unittest.mock import AsyncMock, patch
 
 from tests.conftest import MockIncident, MockSystem
 
-
 # ---------------------------------------------------------------------------
 # GET /api/dashboard/readiness
 # ---------------------------------------------------------------------------

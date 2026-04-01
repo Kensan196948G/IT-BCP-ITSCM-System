@@ -10,16 +10,17 @@
 
 <p align="center">
   <a href="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml"><img src="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml/badge.svg" alt="CI"></a>
-  <img src="https://img.shields.io/badge/tests-321_passed-brightgreen?style=flat-square" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-331_passed-brightgreen?style=flat-square" alt="Tests">
   <img src="https://img.shields.io/badge/coverage-92%25-brightgreen?style=flat-square" alt="Coverage">
   <img src="https://img.shields.io/badge/PRs-29_merged-blue?style=flat-square" alt="PRs">
+  <img src="https://img.shields.io/badge/security-CVE_patched-brightgreen?style=flat-square&logo=shield" alt="Security">
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/ISO20000-ITSCM-blue?style=flat-square" alt="ISO20000">
   <img src="https://img.shields.io/badge/ISO27001-A.5.29%2FA.5.30-green?style=flat-square" alt="ISO27001">
   <img src="https://img.shields.io/badge/NIST_CSF-RECOVER_RC-orange?style=flat-square" alt="NIST CSF">
-  <img src="https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js" alt="Next.js">
+  <img src="https://img.shields.io/badge/Next.js-14.2.35-black?style=flat-square&logo=next.js" alt="Next.js">
   <img src="https://img.shields.io/badge/FastAPI-0.115-009688?style=flat-square&logo=fastapi" alt="FastAPI">
   <img src="https://img.shields.io/badge/PostgreSQL-16-336791?style=flat-square&logo=postgresql" alt="PostgreSQL">
   <img src="https://img.shields.io/badge/Azure-Container_Apps-0078D4?style=flat-square&logo=microsoftazure" alt="Azure">
@@ -337,6 +338,41 @@ npm run dev
 | 📗 **ISO27001:2022** | A.5.29 事業継続 / A.5.30 ICT継続 | 🟢 対応済 |
 | 📙 **NIST CSF 2.0** | RECOVER RC（復旧計画・改善） | 🟢 対応済 |
 | 📕 **ITIL v4** | ITサービス継続管理 | 🟢 対応済 |
+
+---
+
+## 🔐 セキュリティ対応状況（2026-04-02 更新）
+
+> ClaudeOS v4 自律開発セッション中に検出・対応した脆弱性のトラッキング
+
+### ✅ 修正済み脆弱性
+
+| パッケージ | 旧バージョン | 新バージョン | CVE/GHSA | 重要度 | 対応日 |
+|:-----------|:------------:|:------------:|:---------|:------:|:------:|
+| `next` | 14.2.21 | **14.2.35** | [GHSA-f82v-jwr5-mffw](https://github.com/advisories/GHSA-f82v-jwr5-mffw) Authorization Bypass | 🔴 Critical | 2026-04-02 |
+| `python-jose` | 3.3.0 | **3.5.0** | PYSEC-2024-232/233 | 🟠 High | 2026-04-02 |
+| `black` | 24.10.0 | **26.3.1** | CalVer更新・セキュリティパッチ | 🟡 Medium | 2026-04-02 |
+
+### ⚠️ 既知の未解消脆弱性（追跡中）
+
+| パッケージ | CVE | 重要度 | 対応方針 | 追跡Issue |
+|:-----------|:----|:------:|:---------|:---------:|
+| `starlette` (via FastAPI) | CVE-2025-54121 / CVE-2025-62727 | 🟠 High | FastAPI 0.120.x+へのアップグレードが必要（破壊的変更）| [#73](https://github.com/Kensan196948G/IT-BCP-ITSCM-System/issues/73) |
+| `next` | GHSA-9g9p-9gw9-jx7f 他3件 | 🟠 High (DoS) | Next.js 16へのメジャーアップグレードが必要 | [#72](https://github.com/Kensan196948G/IT-BCP-ITSCM-System/issues/72) |
+
+### 🔍 セキュリティスキャン構成
+
+```mermaid
+graph LR
+    A["📅 毎週月曜 3:00"] --> B["pip-audit\nbackend/requirements.txt"]
+    A --> C["npm audit\n--audit-level=critical"]
+    A --> D["Trivy\nコンテナイメージスキャン"]
+    B --> E["CVE検出時\nCI失敗・Issue起票"]
+    C --> E
+    D --> F["continue-on-error\n結果レポートのみ"]
+    style E fill:#fee2e2
+    style F fill:#fef3c7
+```
 
 ---
 

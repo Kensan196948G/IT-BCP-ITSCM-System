@@ -5,7 +5,6 @@ from unittest.mock import AsyncMock, patch
 
 from tests.conftest import FIXED_UUID, MockExercise, sample_exercise_payload
 
-
 # ---------------------------------------------------------------------------
 # GET /api/exercises  (list)
 # ---------------------------------------------------------------------------
