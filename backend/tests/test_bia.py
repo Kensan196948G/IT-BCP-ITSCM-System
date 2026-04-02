@@ -275,8 +275,10 @@ class TestBIAEndpoints:
         resp = client.delete(f"/api/bia/{FIXED_UUID}")
         assert resp.status_code == 204
 
+    @patch("apps.routers.bia.get_cached", new_callable=AsyncMock, return_value=None)
+    @patch("apps.routers.bia.set_cached", new_callable=AsyncMock)
     @patch("apps.routers.bia.crud.get_all_bia_assessments", new_callable=AsyncMock)
-    def test_summary(self, mock_list, client):
+    def test_summary(self, mock_list, _sc, _gc, client):
         mock_list.return_value = [MockBIA(), MockBIA(risk_score=50)]
         resp = client.get("/api/bia/summary")
         assert resp.status_code == 200
@@ -284,8 +286,10 @@ class TestBIAEndpoints:
         assert data["total_assessments"] == 2
         assert data["average_risk_score"] == 61.0
 
+    @patch("apps.routers.bia.get_cached", new_callable=AsyncMock, return_value=None)
+    @patch("apps.routers.bia.set_cached", new_callable=AsyncMock)
     @patch("apps.routers.bia.crud.get_all_bia_assessments", new_callable=AsyncMock)
-    def test_risk_matrix(self, mock_list, client):
+    def test_risk_matrix(self, mock_list, _sc, _gc, client):
         mock_list.return_value = [MockBIA()]
         resp = client.get("/api/bia/risk-matrix")
         assert resp.status_code == 200

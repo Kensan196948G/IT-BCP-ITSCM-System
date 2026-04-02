@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps import crud
 from apps.bia_calculator import get_bia_summary, get_risk_matrix
+from apps.cache import TTL_BIA, get_cached, set_cached
 from apps.schemas import (
     BIAAssessmentCreate,
     BIAAssessmentResponse,
@@ -17,6 +18,9 @@ from apps.schemas import (
 from database import get_db
 
 router = APIRouter(prefix="/api/bia", tags=["bia"])
+
+_CACHE_BIA_SUMMARY = "bia:summary"
+_CACHE_BIA_RISK_MATRIX = "bia:risk-matrix"
 
 
 @router.get("", response_model=list[BIAAssessmentResponse])
@@ -43,8 +47,14 @@ async def bia_summary(
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     """Get aggregated BIA summary statistics."""
+    cached = await get_cached(_CACHE_BIA_SUMMARY)
+    if cached is not None:
+        return cached
+
     assessments = await crud.get_all_bia_assessments(db, skip=0, limit=1000)
-    return get_bia_summary(assessments)
+    result = get_bia_summary(assessments)
+    await set_cached(_CACHE_BIA_SUMMARY, result, TTL_BIA)
+    return result
 
 
 @router.get("/risk-matrix", response_model=RiskMatrixResponse)
@@ -52,8 +62,14 @@ async def bia_risk_matrix(
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     """Get risk matrix data for all assessments."""
+    cached = await get_cached(_CACHE_BIA_RISK_MATRIX)
+    if cached is not None:
+        return cached
+
     assessments = await crud.get_all_bia_assessments(db, skip=0, limit=1000)
-    return get_risk_matrix(assessments)
+    result = get_risk_matrix(assessments)
+    await set_cached(_CACHE_BIA_RISK_MATRIX, result, TTL_BIA)
+    return result
 
 
 @router.get("/{assessment_id}", response_model=BIAAssessmentResponse)

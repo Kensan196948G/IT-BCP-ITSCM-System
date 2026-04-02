@@ -377,8 +377,10 @@ def test_situation_report_creation(mock_get, mock_create_sr, client):
 # ---------------------------------------------------------------------------
 
 
+@patch("apps.routers.bia.get_cached", new_callable=AsyncMock, return_value=None)
+@patch("apps.routers.bia.set_cached", new_callable=AsyncMock)
 @patch("apps.crud.get_all_bia_assessments", new_callable=AsyncMock)
-def test_bia_summary_integration(mock_list, client):
+def test_bia_summary_integration(mock_list, _sc, _gc, client):
     """GET /api/bia/summary returns aggregated BIA statistics."""
     mock_list.return_value = [_MockBIA()]
     resp = client.get("/api/bia/summary")
@@ -388,8 +390,10 @@ def test_bia_summary_integration(mock_list, client):
     assert data["average_risk_score"] is not None
 
 
+@patch("apps.routers.bia.get_cached", new_callable=AsyncMock, return_value=None)
+@patch("apps.routers.bia.set_cached", new_callable=AsyncMock)
 @patch("apps.crud.get_all_bia_assessments", new_callable=AsyncMock)
-def test_bia_risk_matrix_integration(mock_list, client):
+def test_bia_risk_matrix_integration(mock_list, _sc, _gc, client):
     """GET /api/bia/risk-matrix returns risk matrix data."""
     mock_list.return_value = [_MockBIA()]
     resp = client.get("/api/bia/risk-matrix")
