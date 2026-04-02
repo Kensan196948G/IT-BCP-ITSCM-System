@@ -5,8 +5,8 @@ import json
 import logging
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-
+from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect
+from apps.auth import AuthService
 from apps.websocket_manager import manager
 
 logger = logging.getLogger(__name__)
@@ -71,13 +71,29 @@ def _get_mock_rto_snapshot() -> dict:
 
 
 @router.websocket("/ws/rto-dashboard")
-async def rto_dashboard_ws(websocket: WebSocket) -> None:
+async def rto_dashboard_ws(
+    websocket: WebSocket,
+    token: str | None = Query(default=None),
+) -> None:
     """WebSocket endpoint for real-time RTO dashboard updates.
+
+    Requires a valid JWT token passed as ?token=<jwt>.
+    Closes with code 1008 (Policy Violation) if authentication fails.
 
     - On connect: sends full RTO snapshot
     - Every 5 seconds: sends updated RTO status
     - Accepts client messages (e.g. ping)
     """
+    # JWT authentication: token required
+    if token is None:
+        await websocket.close(code=1008, reason="Authentication required")
+        return
+    try:
+        AuthService.verify_token(token)
+    except Exception:
+        await websocket.close(code=1008, reason="Invalid or expired token")
+        return
+
     await manager.connect(websocket)
     try:
         # Send initial snapshot
