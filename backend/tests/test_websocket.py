@@ -7,8 +7,12 @@ import pytest
 from fastapi import WebSocket
 from fastapi.testclient import TestClient
 
+from apps.auth import AuthService
 from apps.websocket_manager import ConnectionManager
 from main import app
+
+_VALID_TOKEN = AuthService.create_access_token("test-user", "viewer")
+_WS_URL = f"/ws/rto-dashboard?token={_VALID_TOKEN}"
 
 
 @pytest.fixture()
@@ -22,7 +26,7 @@ class TestWebSocketRTODashboard:
 
     def test_websocket_connect_and_receive_snapshot(self, ws_client):
         """Test that connecting receives an initial RTO snapshot."""
-        with ws_client.websocket_connect("/ws/rto-dashboard") as ws:
+        with ws_client.websocket_connect(_WS_URL) as ws:
             data = ws.receive_text()
             msg = json.loads(data)
             assert msg["type"] == "rto_snapshot"
@@ -32,7 +36,7 @@ class TestWebSocketRTODashboard:
 
     def test_websocket_snapshot_has_systems(self, ws_client):
         """Test that the snapshot contains system data."""
-        with ws_client.websocket_connect("/ws/rto-dashboard") as ws:
+        with ws_client.websocket_connect(_WS_URL) as ws:
             data = ws.receive_text()
             msg = json.loads(data)
             assert len(msg["systems"]) > 0
@@ -43,7 +47,7 @@ class TestWebSocketRTODashboard:
 
     def test_websocket_snapshot_summary(self, ws_client):
         """Test that the snapshot summary has correct structure."""
-        with ws_client.websocket_connect("/ws/rto-dashboard") as ws:
+        with ws_client.websocket_connect(_WS_URL) as ws:
             data = ws.receive_text()
             msg = json.loads(data)
             summary = msg["summary"]
@@ -55,7 +59,7 @@ class TestWebSocketRTODashboard:
 
     def test_websocket_ping_pong(self, ws_client):
         """Test that sending a ping receives a pong."""
-        with ws_client.websocket_connect("/ws/rto-dashboard") as ws:
+        with ws_client.websocket_connect(_WS_URL) as ws:
             # Consume initial snapshot
             ws.receive_text()
             # Send ping
@@ -67,7 +71,7 @@ class TestWebSocketRTODashboard:
 
     def test_websocket_handles_invalid_json(self, ws_client):
         """Test that invalid JSON does not crash the connection."""
-        with ws_client.websocket_connect("/ws/rto-dashboard") as ws:
+        with ws_client.websocket_connect(_WS_URL) as ws:
             # Consume initial snapshot
             ws.receive_text()
             # Send invalid JSON
@@ -81,7 +85,7 @@ class TestWebSocketRTODashboard:
     def test_websocket_receives_background_update(self, ws_client):
         """Background task sends rto_update messages (covers lines 91-93)."""
         with patch("asyncio.sleep", new_callable=AsyncMock, return_value=None):
-            with ws_client.websocket_connect("/ws/rto-dashboard") as ws:
+            with ws_client.websocket_connect(_WS_URL) as ws:
                 # Initial snapshot (line 85)
                 snapshot = json.loads(ws.receive_text())
                 assert snapshot["type"] == "rto_snapshot"
@@ -103,9 +107,21 @@ class TestWebSocketRTODashboard:
 
         with patch.object(manager, "connect", new_callable=AsyncMock):
             with patch.object(manager, "disconnect") as mock_disconnect:
-                await rto_dashboard_ws(ws)
+                await rto_dashboard_ws(ws, token=_VALID_TOKEN)
 
         mock_disconnect.assert_called_once_with(ws)
+
+    def test_websocket_rejects_without_token(self, ws_client):
+        """Connecting without a token closes with 1008."""
+        with pytest.raises(Exception):
+            with ws_client.websocket_connect("/ws/rto-dashboard"):
+                pass
+
+    def test_websocket_rejects_invalid_token(self, ws_client):
+        """Connecting with an invalid token closes with 1008."""
+        with pytest.raises(Exception):
+            with ws_client.websocket_connect("/ws/rto-dashboard?token=invalid.token.here"):
+                pass
 
 
 # ---------------------------------------------------------------------------
