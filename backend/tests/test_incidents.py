@@ -113,3 +113,76 @@ def test_incident_rto_dashboard_not_found(mock_get: AsyncMock, client) -> None:
     mock_get.return_value = None
     response = client.get(f"/api/incidents/{uuid.uuid4()}/rto-dashboard")
     assert response.status_code == 404
+
+
+@patch("apps.crud.get_all_systems", new_callable=AsyncMock)
+@patch("apps.crud.get_incident", new_callable=AsyncMock)
+def test_incident_rto_dashboard_no_affected_systems(
+    mock_get_inc: AsyncMock, mock_get_sys: AsyncMock, client
+) -> None:
+    """GET /api/incidents/{id}/rto-dashboard returns [] when no affected_systems (line 87)."""
+    mock_get_inc.return_value = MockIncident(affected_systems=[])
+    response = client.get(f"/api/incidents/{FIXED_UUID}/rto-dashboard")
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+# ---------------------------------------------------------------------------
+# PUT /api/incidents/{id}  (update) — not found
+# ---------------------------------------------------------------------------
+
+
+@patch("apps.crud.update_incident", new_callable=AsyncMock)
+def test_update_incident_not_found(mock_update: AsyncMock, client) -> None:
+    """PUT /api/incidents/{id} should return 404 when update returns None (line 71)."""
+    mock_update.return_value = None
+    response = client.put(
+        f"/api/incidents/{uuid.uuid4()}",
+        json={"status": "resolved"},
+    )
+    assert response.status_code == 404
+
+
+# ---------------------------------------------------------------------------
+# PUT /api/incidents/{id}/tasks/{task_id}  — incident not found
+# ---------------------------------------------------------------------------
+
+
+@patch("apps.crud.get_incident", new_callable=AsyncMock)
+def test_update_incident_task_incident_not_found(mock_get: AsyncMock, client) -> None:
+    """PUT /api/incidents/{id}/tasks/{task_id} returns 404 when incident missing (line 178)."""
+    mock_get.return_value = None
+    response = client.put(
+        f"/api/incidents/{FIXED_UUID}/tasks/{FIXED_UUID}",
+        json={"status": "completed"},
+    )
+    assert response.status_code == 404
+
+
+# ---------------------------------------------------------------------------
+# POST /api/incidents/{id}/situation-reports  — incident not found
+# ---------------------------------------------------------------------------
+
+
+@patch("apps.crud.get_incident", new_callable=AsyncMock)
+def test_create_situation_report_incident_not_found(mock_get: AsyncMock, client) -> None:
+    """POST /api/incidents/{id}/situation-reports returns 404 when incident missing (line 203)."""
+    mock_get.return_value = None
+    response = client.post(
+        f"/api/incidents/{FIXED_UUID}/situation-reports",
+        json={"report_number": 1, "summary": "Status update"},
+    )
+    assert response.status_code == 404
+
+
+# ---------------------------------------------------------------------------
+# GET /api/incidents/{id}/situation-reports  — incident not found
+# ---------------------------------------------------------------------------
+
+
+@patch("apps.crud.get_incident", new_callable=AsyncMock)
+def test_list_situation_reports_incident_not_found(mock_get: AsyncMock, client) -> None:
+    """GET /api/incidents/{id}/situation-reports returns 404 when incident missing (line 220)."""
+    mock_get.return_value = None
+    response = client.get(f"/api/incidents/{FIXED_UUID}/situation-reports")
+    assert response.status_code == 404
