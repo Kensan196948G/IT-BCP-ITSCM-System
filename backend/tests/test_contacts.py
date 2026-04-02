@@ -263,3 +263,76 @@ def test_delete_vendor_contact(mock_delete: AsyncMock) -> None:
         assert response.status_code == 204
     finally:
         app.dependency_overrides.clear()
+
+
+# ---- Error path tests for update/delete 404s ----
+
+
+@patch("apps.crud.update_emergency_contact", new_callable=AsyncMock)
+def test_update_emergency_contact_not_found(mock_update: AsyncMock) -> None:
+    """Test PUT /api/contacts/emergency/{id} returns 404 when record does not exist."""
+    mock_update.return_value = None
+
+    from database import get_db
+
+    app.dependency_overrides[get_db] = _mock_db_override()
+    try:
+        response = client.put(
+            f"/api/contacts/emergency/{uuid.uuid4()}",
+            json={"name": "Updated Name"},
+        )
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Emergency contact not found"
+    finally:
+        app.dependency_overrides.clear()
+
+
+@patch("apps.crud.delete_emergency_contact", new_callable=AsyncMock)
+def test_delete_emergency_contact_not_found(mock_delete: AsyncMock) -> None:
+    """Test DELETE /api/contacts/emergency/{id} returns 404 when record does not exist."""
+    mock_delete.return_value = False
+
+    from database import get_db
+
+    app.dependency_overrides[get_db] = _mock_db_override()
+    try:
+        response = client.delete(f"/api/contacts/emergency/{uuid.uuid4()}")
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Emergency contact not found"
+    finally:
+        app.dependency_overrides.clear()
+
+
+@patch("apps.crud.update_vendor_contact", new_callable=AsyncMock)
+def test_update_vendor_contact_not_found(mock_update: AsyncMock) -> None:
+    """Test PUT /api/contacts/vendors/{id} returns 404 when record does not exist."""
+    mock_update.return_value = None
+
+    from database import get_db
+
+    app.dependency_overrides[get_db] = _mock_db_override()
+    try:
+        response = client.put(
+            f"/api/contacts/vendors/{uuid.uuid4()}",
+            json={"company_name": "Updated Corp"},
+        )
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Vendor contact not found"
+    finally:
+        app.dependency_overrides.clear()
+
+
+@patch("apps.crud.delete_vendor_contact", new_callable=AsyncMock)
+def test_delete_vendor_contact_not_found(mock_delete: AsyncMock) -> None:
+    """Test DELETE /api/contacts/vendors/{id} returns 404 when record does not exist."""
+    mock_delete.return_value = False
+
+    from database import get_db
+
+    app.dependency_overrides[get_db] = _mock_db_override()
+    try:
+        response = client.delete(f"/api/contacts/vendors/{uuid.uuid4()}")
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Vendor contact not found"
+    finally:
+        app.dependency_overrides.clear()

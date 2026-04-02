@@ -10,9 +10,9 @@
 
 <p align="center">
   <a href="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml"><img src="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml/badge.svg" alt="CI"></a>
-  <img src="https://img.shields.io/badge/tests-331_passed-brightgreen?style=flat-square" alt="Tests">
-  <img src="https://img.shields.io/badge/coverage-92%25-brightgreen?style=flat-square" alt="Coverage">
-  <img src="https://img.shields.io/badge/PRs-34_merged-blue?style=flat-square" alt="PRs">
+  <img src="https://img.shields.io/badge/tests-342_passed-brightgreen?style=flat-square" alt="Tests">
+  <img src="https://img.shields.io/badge/coverage-87%25-brightgreen?style=flat-square" alt="Coverage">
+  <img src="https://img.shields.io/badge/PRs-35_merged-blue?style=flat-square" alt="PRs">
   <img src="https://img.shields.io/badge/STABLE-5%2F5_✅-brightgreen?style=flat-square" alt="STABLE">
   <img src="https://img.shields.io/badge/security-CVE_patched-brightgreen?style=flat-square&logo=shield" alt="Security">
 </p>
@@ -357,6 +357,8 @@ npm run dev
 | `SECURITY.md` | — | **新規作成** | ISO 27001 A.5.29脆弱性開示ポリシー整備 | ✅ Compliance | 2026-04-02 |
 | mypy strict | 7エラー | **0エラー** | 型安全性向上・type:ignore削除 | ✅ Quality | 2026-04-02 |
 | Node.js CI | 20.x | **22.x LTS** | EOL対応・ISO 27001 A.5.30準拠 | ✅ Compliance | 2026-04-02 |
+| テストカバレッジ | 86% | **87%** | scenarios/contacts 404パス追加（+11テスト） | ✅ Quality | 2026-04-02 |
+| テスト総数 | 331件 | **342件** | test_scenarios.py新規・test_contacts.py拡充 | ✅ Quality | 2026-04-02 |
 
 ### ⚠️ 既知の未解消脆弱性（追跡中）
 
