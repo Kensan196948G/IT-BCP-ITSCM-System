@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps import crud
+from apps.cache import TTL_EXERCISE_LIST, get_cached, invalidate_pattern, set_cached
 from apps.exercise_engine import ExerciseEngine
 from apps.schemas import (
     BCPExerciseCreate,
@@ -20,6 +21,8 @@ from database import get_db
 
 router = APIRouter(prefix="/api/exercises", tags=["exercises"])
 
+_CACHE_NS = "exercises:list"
+
 
 @router.get("", response_model=list[BCPExerciseResponse])
 async def list_exercises(
@@ -28,7 +31,13 @@ async def list_exercises(
     db: AsyncSession = Depends(get_db),
 ) -> list:
     """Get all BCP exercise records with pagination."""
-    return await crud.get_all_exercises(db, skip=skip, limit=limit)
+    cache_key = f"{_CACHE_NS}:{skip}:{limit}"
+    cached = await get_cached(cache_key)
+    if cached is not None:
+        return cached
+    result = await crud.get_all_exercises(db, skip=skip, limit=limit)
+    await set_cached(cache_key, result, TTL_EXERCISE_LIST)
+    return result
 
 
 @router.post("", response_model=BCPExerciseResponse, status_code=201)
@@ -37,7 +46,9 @@ async def create_exercise(
     db: AsyncSession = Depends(get_db),
 ) -> object:
     """Create a new BCP exercise record."""
-    return await crud.create_exercise(db, payload.model_dump())
+    obj = await crud.create_exercise(db, payload.model_dump())
+    await invalidate_pattern(f"{_CACHE_NS}:*")
+    return obj
 
 
 @router.get("/{exercise_id}", response_model=BCPExerciseResponse)
@@ -62,6 +73,7 @@ async def update_exercise(
     obj = await crud.update_exercise(db, exercise_id, payload.model_dump(exclude_unset=True))
     if obj is None:
         raise HTTPException(status_code=404, detail="Exercise not found")
+    await invalidate_pattern(f"{_CACHE_NS}:*")
     return obj
 
 

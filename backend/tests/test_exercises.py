@@ -10,8 +10,10 @@ from tests.conftest import FIXED_UUID, MockExercise, sample_exercise_payload
 # ---------------------------------------------------------------------------
 
 
+@patch("apps.routers.exercises.get_cached", new_callable=AsyncMock, return_value=None)
+@patch("apps.routers.exercises.set_cached", new_callable=AsyncMock)
 @patch("apps.crud.get_all_exercises", new_callable=AsyncMock)
-def test_list_exercises(mock_get_all: AsyncMock, client) -> None:
+def test_list_exercises(mock_get_all: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client) -> None:
     """GET /api/exercises should return a list of exercises."""
     mock_get_all.return_value = [MockExercise()]
     response = client.get("/api/exercises")
@@ -22,8 +24,10 @@ def test_list_exercises(mock_get_all: AsyncMock, client) -> None:
     assert data[0]["exercise_id"] == "EX-2026-001"
 
 
+@patch("apps.routers.exercises.get_cached", new_callable=AsyncMock, return_value=None)
+@patch("apps.routers.exercises.set_cached", new_callable=AsyncMock)
 @patch("apps.crud.get_all_exercises", new_callable=AsyncMock)
-def test_list_exercises_empty(mock_get_all: AsyncMock, client) -> None:
+def test_list_exercises_empty(mock_get_all: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client) -> None:
     """GET /api/exercises should return empty list when no records exist."""
     mock_get_all.return_value = []
     response = client.get("/api/exercises")
@@ -31,14 +35,26 @@ def test_list_exercises_empty(mock_get_all: AsyncMock, client) -> None:
     assert response.json() == []
 
 
+@patch("apps.routers.exercises.get_cached", new_callable=AsyncMock)
+@patch("apps.crud.get_all_exercises", new_callable=AsyncMock)
+def test_list_exercises_cache_hit(mock_get_all: AsyncMock, mock_gc: AsyncMock, client) -> None:
+    """GET /api/exercises returns cached data without calling DB."""
+    mock_gc.return_value = [MockExercise(exercise_id="EX-CACHED", title="Cached exercise")]
+    response = client.get("/api/exercises")
+    assert response.status_code == 200
+    assert response.json()[0]["exercise_id"] == "EX-CACHED"
+    mock_get_all.assert_not_called()
+
+
 # ---------------------------------------------------------------------------
 # POST /api/exercises  (create)
 # ---------------------------------------------------------------------------
 
 
+@patch("apps.routers.exercises.invalidate_pattern", new_callable=AsyncMock)
 @patch("apps.crud.create_exercise", new_callable=AsyncMock)
-def test_create_exercise(mock_create: AsyncMock, client) -> None:
-    """POST /api/exercises should create and return the exercise."""
+def test_create_exercise(mock_create: AsyncMock, mock_inv: AsyncMock, client) -> None:
+    """POST /api/exercises should create and return the exercise, then invalidate cache."""
     mock_create.return_value = MockExercise()
     payload = sample_exercise_payload()
     response = client.post("/api/exercises", json=payload)
@@ -46,6 +62,7 @@ def test_create_exercise(mock_create: AsyncMock, client) -> None:
     data = response.json()
     assert data["title"] == "Annual DR drill"
     assert data["exercise_type"] == "tabletop"
+    mock_inv.assert_awaited_once()
 
 
 def test_create_exercise_invalid_type(client) -> None:
@@ -83,9 +100,10 @@ def test_get_exercise_not_found(mock_get: AsyncMock, client) -> None:
 # ---------------------------------------------------------------------------
 
 
+@patch("apps.routers.exercises.invalidate_pattern", new_callable=AsyncMock)
 @patch("apps.crud.update_exercise", new_callable=AsyncMock)
-def test_update_exercise(mock_update: AsyncMock, client) -> None:
-    """PUT /api/exercises/{id} should update and return the exercise."""
+def test_update_exercise(mock_update: AsyncMock, mock_inv: AsyncMock, client) -> None:
+    """PUT /api/exercises/{id} should update and return the exercise, then invalidate cache."""
     mock_update.return_value = MockExercise(title="Updated drill", status="completed", overall_result="pass")
     response = client.put(
         f"/api/exercises/{FIXED_UUID}",
@@ -95,6 +113,7 @@ def test_update_exercise(mock_update: AsyncMock, client) -> None:
     data = response.json()
     assert data["title"] == "Updated drill"
     assert data["status"] == "completed"
+    mock_inv.assert_awaited_once()
 
 
 @patch("apps.crud.update_exercise", new_callable=AsyncMock)
