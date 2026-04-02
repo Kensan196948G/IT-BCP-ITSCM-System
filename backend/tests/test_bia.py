@@ -345,3 +345,74 @@ class TestBIAEndpoints:
         assert "text/csv" in resp.headers["content-type"]
         lines = resp.text.strip().splitlines()
         assert len(lines) == 1  # header only
+
+    # ---- CSV Import ----
+
+    @patch("apps.routers.bia.crud.create_bia_assessment", new_callable=AsyncMock)
+    def test_import_bia_csv_success(self, mock_create, client):
+        """POST /api/bia/import/csv imports valid rows and returns summary."""
+        mock_create.return_value = MockBIA()
+        csv_content = (
+            "assessment_id,system_name,assessment_date,business_processes\n"
+            'BIA-2026-001,Core Banking System,2026-03-27,"[""決済処理""]"\n'
+        )
+        resp = client.post(
+            "/api/bia/import/csv",
+            files={"file": ("bia.csv", csv_content.encode(), "text/csv")},
+        )
+        assert resp.status_code == 201
+        data = resp.json()
+        assert data["total_rows"] == 1
+        assert data["imported"] == 1
+        assert data["skipped"] == 0
+        assert data["errors"] == []
+
+    @patch("apps.routers.bia.crud.create_bia_assessment", new_callable=AsyncMock)
+    def test_import_bia_csv_invalid_row(self, mock_create, client):
+        """POST /api/bia/import/csv skips rows with missing required fields."""
+        mock_create.return_value = MockBIA()
+        csv_content = (
+            "assessment_id,system_name,assessment_date\n"
+            ",Core Banking System,2026-03-27\n"  # blank assessment_id → invalid
+        )
+        resp = client.post(
+            "/api/bia/import/csv",
+            files={"file": ("bia.csv", csv_content.encode(), "text/csv")},
+        )
+        assert resp.status_code == 201
+        data = resp.json()
+        assert data["total_rows"] == 1
+        assert data["skipped"] == 1
+        assert len(data["errors"]) == 1
+        assert data["errors"][0]["row"] == 2
+
+    @patch("apps.routers.bia.crud.create_bia_assessment", new_callable=AsyncMock)
+    def test_import_bia_csv_empty(self, mock_create, client):
+        """POST /api/bia/import/csv handles header-only CSV gracefully."""
+        csv_content = "assessment_id,system_name,assessment_date\n"
+        resp = client.post(
+            "/api/bia/import/csv",
+            files={"file": ("bia.csv", csv_content.encode(), "text/csv")},
+        )
+        assert resp.status_code == 201
+        data = resp.json()
+        assert data["total_rows"] == 0
+        assert data["imported"] == 0
+        mock_create.assert_not_called()
+
+    @patch("apps.routers.bia.crud.create_bia_assessment", new_callable=AsyncMock)
+    def test_import_bia_csv_json_fields(self, mock_create, client):
+        """POST /api/bia/import/csv correctly parses JSON-encoded list fields."""
+        mock_create.return_value = MockBIA()
+        csv_content = (
+            "assessment_id,system_name,assessment_date,business_processes,regulatory_risks\n"
+            'BIA-2026-002,DR System,2026-03-27,"[""決済処理""]","[""金融庁報告義務""]"\n'
+        )
+        resp = client.post(
+            "/api/bia/import/csv",
+            files={"file": ("bia.csv", csv_content.encode(), "text/csv")},
+        )
+        assert resp.status_code == 201
+        data = resp.json()
+        assert data["imported"] == 1
+        assert data["skipped"] == 0

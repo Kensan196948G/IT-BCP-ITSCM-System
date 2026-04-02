@@ -2,10 +2,12 @@
 
 import csv
 import io
+import json
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from fastapi.responses import StreamingResponse
+from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps import crud
@@ -16,6 +18,7 @@ from apps.schemas import (
     BIAAssessmentResponse,
     BIAAssessmentUpdate,
     BIASummaryResponse,
+    CSVImportResponse,
     RiskMatrixResponse,
 )
 from database import get_db
@@ -130,6 +133,113 @@ _BIA_CSV_FIELDS = [
     "created_at",
     "updated_at",
 ]
+
+
+_BIA_IMPORT_SCALAR_FIELDS = [
+    "assessment_id",
+    "system_name",
+    "assessment_date",
+    "assessor",
+    "financial_impact_per_hour",
+    "financial_impact_per_day",
+    "max_tolerable_downtime_hours",
+    "reputation_impact",
+    "operational_impact",
+    "recommended_rto_hours",
+    "recommended_rpo_hours",
+    "risk_score",
+    "status",
+    "notes",
+]
+_BIA_FLOAT_FIELDS = {
+    "financial_impact_per_hour",
+    "financial_impact_per_day",
+    "max_tolerable_downtime_hours",
+    "recommended_rto_hours",
+    "recommended_rpo_hours",
+}
+_BIA_INT_FIELDS = {"risk_score"}
+_BIA_JSON_FIELDS = {"business_processes", "regulatory_risks", "mitigation_measures"}
+_BIA_OPTIONAL_SCALAR = {
+    "assessor",
+    "financial_impact_per_hour",
+    "financial_impact_per_day",
+    "max_tolerable_downtime_hours",
+    "reputation_impact",
+    "operational_impact",
+    "recommended_rto_hours",
+    "recommended_rpo_hours",
+    "risk_score",
+    "notes",
+}
+
+
+def _coerce_bia_row(row: dict) -> dict:
+    """Coerce CSV string values to correct Python types for BIAAssessmentCreate."""
+    result: dict = {}
+    for field in _BIA_IMPORT_SCALAR_FIELDS:
+        raw = row.get(field, "").strip() if row.get(field) is not None else ""
+        if raw == "" and field in _BIA_OPTIONAL_SCALAR:
+            result[field] = None
+            continue
+        if field in _BIA_FLOAT_FIELDS:
+            result[field] = float(raw) if raw else None
+        elif field in _BIA_INT_FIELDS:
+            result[field] = int(raw) if raw else None
+        else:
+            result[field] = raw if raw else None
+    # JSON-encoded list fields (business_processes, regulatory_risks, mitigation_measures)
+    for field in _BIA_JSON_FIELDS:
+        raw = row.get(field, "").strip() if row.get(field) is not None else ""
+        if raw:
+            try:
+                result[field] = json.loads(raw)
+            except json.JSONDecodeError:
+                # Treat as single-element list if not valid JSON
+                result[field] = [raw]
+        else:
+            result[field] = [] if field == "business_processes" else None
+    return result
+
+
+@router.post("/import/csv", response_model=CSVImportResponse, status_code=201)
+async def import_bia_csv(
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """Bulk-import BIA assessment records from a CSV file.
+
+    The CSV must include a header row with at minimum:
+    assessment_id, system_name, assessment_date.
+    List fields (business_processes, regulatory_risks, mitigation_measures)
+    should be JSON-encoded arrays. Extra columns are ignored.
+    """
+    content = await file.read()
+    text = content.decode("utf-8-sig")
+    reader = csv.DictReader(io.StringIO(text))
+
+    imported = 0
+    skipped = 0
+    errors: list[dict] = []
+
+    for row_num, row in enumerate(reader, start=2):
+        try:
+            raw_data = _coerce_bia_row(row)
+            # Exclude None values so Pydantic applies field defaults (e.g. status="draft")
+            data = {k: v for k, v in raw_data.items() if v is not None}
+            payload = BIAAssessmentCreate(**data)
+            await crud.create_bia_assessment(db, payload.model_dump())
+            imported += 1
+        except (ValidationError, ValueError, TypeError) as exc:
+            errors.append({"row": row_num, "error": str(exc)})
+            skipped += 1
+
+    return {
+        "total_rows": imported + skipped,
+        "imported": imported,
+        "skipped": skipped,
+        "errors": errors,
+    }
 
 
 @router.get("/export/csv")
