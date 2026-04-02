@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps import crud
+from apps.models import ActiveIncident
 from apps.report_generator import ReportGenerator
 from apps.rto_tracker import RTOTracker
 from apps.schemas import (
@@ -52,20 +53,20 @@ async def get_rto_overview(
     active_incidents = await crud.get_active_incidents(db)
 
     # Build affected system -> incident map
-    system_incident_map: dict[str, object] = {}
-    for inc in active_incidents:
-        for sys_name in inc.affected_systems or []:
-            system_incident_map[sys_name] = inc
+    system_incident_map: dict[str, ActiveIncident] = {}
+    for incident in active_incidents:
+        for sys_name in incident.affected_systems or []:
+            system_incident_map[sys_name] = incident
 
     results: list[dict] = []
     for system in all_systems:
-        inc = system_incident_map.get(system.system_name)
-        if inc:
+        matched_inc: ActiveIncident | None = system_incident_map.get(system.system_name)
+        if matched_inc:
             tracker = RTOTracker(
                 rto_target_hours=system.rto_target_hours,
-                occurred_at=inc.occurred_at,  # type: ignore[union-attr]
-                resolved_at=inc.resolved_at,  # type: ignore[union-attr]
-                status=inc.status,  # type: ignore[union-attr]
+                occurred_at=matched_inc.occurred_at,
+                resolved_at=matched_inc.resolved_at,
+                status=matched_inc.status,
             )
         else:
             tracker = RTOTracker(rto_target_hours=system.rto_target_hours)

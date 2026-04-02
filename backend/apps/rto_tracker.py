@@ -117,22 +117,22 @@ class RTOTracker:
 
         # Build a mapping: system_name -> incident info
         system_incident_map: dict[str, dict] = {}
-        for inc in incidents:
-            affected = inc.get("affected_systems") or []
+        for incident_dict in incidents:
+            affected = incident_dict.get("affected_systems") or []
             for sys_name in affected:
-                system_incident_map[sys_name] = inc
+                system_incident_map[sys_name] = incident_dict
 
         for system in systems:
             sys_name = system["system_name"]
             rto_target = system["rto_target_hours"]
 
-            inc = system_incident_map.get(sys_name)
-            if inc:
+            matched_inc: dict | None = system_incident_map.get(sys_name)
+            if matched_inc:
                 tracker = RTOTracker(
                     rto_target_hours=rto_target,
-                    occurred_at=inc.get("occurred_at"),
-                    resolved_at=inc.get("resolved_at"),
-                    status=inc.get("status", "active"),
+                    occurred_at=matched_inc.get("occurred_at"),
+                    resolved_at=matched_inc.get("resolved_at"),
+                    status=matched_inc.get("status", "active"),
                 )
             else:
                 tracker = RTOTracker(rto_target_hours=rto_target)

@@ -10,12 +10,13 @@ import argparse
 import sys
 import uuid
 from datetime import datetime, timezone
+from typing import Any
 
 # ---------------------------------------------------------------------------
 # Seed data definitions
 # ---------------------------------------------------------------------------
 
-SYSTEMS = [
+SYSTEMS: list[dict[str, Any]] = [
     {
         "id": uuid.uuid4(),
         "system_name": "Active Directory",
@@ -130,7 +131,7 @@ SYSTEMS = [
     },
 ]
 
-EXERCISES = [
+EXERCISES: list[dict[str, Any]] = [
     {
         "id": uuid.uuid4(),
         "exercise_id": "EX-2026-001",
@@ -219,14 +220,14 @@ def execute_seed() -> None:
     with Session(engine) as session:
         # Insert systems
         for data in SYSTEMS:
-            obj = ITSystemBCP(**data)
-            session.merge(obj)
+            system_obj = ITSystemBCP(**data)
+            session.merge(system_obj)
         print(f"Inserted/updated {len(SYSTEMS)} IT systems.")
 
         # Insert exercises
         for data in EXERCISES:
-            obj = BCPExercise(**data)
-            session.merge(obj)
+            exercise_obj = BCPExercise(**data)
+            session.merge(exercise_obj)
         print(f"Inserted/updated {len(EXERCISES)} BCP exercises.")
 
         session.commit()
