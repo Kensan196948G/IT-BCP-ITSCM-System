@@ -218,3 +218,43 @@ def test_delete_system_not_found(mock_delete: AsyncMock) -> None:
         assert response.status_code == 404
     finally:
         app.dependency_overrides.clear()
+
+
+@patch("apps.crud.get_all_systems", new_callable=AsyncMock)
+def test_export_systems_csv(mock_get_all: AsyncMock) -> None:
+    """Test GET /api/systems/export/csv returns CSV content."""
+    mock_get_all.return_value = [MockSystem()]
+
+    from database import get_db
+
+    app.dependency_overrides[get_db] = _mock_db_override()
+    try:
+        response = client.get("/api/systems/export/csv")
+        assert response.status_code == 200
+        assert "text/csv" in response.headers["content-type"]
+        assert "attachment" in response.headers["content-disposition"]
+        assert "systems.csv" in response.headers["content-disposition"]
+        lines = response.text.strip().splitlines()
+        assert len(lines) == 2  # header + 1 data row
+        assert "system_name" in lines[0]
+        assert "Core Banking System" in lines[1]
+    finally:
+        app.dependency_overrides.clear()
+
+
+@patch("apps.crud.get_all_systems", new_callable=AsyncMock)
+def test_export_systems_csv_empty(mock_get_all: AsyncMock) -> None:
+    """Test GET /api/systems/export/csv returns header-only CSV when no records."""
+    mock_get_all.return_value = []
+
+    from database import get_db
+
+    app.dependency_overrides[get_db] = _mock_db_override()
+    try:
+        response = client.get("/api/systems/export/csv")
+        assert response.status_code == 200
+        assert "text/csv" in response.headers["content-type"]
+        lines = response.text.strip().splitlines()
+        assert len(lines) == 1  # header only
+    finally:
+        app.dependency_overrides.clear()

@@ -1,8 +1,11 @@
 """API routes for IT System BCP management."""
 
+import csv
+import io
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps import crud
@@ -78,3 +81,42 @@ async def delete_system(
     if not deleted:
         raise HTTPException(status_code=404, detail="System not found")
     await invalidate_pattern(f"{_CACHE_NS}:*")
+
+
+_SYSTEM_CSV_FIELDS = [
+    "id",
+    "system_name",
+    "system_type",
+    "criticality",
+    "rto_target_hours",
+    "rpo_target_hours",
+    "mtpd_hours",
+    "fallback_system",
+    "primary_owner",
+    "vendor_name",
+    "last_dr_test",
+    "last_test_rto",
+    "is_active",
+    "created_at",
+    "updated_at",
+]
+
+
+@router.get("/export/csv")
+async def export_systems_csv(
+    db: AsyncSession = Depends(get_db),
+) -> StreamingResponse:
+    """Export all IT system BCP records as CSV."""
+    records = await crud.get_all_systems(db, skip=0, limit=10000)
+    buf = io.StringIO()
+    writer = csv.DictWriter(buf, fieldnames=_SYSTEM_CSV_FIELDS, extrasaction="ignore")
+    writer.writeheader()
+    for rec in records:
+        row = {f: getattr(rec, f, None) for f in _SYSTEM_CSV_FIELDS}
+        writer.writerow(row)
+    buf.seek(0)
+    return StreamingResponse(
+        iter([buf.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=systems.csv"},
+    )

@@ -122,3 +122,33 @@ def test_update_exercise_not_found(mock_update: AsyncMock, client) -> None:
     mock_update.return_value = None
     response = client.put(f"/api/exercises/{uuid.uuid4()}", json={"title": "No match"})
     assert response.status_code == 404
+
+
+# ---------------------------------------------------------------------------
+# GET /api/exercises/export/csv  (CSV export)
+# ---------------------------------------------------------------------------
+
+
+@patch("apps.crud.get_all_exercises", new_callable=AsyncMock)
+def test_export_exercises_csv(mock_get_all: AsyncMock, client) -> None:
+    """GET /api/exercises/export/csv should return CSV content."""
+    mock_get_all.return_value = [MockExercise()]
+    response = client.get("/api/exercises/export/csv")
+    assert response.status_code == 200
+    assert "text/csv" in response.headers["content-type"]
+    assert "exercises.csv" in response.headers["content-disposition"]
+    lines = response.text.strip().splitlines()
+    assert len(lines) == 2  # header + 1 data row
+    assert "exercise_id" in lines[0]
+    assert "EX-2026-001" in lines[1]
+
+
+@patch("apps.crud.get_all_exercises", new_callable=AsyncMock)
+def test_export_exercises_csv_empty(mock_get_all: AsyncMock, client) -> None:
+    """GET /api/exercises/export/csv should return header-only CSV when no records."""
+    mock_get_all.return_value = []
+    response = client.get("/api/exercises/export/csv")
+    assert response.status_code == 200
+    assert "text/csv" in response.headers["content-type"]
+    lines = response.text.strip().splitlines()
+    assert len(lines) == 1  # header only

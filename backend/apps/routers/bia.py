@@ -1,8 +1,11 @@
 """API routes for BIA (Business Impact Analysis) management."""
 
+import csv
+import io
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps import crud
@@ -106,3 +109,44 @@ async def delete_bia_assessment(
     deleted = await crud.delete_bia_assessment(db, assessment_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="BIA assessment not found")
+
+
+_BIA_CSV_FIELDS = [
+    "id",
+    "assessment_id",
+    "system_name",
+    "assessment_date",
+    "assessor",
+    "financial_impact_per_hour",
+    "financial_impact_per_day",
+    "max_tolerable_downtime_hours",
+    "reputation_impact",
+    "operational_impact",
+    "recommended_rto_hours",
+    "recommended_rpo_hours",
+    "risk_score",
+    "status",
+    "notes",
+    "created_at",
+    "updated_at",
+]
+
+
+@router.get("/export/csv")
+async def export_bia_csv(
+    db: AsyncSession = Depends(get_db),
+) -> StreamingResponse:
+    """Export all BIA assessment records as CSV."""
+    records = await crud.get_all_bia_assessments(db, skip=0, limit=10000)
+    buf = io.StringIO()
+    writer = csv.DictWriter(buf, fieldnames=_BIA_CSV_FIELDS, extrasaction="ignore")
+    writer.writeheader()
+    for rec in records:
+        row = {f: getattr(rec, f, None) for f in _BIA_CSV_FIELDS}
+        writer.writerow(row)
+    buf.seek(0)
+    return StreamingResponse(
+        iter([buf.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=bia_assessments.csv"},
+    )
