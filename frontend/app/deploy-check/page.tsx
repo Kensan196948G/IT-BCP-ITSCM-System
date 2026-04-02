@@ -89,7 +89,6 @@ export default function DeployCheckPage() {
 
   useEffect(() => {
     runTests();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const okCount = results.filter((r) => r.status === "ok").length;
