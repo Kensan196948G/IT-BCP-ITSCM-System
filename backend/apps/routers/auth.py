@@ -1,5 +1,7 @@
 """Authentication API router."""
 
+from typing import Any
+
 from fastapi import APIRouter, Depends
 
 from apps.auth import AuthService, ROLE_PERMISSIONS, auth_service
@@ -29,7 +31,7 @@ async def login(body: LoginRequest) -> TokenResponse:
 
 @router.get("/me", response_model=UserInfo)
 async def get_me(
-    user: dict = Depends(AuthService.get_current_user),
+    user: dict[str, Any] = Depends(AuthService.get_current_user),
 ) -> UserInfo:
     """Return the current authenticated user's info."""
     return UserInfo(
@@ -41,7 +43,7 @@ async def get_me(
 
 @router.post("/refresh", response_model=TokenResponse)
 async def refresh_token(
-    user: dict = Depends(AuthService.get_current_user),
+    user: dict[str, Any] = Depends(AuthService.get_current_user),
 ) -> TokenResponse:
     """Issue a fresh token for an already-authenticated user."""
     token = auth_service.create_access_token(user_id=user["user_id"], role=user["role"])

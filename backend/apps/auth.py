@@ -82,7 +82,7 @@ class AuthService:
             "exp": expire,
             "iat": datetime.now(timezone.utc),
         }
-        return jwt.encode(payload, settings.SECRET_KEY, algorithm=ALGORITHM)
+        return str(jwt.encode(payload, settings.SECRET_KEY, algorithm=ALGORITHM))
 
     @staticmethod
     def verify_token(token: str) -> dict[str, Any]:
@@ -124,7 +124,7 @@ class AuthService:
         return AuthService.verify_token(credentials.credentials)
 
     @staticmethod
-    def require_role(*roles: str):
+    def require_role(*roles: str) -> Any:
         """Return a FastAPI dependency that checks the user has one of *roles*."""
 
         async def _check(

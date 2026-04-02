@@ -4,6 +4,7 @@ import asyncio
 import json
 import logging
 from datetime import datetime, timezone
+from typing import Any
 
 from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect
 from apps.auth import AuthService
@@ -54,7 +55,7 @@ MOCK_RTO_SYSTEMS = [
 ]
 
 
-def _get_mock_rto_snapshot() -> dict:
+def _get_mock_rto_snapshot() -> dict[str, Any]:
     """Generate a mock RTO status snapshot with slight variations."""
     now = datetime.now(timezone.utc)
     return {
