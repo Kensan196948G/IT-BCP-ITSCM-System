@@ -1,10 +1,12 @@
-"""Tests for WebSocket RTO dashboard endpoint."""
+"""Tests for WebSocket RTO dashboard endpoint and ConnectionManager."""
 
 import json
+from unittest.mock import AsyncMock
 
 import pytest
 from fastapi.testclient import TestClient
 
+from apps.websocket_manager import ConnectionManager
 from main import app
 
 
@@ -74,3 +76,64 @@ class TestWebSocketRTODashboard:
             data = ws.receive_text()
             msg = json.loads(data)
             assert msg["type"] == "pong"
+
+
+# ---------------------------------------------------------------------------
+# ConnectionManager unit tests
+# ---------------------------------------------------------------------------
+
+
+class TestConnectionManager:
+    """Unit tests for ConnectionManager.broadcast() and send_rto_update()."""
+
+    @pytest.mark.asyncio
+    async def test_broadcast_sends_to_all_connections(self):
+        """broadcast() sends JSON message to every active connection."""
+        manager = ConnectionManager()
+        ws1 = AsyncMock()
+        ws2 = AsyncMock()
+        manager.active_connections = [ws1, ws2]
+
+        await manager.broadcast({"event": "test"})
+
+        expected = json.dumps({"event": "test"}, default=str)
+        ws1.send_text.assert_awaited_once_with(expected)
+        ws2.send_text.assert_awaited_once_with(expected)
+
+    @pytest.mark.asyncio
+    async def test_broadcast_removes_failed_connections(self):
+        """broadcast() cleans up connections that raise on send_text."""
+        manager = ConnectionManager()
+        healthy = AsyncMock()
+        broken = AsyncMock()
+        broken.send_text.side_effect = Exception("disconnected")
+        manager.active_connections = [healthy, broken]
+
+        await manager.broadcast({"event": "test"})
+
+        # broken connection removed, healthy remains
+        assert broken not in manager.active_connections
+        assert healthy in manager.active_connections
+
+    @pytest.mark.asyncio
+    async def test_broadcast_empty_connections(self):
+        """broadcast() works with no active connections (no error)."""
+        manager = ConnectionManager()
+        manager.active_connections = []
+        # Should complete without raising
+        await manager.broadcast({"event": "empty"})
+
+    @pytest.mark.asyncio
+    async def test_send_rto_update_broadcasts_correct_payload(self):
+        """send_rto_update() wraps data in rto_update payload and broadcasts."""
+        manager = ConnectionManager()
+        ws = AsyncMock()
+        manager.active_connections = [ws]
+
+        await manager.send_rto_update("incident-123", {"rto_hours": 4})
+
+        ws.send_text.assert_awaited_once()
+        sent_msg = json.loads(ws.send_text.call_args[0][0])
+        assert sent_msg["type"] == "rto_update"
+        assert sent_msg["incident_id"] == "incident-123"
+        assert sent_msg["data"] == {"rto_hours": 4}

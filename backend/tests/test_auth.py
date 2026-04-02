@@ -1,9 +1,12 @@
 """Tests for JWT authentication and RBAC."""
 
 import pytest
+from fastapi import HTTPException
 from fastapi.testclient import TestClient
+from jose import jwt
 
-from apps.auth import ROLE_PERMISSIONS, ROLES, auth_service
+from apps.auth import ALGORITHM, ROLE_PERMISSIONS, ROLES, AuthService, auth_service
+from config import settings
 
 # ---------------------------------------------------------------------------
 # Token generation / verification
@@ -132,3 +135,54 @@ class TestLoginAPI:
     def test_refresh_without_token_401(self, client: TestClient):
         resp = client.post("/api/auth/refresh")
         assert resp.status_code == 401
+
+
+# ---------------------------------------------------------------------------
+# Edge-case coverage: invalid payload & require_role
+# ---------------------------------------------------------------------------
+
+
+class TestVerifyTokenEdgeCases:
+    """Cover verify_token payload validation and require_role."""
+
+    def test_verify_token_missing_sub_raises_401(self):
+        """Token without 'sub' claim raises 401 with 'Invalid token payload'."""
+        token_without_sub = jwt.encode(
+            {"role": "admin"},
+            settings.SECRET_KEY,
+            algorithm=ALGORITHM,
+        )
+        with pytest.raises(HTTPException) as exc_info:
+            auth_service.verify_token(token_without_sub)
+        assert exc_info.value.status_code == 401
+        assert "Invalid token payload" in exc_info.value.detail
+
+    def test_verify_token_missing_role_raises_401(self):
+        """Token without 'role' claim raises 401 with 'Invalid token payload'."""
+        token_without_role = jwt.encode(
+            {"sub": "user1"},
+            settings.SECRET_KEY,
+            algorithm=ALGORITHM,
+        )
+        with pytest.raises(HTTPException) as exc_info:
+            auth_service.verify_token(token_without_role)
+        assert exc_info.value.status_code == 401
+        assert "Invalid token payload" in exc_info.value.detail
+
+    @pytest.mark.asyncio
+    async def test_require_role_allows_matching_role(self):
+        """require_role returns user when role matches."""
+        check = AuthService.require_role("admin", "operator")
+        user = {"user_id": "u1", "role": "admin", "permissions": ["read"]}
+        result = await check(user=user)
+        assert result["user_id"] == "u1"
+
+    @pytest.mark.asyncio
+    async def test_require_role_rejects_wrong_role(self):
+        """require_role raises 403 when user role is not in allowed roles."""
+        check = AuthService.require_role("admin")
+        user = {"user_id": "u1", "role": "viewer", "permissions": ["read"]}
+        with pytest.raises(HTTPException) as exc_info:
+            await check(user=user)
+        assert exc_info.value.status_code == 403
+        assert "viewer" in exc_info.value.detail
