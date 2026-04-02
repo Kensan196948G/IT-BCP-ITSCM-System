@@ -12,7 +12,7 @@
   <a href="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml"><img src="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml/badge.svg" alt="CI"></a>
   <img src="https://img.shields.io/badge/tests-540_passed-brightgreen?style=flat-square" alt="Tests">
   <img src="https://img.shields.io/badge/coverage-100%25-brightgreen?style=flat-square" alt="Coverage">
-  <img src="https://img.shields.io/badge/PRs-106_merged-blue?style=flat-square" alt="PRs">
+  <img src="https://img.shields.io/badge/PRs-107_merged-blue?style=flat-square" alt="PRs">
   <img src="https://img.shields.io/badge/Open_PRs-0-brightgreen?style=flat-square" alt="Open PRs">
   <img src="https://img.shields.io/badge/STABLE-✅-brightgreen?style=flat-square" alt="STABLE">
   <img src="https://img.shields.io/badge/security-0_CVE-brightgreen?style=flat-square&logo=shield" alt="Security">
@@ -485,12 +485,12 @@ MIT License
 | テスト数 | **540 passed** / 0 failed | ✅ |
 | E2Eテスト | 39 tests (Playwright、live server用) | ✅ |
 | カバレッジ | 100% (2535+ stmts) | ✅ |
-| Merged PRs | **106** | ✅ |
+| Merged PRs | **107** | ✅ |
 | Open PRs | 0 | ✅ |
 | GitHub Issues | 1 open (#97 Phase3 BIA Cache) | 🔄 |
 | Project #13 | Phase 3 完了・Phase 4 準備中 | ✅ |
 | セキュリティ | 0 CVE / JWT全ルーター + WebSocket保護済み | ✅ |
-| STABLE判定 | **✅ STABLE** (PR #105/#106 全マージ済み) | ✅ |
+| STABLE判定 | **✅ STABLE** (PR #106/#107 全マージ済み) | ✅ |
 
 ### Phase 3 セキュリティ・キャッシュ・監査強化 進捗
 
@@ -509,6 +509,7 @@ MIT License
 | 📄 PDFレポートエクスポート | #104 | ✅ Merged | reportlab使用、RPT-001〜004の4種PDF生成、538テスト |
 | 🗄️ 監査ログDB永続化強化 | #105 | ✅ Merged | PostgreSQL永続化・fire-and-forget・ISO20000監査証跡強化 |
 | 📊 BCP/ITSCM統計分析API | #106 | ✅ Merged | MTTR・RTO違反率・システム重要度分布、540テスト |
+| 🔧 mypy型アノテーション修正(auth/ws) | #107 | ✅ Merged | no-any-return解消・dict[str,Any]型付け強化 |
 
 <p align="center">
   <sub>Built with ❤️ by ClaudeOS v4 Auto Development Pipeline</sub>
