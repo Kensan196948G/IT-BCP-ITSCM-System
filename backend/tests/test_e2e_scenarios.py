@@ -523,8 +523,10 @@ class TestE2E004BIAAssessment:
         assert data["risk_score"] == 72
         assert data["reputation_impact"] == "high"
 
+    @patch("apps.routers.bia.get_cached", new_callable=AsyncMock, return_value=None)
+    @patch("apps.routers.bia.set_cached", new_callable=AsyncMock)
     @patch("apps.crud.get_all_bia_assessments", new_callable=AsyncMock)
-    def test_step3_get_summary(self, mock_list, client):
+    def test_step3_get_summary(self, mock_list, _sc, _gc, client):
         """Step 3: Get BIA summary with aggregated statistics."""
         mock_list.return_value = [_M.bia()]
         resp = client.get("/api/bia/summary")
@@ -534,8 +536,10 @@ class TestE2E004BIAAssessment:
         assert data["average_risk_score"] is not None
         assert data["highest_risk_system"] is not None
 
+    @patch("apps.routers.bia.get_cached", new_callable=AsyncMock, return_value=None)
+    @patch("apps.routers.bia.set_cached", new_callable=AsyncMock)
     @patch("apps.crud.get_all_bia_assessments", new_callable=AsyncMock)
-    def test_step4_risk_matrix(self, mock_list, client):
+    def test_step4_risk_matrix(self, mock_list, _sc, _gc, client):
         """Step 4: Get risk matrix from BIA data."""
         mock_list.return_value = [_M.bia()]
         resp = client.get("/api/bia/risk-matrix")
