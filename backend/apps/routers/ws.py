@@ -8,66 +8,63 @@ from typing import Any
 
 from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect
 from apps.auth import AuthService
+from apps import crud
+from apps.rto_tracker import RTOTracker
 from apps.websocket_manager import manager
+from database import async_session
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["websocket"])
 
-# Mock RTO data for real-time updates
-MOCK_RTO_SYSTEMS = [
-    {
-        "system_name": "Core Banking System",
-        "rto_target_hours": 4.0,
-        "status": "on_track",
-        "elapsed_hours": 1.5,
-        "remaining_hours": 2.5,
-    },
-    {
-        "system_name": "Email System",
-        "rto_target_hours": 2.0,
-        "status": "at_risk",
-        "elapsed_hours": 1.7,
-        "remaining_hours": 0.3,
-    },
-    {
-        "system_name": "CRM System",
-        "rto_target_hours": 8.0,
-        "status": "on_track",
-        "elapsed_hours": 3.0,
-        "remaining_hours": 5.0,
-    },
-    {
-        "system_name": "File Server",
-        "rto_target_hours": 2.0,
-        "status": "overdue",
-        "elapsed_hours": 2.5,
-        "remaining_hours": 0.0,
-        "overdue_hours": 0.5,
-    },
-    {
-        "system_name": "HR System",
-        "rto_target_hours": 24.0,
-        "status": "not_started",
-        "elapsed_hours": 0.0,
-        "remaining_hours": 24.0,
-    },
-]
 
-
-def _get_mock_rto_snapshot() -> dict[str, Any]:
-    """Generate a mock RTO status snapshot with slight variations."""
+async def _get_rto_snapshot() -> dict[str, Any]:
+    """Build an RTO status snapshot from live database data."""
     now = datetime.now(timezone.utc)
+    try:
+        async with async_session() as db:
+            all_systems = await crud.get_all_systems(db)
+            active_incidents = await crud.get_active_incidents(db)
+
+        # Map affected system name -> incident
+        system_incident_map: dict[str, Any] = {}
+        for inc in active_incidents:
+            for sys_name in inc.affected_systems or []:
+                system_incident_map[sys_name] = inc
+
+        systems_data: list[dict[str, Any]] = []
+        for system in all_systems:
+            matched_inc = system_incident_map.get(system.system_name)
+            if matched_inc:
+                tracker = RTOTracker(
+                    rto_target_hours=system.rto_target_hours,
+                    occurred_at=matched_inc.occurred_at,
+                    resolved_at=matched_inc.resolved_at,
+                    status=matched_inc.status,
+                )
+            else:
+                tracker = RTOTracker(rto_target_hours=system.rto_target_hours)
+
+            status_info = tracker.calculate_status()
+            status_info["system_name"] = system.system_name
+            systems_data.append(status_info)
+
+    except Exception:
+        logger.exception("Failed to query DB for RTO snapshot; returning empty snapshot")
+        systems_data = []
+
+    summary = {
+        "total": len(systems_data),
+        "on_track": sum(1 for s in systems_data if s.get("status") == "on_track"),
+        "at_risk": sum(1 for s in systems_data if s.get("status") == "at_risk"),
+        "overdue": sum(1 for s in systems_data if s.get("status") == "overdue"),
+    }
+
     return {
         "type": "rto_snapshot",
         "timestamp": now.isoformat(),
-        "systems": MOCK_RTO_SYSTEMS,
-        "summary": {
-            "total": len(MOCK_RTO_SYSTEMS),
-            "on_track": sum(1 for s in MOCK_RTO_SYSTEMS if s["status"] == "on_track"),
-            "at_risk": sum(1 for s in MOCK_RTO_SYSTEMS if s["status"] == "at_risk"),
-            "overdue": sum(1 for s in MOCK_RTO_SYSTEMS if s["status"] == "overdue"),
-        },
+        "systems": systems_data,
+        "summary": summary,
     }
 
 
@@ -81,7 +78,7 @@ async def rto_dashboard_ws(
     Requires a valid JWT token passed as ?token=<jwt>.
     Closes with code 1008 (Policy Violation) if authentication fails.
 
-    - On connect: sends full RTO snapshot
+    - On connect: sends full RTO snapshot from live DB
     - Every 5 seconds: sends updated RTO status
     - Accepts client messages (e.g. ping)
     """
@@ -98,14 +95,14 @@ async def rto_dashboard_ws(
     await manager.connect(websocket)
     try:
         # Send initial snapshot
-        initial = _get_mock_rto_snapshot()
+        initial = await _get_rto_snapshot()
         await websocket.send_text(json.dumps(initial, default=str))
 
         # Background task: send updates every 5 seconds
         async def send_updates() -> None:
             while True:
                 await asyncio.sleep(5)
-                update = _get_mock_rto_snapshot()
+                update = await _get_rto_snapshot()
                 update["type"] = "rto_update"
                 await websocket.send_text(json.dumps(update, default=str))
 

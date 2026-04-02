@@ -14,6 +14,29 @@ from main import app
 _VALID_TOKEN = AuthService.create_access_token("test-user", "viewer")
 _WS_URL = f"/ws/rto-dashboard?token={_VALID_TOKEN}"
 
+# Mock snapshot for unit tests (replaces DB-backed _get_rto_snapshot)
+_MOCK_SNAPSHOT = {
+    "type": "rto_snapshot",
+    "timestamp": "2026-04-02T00:00:00+00:00",
+    "systems": [
+        {
+            "system_name": "Core Banking System",
+            "rto_target_hours": 4.0,
+            "status": "on_track",
+            "elapsed_hours": 1.5,
+            "remaining_hours": 2.5,
+        },
+        {
+            "system_name": "Email System",
+            "rto_target_hours": 2.0,
+            "status": "at_risk",
+            "elapsed_hours": 1.7,
+            "remaining_hours": 0.3,
+        },
+    ],
+    "summary": {"total": 2, "on_track": 1, "at_risk": 1, "overdue": 0},
+}
+
 
 @pytest.fixture()
 def ws_client():
@@ -21,10 +44,17 @@ def ws_client():
     yield TestClient(app)
 
 
+@pytest.fixture()
+def mock_snapshot():
+    """Patch _get_rto_snapshot to return deterministic test data."""
+    with patch("apps.routers.ws._get_rto_snapshot", new_callable=AsyncMock, return_value=_MOCK_SNAPSHOT.copy()):
+        yield
+
+
 class TestWebSocketRTODashboard:
     """Tests for the /ws/rto-dashboard WebSocket endpoint."""
 
-    def test_websocket_connect_and_receive_snapshot(self, ws_client):
+    def test_websocket_connect_and_receive_snapshot(self, ws_client, mock_snapshot):
         """Test that connecting receives an initial RTO snapshot."""
         with ws_client.websocket_connect(_WS_URL) as ws:
             data = ws.receive_text()
@@ -34,7 +64,7 @@ class TestWebSocketRTODashboard:
             assert "summary" in msg
             assert "timestamp" in msg
 
-    def test_websocket_snapshot_has_systems(self, ws_client):
+    def test_websocket_snapshot_has_systems(self, ws_client, mock_snapshot):
         """Test that the snapshot contains system data."""
         with ws_client.websocket_connect(_WS_URL) as ws:
             data = ws.receive_text()
@@ -45,7 +75,7 @@ class TestWebSocketRTODashboard:
             assert "rto_target_hours" in system
             assert "status" in system
 
-    def test_websocket_snapshot_summary(self, ws_client):
+    def test_websocket_snapshot_summary(self, ws_client, mock_snapshot):
         """Test that the snapshot summary has correct structure."""
         with ws_client.websocket_connect(_WS_URL) as ws:
             data = ws.receive_text()
@@ -57,7 +87,7 @@ class TestWebSocketRTODashboard:
             assert "overdue" in summary
             assert summary["total"] == len(msg["systems"])
 
-    def test_websocket_ping_pong(self, ws_client):
+    def test_websocket_ping_pong(self, ws_client, mock_snapshot):
         """Test that sending a ping receives a pong."""
         with ws_client.websocket_connect(_WS_URL) as ws:
             # Consume initial snapshot
@@ -69,7 +99,7 @@ class TestWebSocketRTODashboard:
             assert msg["type"] == "pong"
             assert "timestamp" in msg
 
-    def test_websocket_handles_invalid_json(self, ws_client):
+    def test_websocket_handles_invalid_json(self, ws_client, mock_snapshot):
         """Test that invalid JSON does not crash the connection."""
         with ws_client.websocket_connect(_WS_URL) as ws:
             # Consume initial snapshot
@@ -82,11 +112,11 @@ class TestWebSocketRTODashboard:
             msg = json.loads(data)
             assert msg["type"] == "pong"
 
-    def test_websocket_receives_background_update(self, ws_client):
-        """Background task sends rto_update messages (covers lines 91-93)."""
+    def test_websocket_receives_background_update(self, ws_client, mock_snapshot):
+        """Background task sends rto_update messages (covers send_updates task)."""
         with patch("asyncio.sleep", new_callable=AsyncMock, return_value=None):
             with ws_client.websocket_connect(_WS_URL) as ws:
-                # Initial snapshot (line 85)
+                # Initial snapshot
                 snapshot = json.loads(ws.receive_text())
                 assert snapshot["type"] == "rto_snapshot"
                 # Background update sent after mocked sleep returns immediately
@@ -97,7 +127,7 @@ class TestWebSocketRTODashboard:
 
     @pytest.mark.asyncio
     async def test_websocket_generic_exception_disconnects(self):
-        """Generic exceptions (not WebSocketDisconnect) call manager.disconnect (lines 118-119)."""
+        """Generic exceptions (not WebSocketDisconnect) call manager.disconnect."""
         from apps.routers.ws import rto_dashboard_ws
         from apps.websocket_manager import manager
 
@@ -105,9 +135,11 @@ class TestWebSocketRTODashboard:
         # receive_text raises a non-WebSocketDisconnect exception immediately
         ws.receive_text.side_effect = RuntimeError("network reset")
 
-        with patch.object(manager, "connect", new_callable=AsyncMock):
-            with patch.object(manager, "disconnect") as mock_disconnect:
-                await rto_dashboard_ws(ws, token=_VALID_TOKEN)
+        mock_snap = AsyncMock(return_value=_MOCK_SNAPSHOT.copy())
+        with patch("apps.routers.ws._get_rto_snapshot", mock_snap):
+            with patch.object(manager, "connect", new_callable=AsyncMock):
+                with patch.object(manager, "disconnect") as mock_disconnect:
+                    await rto_dashboard_ws(ws, token=_VALID_TOKEN)
 
         mock_disconnect.assert_called_once_with(ws)
 
