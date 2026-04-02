@@ -70,32 +70,62 @@ class MetricsCollector:
 class HealthChecker:
     """Performs health checks on application dependencies."""
 
-    def check_database(self) -> dict:
-        """Check database connectivity (mock: always OK)."""
-        return {
-            "name": "database",
-            "status": "healthy",
-            "latency_ms": 1.2,
-        }
+    async def check_database(self) -> dict:
+        """Check database connectivity by issuing a lightweight SELECT 1."""
+        start = time.perf_counter()
+        try:
+            import sqlalchemy
 
-    def check_redis(self) -> dict:
-        """Check Redis connectivity (mock: always OK)."""
-        return {
-            "name": "redis",
-            "status": "healthy",
-            "latency_ms": 0.5,
-        }
+            from database import engine
 
-    def check_all(self) -> list[dict]:
+            async with engine.connect() as conn:
+                await conn.execute(sqlalchemy.text("SELECT 1"))
+            latency_ms = round((time.perf_counter() - start) * 1000, 2)
+            return {"name": "database", "status": "healthy", "latency_ms": latency_ms}
+        except Exception as exc:
+            latency_ms = round((time.perf_counter() - start) * 1000, 2)
+            return {
+                "name": "database",
+                "status": "unhealthy",
+                "latency_ms": latency_ms,
+                "error": str(exc),
+            }
+
+    async def check_redis(self) -> dict:
+        """Check Redis connectivity using the cache module's ping helper."""
+        start = time.perf_counter()
+        try:
+            from apps.cache import ping
+
+            ok = await ping()
+            latency_ms = round((time.perf_counter() - start) * 1000, 2)
+            return {
+                "name": "redis",
+                "status": "healthy" if ok else "unhealthy",
+                "latency_ms": latency_ms,
+            }
+        except Exception as exc:
+            latency_ms = round((time.perf_counter() - start) * 1000, 2)
+            return {
+                "name": "redis",
+                "status": "unhealthy",
+                "latency_ms": latency_ms,
+                "error": str(exc),
+            }
+
+    async def check_all(self) -> list[dict]:
         """Check all components and return list of results."""
-        return [
+        import asyncio
+
+        db_check, redis_check = await asyncio.gather(
             self.check_database(),
             self.check_redis(),
-        ]
+        )
+        return [db_check, redis_check]
 
-    def get_readiness(self) -> dict:
+    async def get_readiness(self) -> dict:
         """Readiness probe: returns ok only when all dependencies are healthy."""
-        checks = self.check_all()
+        checks = await self.check_all()
         all_healthy = all(c["status"] == "healthy" for c in checks)
         return {
             "status": "ready" if all_healthy else "not_ready",

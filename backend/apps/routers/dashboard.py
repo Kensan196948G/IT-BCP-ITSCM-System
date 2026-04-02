@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps import crud
+from apps.cache import TTL_DASHBOARD, get_cached, set_cached
 from apps.models import ActiveIncident
 from apps.report_generator import ReportGenerator
 from apps.rto_tracker import RTOTracker
@@ -19,12 +20,19 @@ from database import get_db
 
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
 
+_CACHE_READINESS = "dashboard:readiness"
+_CACHE_RTO_OVERVIEW = "dashboard:rto-overview"
+
 
 @router.get("/readiness", response_model=DashboardResponse)
 async def get_readiness(
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     """Get BCP readiness score and overall dashboard."""
+    cached = await get_cached(_CACHE_READINESS)
+    if cached is not None:
+        return cached
+
     all_systems = await crud.get_all_systems(db)
     active_incidents = await crud.get_active_incidents(db)
 
@@ -41,6 +49,7 @@ async def get_readiness(
     ]
 
     dashboard = RTOTracker.get_dashboard(systems_data, incidents_data)
+    await set_cached(_CACHE_READINESS, dashboard, TTL_DASHBOARD)
     return dashboard
 
 
@@ -49,6 +58,10 @@ async def get_rto_overview(
     db: AsyncSession = Depends(get_db),
 ) -> list:
     """Get RTO status overview for all systems."""
+    cached = await get_cached(_CACHE_RTO_OVERVIEW)
+    if cached is not None:
+        return cached
+
     all_systems = await crud.get_all_systems(db)
     active_incidents = await crud.get_active_incidents(db)
 
@@ -75,6 +88,7 @@ async def get_rto_overview(
         status_info["system_name"] = system.system_name
         results.append(status_info)
 
+    await set_cached(_CACHE_RTO_OVERVIEW, results, TTL_DASHBOARD)
     return results
 
 
