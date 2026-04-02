@@ -1,9 +1,10 @@
 """Tests for WebSocket RTO dashboard endpoint and ConnectionManager."""
 
 import json
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, patch
 
 import pytest
+from fastapi import WebSocket
 from fastapi.testclient import TestClient
 
 from apps.websocket_manager import ConnectionManager
@@ -76,6 +77,35 @@ class TestWebSocketRTODashboard:
             data = ws.receive_text()
             msg = json.loads(data)
             assert msg["type"] == "pong"
+
+    def test_websocket_receives_background_update(self, ws_client):
+        """Background task sends rto_update messages (covers lines 91-93)."""
+        with patch("asyncio.sleep", new_callable=AsyncMock, return_value=None):
+            with ws_client.websocket_connect("/ws/rto-dashboard") as ws:
+                # Initial snapshot (line 85)
+                snapshot = json.loads(ws.receive_text())
+                assert snapshot["type"] == "rto_snapshot"
+                # Background update sent after mocked sleep returns immediately
+                update = json.loads(ws.receive_text())
+                assert update["type"] == "rto_update"
+                assert "systems" in update
+                assert "summary" in update
+
+    @pytest.mark.asyncio
+    async def test_websocket_generic_exception_disconnects(self):
+        """Generic exceptions (not WebSocketDisconnect) call manager.disconnect (lines 118-119)."""
+        from apps.routers.ws import rto_dashboard_ws
+        from apps.websocket_manager import manager
+
+        ws = AsyncMock(spec=WebSocket)
+        # receive_text raises a non-WebSocketDisconnect exception immediately
+        ws.receive_text.side_effect = RuntimeError("network reset")
+
+        with patch.object(manager, "connect", new_callable=AsyncMock):
+            with patch.object(manager, "disconnect") as mock_disconnect:
+                await rto_dashboard_ws(ws)
+
+        mock_disconnect.assert_called_once_with(ws)
 
 
 # ---------------------------------------------------------------------------

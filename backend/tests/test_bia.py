@@ -304,3 +304,17 @@ class TestBIAEndpoints:
         payload["assessment_id"] = "   "
         resp = client.post("/api/bia", json=payload)
         assert resp.status_code == 422
+
+    @patch("apps.routers.bia.crud.update_bia_assessment", new_callable=AsyncMock)
+    def test_update_bia_not_found(self, mock_update, client):
+        """PUT /api/bia/{id} returns 404 when update returns None (line 80)."""
+        mock_update.return_value = None
+        resp = client.put(f"/api/bia/{FIXED_UUID}", json={"risk_score": 99})
+        assert resp.status_code == 404
+
+    @patch("apps.routers.bia.crud.delete_bia_assessment", new_callable=AsyncMock)
+    def test_delete_bia_not_found(self, mock_delete, client):
+        """DELETE /api/bia/{id} returns 404 when delete returns False (line 92)."""
+        mock_delete.return_value = False
+        resp = client.delete(f"/api/bia/{FIXED_UUID}")
+        assert resp.status_code == 404

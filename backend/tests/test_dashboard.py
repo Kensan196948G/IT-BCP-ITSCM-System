@@ -72,3 +72,19 @@ def test_rto_overview_empty(mock_systems: AsyncMock, mock_incidents: AsyncMock, 
     response = client.get("/api/dashboard/rto-overview")
     assert response.status_code == 200
     assert response.json() == []
+
+
+@patch("apps.crud.get_active_incidents", new_callable=AsyncMock)
+@patch("apps.crud.get_all_systems", new_callable=AsyncMock)
+def test_rto_overview_with_matching_incident(mock_systems: AsyncMock, mock_incidents: AsyncMock, client) -> None:
+    """RTO overview builds RTOTracker from matched incident (covers lines 57-59, 65)."""
+    mock_systems.return_value = [MockSystem(system_name="Core Banking System", rto_target_hours=4.0)]
+    mock_incidents.return_value = [MockIncident(affected_systems=["Core Banking System"])]
+
+    response = client.get("/api/dashboard/rto-overview")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1
+    assert data[0]["system_name"] == "Core Banking System"
+    # When incident exists, RTOTracker uses occurred_at so status is not "not_started"
+    assert data[0]["status"] in ("on_track", "at_risk", "overdue")

@@ -11,7 +11,7 @@ IT事業継続管理システム（BCP/ITSCM統合プラットフォーム）
 
 ## 技術スタック
 - **バックエンド**: Python 3.12 / FastAPI 0.115 / SQLAlchemy (async) / Alembic
-- **フロントエンド**: Next.js 14 / TypeScript / Tailwind CSS v4
+- **フロントエンド**: Next.js 16 / TypeScript / Tailwind CSS v4
 - **データベース**: PostgreSQL 16 / Redis 7
 - **インフラ**: Azure Container Apps / Azure Front Door
 - **CI/CD**: GitHub Actions
@@ -50,7 +50,7 @@ backend/           # FastAPI バックエンド
   config.py        # 設定
   database.py      # DB接続
 
-frontend/          # Next.js 14 フロントエンド
+frontend/          # Next.js 16 フロントエンド
   app/             # App Router ページ
   public/          # 静的ファイル・PWA
 
