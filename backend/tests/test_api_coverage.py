@@ -3,13 +3,22 @@
 import pytest
 from fastapi.testclient import TestClient
 
+from apps.auth import AuthService
 from main import app
+from tests.conftest import _mock_admin_user
 
 
 @pytest.fixture()
 def raw_client():
-    """TestClient without DB override -- for schema / route existence checks."""
-    return TestClient(app, raise_server_exceptions=False)
+    """TestClient without DB override -- for schema / route existence checks.
+
+    Auth is overridden so that protected endpoints are reachable (the purpose
+    of this fixture is to verify routes exist and return expected shapes, not
+    to test authentication behaviour).
+    """
+    app.dependency_overrides[AuthService.get_current_user] = _mock_admin_user
+    yield TestClient(app, raise_server_exceptions=False)
+    app.dependency_overrides.pop(AuthService.get_current_user, None)
 
 
 # ---------------------------------------------------------------------------

@@ -6,12 +6,13 @@ import time
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from apps.auth import AuthService
 from apps.monitoring import metrics_collector
 from apps.rate_limiter import RateLimiter
 from apps.routers import (
@@ -241,19 +242,24 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
 # Routers
 # ---------------------------------------------------------------------------
 
-app.include_router(systems.router)
-app.include_router(exercises.router)
-app.include_router(incidents.router)
-app.include_router(dashboard.router)
-app.include_router(procedures.router)
-app.include_router(contacts.router)
-app.include_router(bia.router)
-app.include_router(scenarios.router)
-app.include_router(notifications.router)
-app.include_router(monitoring.router)
-app.include_router(runbook.router)
+# Shared JWT authentication dependency applied to all protected routers.
+# Public endpoints (auth login, monitoring health probes, WebSocket) are excluded.
+_auth_dep = [Depends(AuthService.get_current_user)]
+
+app.include_router(systems.router, dependencies=_auth_dep)
+app.include_router(exercises.router, dependencies=_auth_dep)
+app.include_router(incidents.router, dependencies=_auth_dep)
+app.include_router(dashboard.router, dependencies=_auth_dep)
+app.include_router(procedures.router, dependencies=_auth_dep)
+app.include_router(contacts.router, dependencies=_auth_dep)
+app.include_router(bia.router, dependencies=_auth_dep)
+app.include_router(scenarios.router, dependencies=_auth_dep)
+app.include_router(notifications.router, dependencies=_auth_dep)
+app.include_router(runbook.router, dependencies=_auth_dep)
+app.include_router(audit.router, dependencies=_auth_dep)
+# Public routers: auth (login), monitoring (K8s probes), ws (WebSocket)
 app.include_router(auth.router)
-app.include_router(audit.router)
+app.include_router(monitoring.router)
 app.include_router(ws.router)
 
 

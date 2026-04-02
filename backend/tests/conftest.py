@@ -2,13 +2,31 @@
 
 import uuid
 from datetime import datetime, timezone
+from typing import Any
 from unittest.mock import AsyncMock
 
 import pytest
 from fastapi.testclient import TestClient
 
+from apps.auth import ROLE_PERMISSIONS, AuthService
 from database import get_db
 from main import app
+
+# ---------------------------------------------------------------------------
+# Auth helpers
+# ---------------------------------------------------------------------------
+
+_MOCK_ADMIN: dict[str, Any] = {
+    "user_id": "test-admin",
+    "role": "admin",
+    "permissions": ROLE_PERMISSIONS["admin"],
+}
+
+
+async def _mock_admin_user() -> dict[str, Any]:
+    """Return a mock admin user — used to bypass JWT auth in tests."""
+    return _MOCK_ADMIN
+
 
 # ---------------------------------------------------------------------------
 # Fake DB dependency
@@ -24,12 +42,42 @@ def _fake_db_generator():
     return _gen
 
 
+@pytest.fixture(autouse=True)
+def _auto_auth():
+    """Automatically inject mock admin auth for every test.
+
+    Tests that specifically verify 401 behaviour must use the
+    ``unauthenticated_client`` fixture, which explicitly removes this override.
+    """
+    app.dependency_overrides[AuthService.get_current_user] = _mock_admin_user
+    yield
+    app.dependency_overrides.pop(AuthService.get_current_user, None)
+
+
 @pytest.fixture()
 def client():
-    """Provide a TestClient with the DB dependency overridden."""
+    """Provide a TestClient with the DB dependency and auth overridden."""
     from main import _rate_limiter
 
     app.dependency_overrides[get_db] = _fake_db_generator()
+    app.dependency_overrides[AuthService.get_current_user] = _mock_admin_user
+    _rate_limiter._history.clear()
+    yield TestClient(app)
+    app.dependency_overrides.clear()
+    _rate_limiter._history.clear()
+
+
+@pytest.fixture()
+def unauthenticated_client():
+    """Provide a TestClient with DB overridden but NO auth override.
+
+    Use this for tests that specifically verify 401 / authentication behaviour.
+    The autouse ``_auto_auth`` fixture is intentionally cancelled here.
+    """
+    from main import _rate_limiter
+
+    app.dependency_overrides[get_db] = _fake_db_generator()
+    app.dependency_overrides.pop(AuthService.get_current_user, None)
     _rate_limiter._history.clear()
     yield TestClient(app)
     app.dependency_overrides.clear()
