@@ -12,8 +12,8 @@
   <a href="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml"><img src="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml/badge.svg" alt="CI"></a>
   <img src="https://img.shields.io/badge/tests-331_passed-brightgreen?style=flat-square" alt="Tests">
   <img src="https://img.shields.io/badge/coverage-92%25-brightgreen?style=flat-square" alt="Coverage">
-  <img src="https://img.shields.io/badge/PRs-32_merged-blue?style=flat-square" alt="PRs">
-  <img src="https://img.shields.io/badge/STABLE-3%2F3_✅-brightgreen?style=flat-square" alt="STABLE">
+  <img src="https://img.shields.io/badge/PRs-34_merged-blue?style=flat-square" alt="PRs">
+  <img src="https://img.shields.io/badge/STABLE-5%2F5_✅-brightgreen?style=flat-square" alt="STABLE">
   <img src="https://img.shields.io/badge/security-CVE_patched-brightgreen?style=flat-square&logo=shield" alt="Security">
 </p>
 
@@ -305,7 +305,7 @@ graph LR
 
 | ソフトウェア | バージョン | 用途 |
 |:------------|:----------|:-----|
-| 🟩 Node.js | 20.x | フロントエンド |
+| 🟩 Node.js | 22.x LTS | フロントエンド |
 | 🐍 Python | 3.12 | バックエンド |
 | 🐘 PostgreSQL | 16 | データベース |
 | ⚡ Redis | 7 | キャッシュ |
@@ -355,6 +355,8 @@ npm run dev
 | `python-jose` | 3.3.0 | **3.5.0** | PYSEC-2024-232/233 | 🟠 High | 2026-04-02 |
 | `black` | 24.10.0 | **26.3.1** | CalVer更新・セキュリティパッチ | 🟡 Medium | 2026-04-02 |
 | `SECURITY.md` | — | **新規作成** | ISO 27001 A.5.29脆弱性開示ポリシー整備 | ✅ Compliance | 2026-04-02 |
+| mypy strict | 7エラー | **0エラー** | 型安全性向上・type:ignore削除 | ✅ Quality | 2026-04-02 |
+| Node.js CI | 20.x | **22.x LTS** | EOL対応・ISO 27001 A.5.30準拠 | ✅ Compliance | 2026-04-02 |
 
 ### ⚠️ 既知の未解消脆弱性（追跡中）
 
