@@ -322,3 +322,26 @@ class TestBIAEndpoints:
         mock_delete.return_value = False
         resp = client.delete(f"/api/bia/{FIXED_UUID}")
         assert resp.status_code == 404
+
+    @patch("apps.routers.bia.crud.get_all_bia_assessments", new_callable=AsyncMock)
+    def test_export_bia_csv(self, mock_list, client):
+        """GET /api/bia/export/csv should return CSV content."""
+        mock_list.return_value = [MockBIA()]
+        resp = client.get("/api/bia/export/csv")
+        assert resp.status_code == 200
+        assert "text/csv" in resp.headers["content-type"]
+        assert "bia_assessments.csv" in resp.headers["content-disposition"]
+        lines = resp.text.strip().splitlines()
+        assert len(lines) == 2  # header + 1 data row
+        assert "assessment_id" in lines[0]
+        assert "Core Banking System" in lines[1]
+
+    @patch("apps.routers.bia.crud.get_all_bia_assessments", new_callable=AsyncMock)
+    def test_export_bia_csv_empty(self, mock_list, client):
+        """GET /api/bia/export/csv should return header-only CSV when no records."""
+        mock_list.return_value = []
+        resp = client.get("/api/bia/export/csv")
+        assert resp.status_code == 200
+        assert "text/csv" in resp.headers["content-type"]
+        lines = resp.text.strip().splitlines()
+        assert len(lines) == 1  # header only

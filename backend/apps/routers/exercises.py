@@ -1,8 +1,11 @@
 """API routes for BCP exercise management."""
 
+import csv
+import io
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps import crud
@@ -158,3 +161,41 @@ async def get_exercise_report(
         return await engine.generate_report(exercise_id)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
+
+
+_EXERCISE_CSV_FIELDS = [
+    "id",
+    "exercise_id",
+    "title",
+    "exercise_type",
+    "scenario_description",
+    "scheduled_date",
+    "actual_date",
+    "duration_hours",
+    "facilitator",
+    "status",
+    "overall_result",
+    "lessons_learned",
+    "created_at",
+    "updated_at",
+]
+
+
+@router.get("/export/csv")
+async def export_exercises_csv(
+    db: AsyncSession = Depends(get_db),
+) -> StreamingResponse:
+    """Export all BCP exercise records as CSV."""
+    records = await crud.get_all_exercises(db, skip=0, limit=10000)
+    buf = io.StringIO()
+    writer = csv.DictWriter(buf, fieldnames=_EXERCISE_CSV_FIELDS, extrasaction="ignore")
+    writer.writeheader()
+    for rec in records:
+        row = {f: getattr(rec, f, None) for f in _EXERCISE_CSV_FIELDS}
+        writer.writerow(row)
+    buf.seek(0)
+    return StreamingResponse(
+        iter([buf.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=exercises.csv"},
+    )
