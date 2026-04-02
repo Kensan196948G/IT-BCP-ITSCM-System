@@ -102,13 +102,13 @@ class TestLoginAPI:
         )
         assert resp.status_code == 422
 
-    def test_me_without_token_401(self, client: TestClient):
-        resp = client.get("/api/auth/me")
+    def test_me_without_token_401(self, unauthenticated_client: TestClient):
+        resp = unauthenticated_client.get("/api/auth/me")
         assert resp.status_code == 401
 
-    def test_me_with_valid_token(self, client: TestClient):
+    def test_me_with_valid_token(self, unauthenticated_client: TestClient):
         token = auth_service.create_access_token("user1", "operator")
-        resp = client.get(
+        resp = unauthenticated_client.get(
             "/api/auth/me",
             headers={"Authorization": f"Bearer {token}"},
         )
@@ -117,9 +117,9 @@ class TestLoginAPI:
         assert data["user_id"] == "user1"
         assert data["role"] == "operator"
 
-    def test_refresh_with_valid_token(self, client: TestClient):
+    def test_refresh_with_valid_token(self, unauthenticated_client: TestClient):
         token = auth_service.create_access_token("user1", "admin")
-        resp = client.post(
+        resp = unauthenticated_client.post(
             "/api/auth/refresh",
             headers={"Authorization": f"Bearer {token}"},
         )
@@ -132,8 +132,8 @@ class TestLoginAPI:
         assert info["user_id"] == "user1"
         assert info["role"] == "admin"
 
-    def test_refresh_without_token_401(self, client: TestClient):
-        resp = client.post("/api/auth/refresh")
+    def test_refresh_without_token_401(self, unauthenticated_client: TestClient):
+        resp = unauthenticated_client.post("/api/auth/refresh")
         assert resp.status_code == 401
 
 
