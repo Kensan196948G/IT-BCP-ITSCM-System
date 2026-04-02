@@ -165,6 +165,25 @@ def test_delete_procedure(mock_delete: AsyncMock) -> None:
         app.dependency_overrides.clear()
 
 
+@patch("apps.crud.update_procedure", new_callable=AsyncMock)
+def test_update_procedure_not_found(mock_update: AsyncMock) -> None:
+    """Test PUT /api/procedures/{id} returns 404 when procedure does not exist."""
+    mock_update.return_value = None
+
+    from database import get_db
+
+    app.dependency_overrides[get_db] = _mock_db_override()
+    try:
+        response = client.put(
+            f"/api/procedures/{uuid.uuid4()}",
+            json={"title": "Ghost Procedure"},
+        )
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Procedure not found"
+    finally:
+        app.dependency_overrides.clear()
+
+
 @patch("apps.crud.delete_procedure", new_callable=AsyncMock)
 def test_delete_procedure_not_found(mock_delete: AsyncMock) -> None:
     """Test DELETE /api/procedures/{id} returns 404 when not found."""
