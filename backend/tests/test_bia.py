@@ -124,6 +124,16 @@ class TestCalculateRecommendedRto:
         rto = calculate_recommended_rto(risk_score=80, mtpd_hours=24.0)
         assert rto == 2.4  # 24 * 0.10
 
+    def test_mid_high_risk_with_mtpd(self):
+        # risk_score 51-75 → fraction 0.25 (line 70)
+        rto = calculate_recommended_rto(risk_score=60, mtpd_hours=24.0)
+        assert rto == 6.0  # 24 * 0.25
+
+    def test_mid_low_risk_with_mtpd(self):
+        # risk_score 26-50 → fraction 0.50 (line 72)
+        rto = calculate_recommended_rto(risk_score=40, mtpd_hours=24.0)
+        assert rto == 12.0  # 24 * 0.50
+
     def test_low_risk_with_mtpd(self):
         rto = calculate_recommended_rto(risk_score=10, mtpd_hours=24.0)
         assert rto == 18.0  # 24 * 0.75
@@ -131,6 +141,16 @@ class TestCalculateRecommendedRto:
     def test_high_risk_no_mtpd(self):
         rto = calculate_recommended_rto(risk_score=80)
         assert rto == 2.0
+
+    def test_mid_high_risk_no_mtpd(self):
+        # risk_score 51-75 without MTPD → 4.0 (line 81)
+        rto = calculate_recommended_rto(risk_score=60)
+        assert rto == 4.0
+
+    def test_mid_low_risk_no_mtpd(self):
+        # risk_score 26-50 without MTPD → 8.0 (line 83)
+        rto = calculate_recommended_rto(risk_score=40)
+        assert rto == 8.0
 
     def test_low_risk_no_mtpd(self):
         rto = calculate_recommended_rto(risk_score=10)
@@ -180,6 +200,28 @@ class TestRiskMatrix:
         # matrix should have count of 1 somewhere
         total = sum(sum(row) for row in result["matrix"])
         assert total == 1
+
+    def test_skips_assessment_with_none_risk_score(self):
+        # Assessment with risk_score=None should be skipped (line 173 `continue`)
+        no_score = MockBIA(risk_score=None)
+        valid = MockBIA(system_name="Valid System", risk_score=50)
+        result = get_risk_matrix([no_score, valid])
+        # Only the valid assessment should appear in entries
+        assert len(result["entries"]) == 1
+        assert result["entries"][0]["system_name"] == "Valid System"
+
+    def test_risk_matrix_with_dict_assessments(self):
+        # Pass dict-style assessments to cover _attr(obj, name) dict branch (line 201)
+        dict_assessment = {
+            "system_name": "Dict System",
+            "risk_score": 65,
+            "reputation_impact": "high",
+            "operational_impact": "medium",
+            "max_tolerable_downtime_hours": 8.0,
+        }
+        result = get_risk_matrix([dict_assessment])
+        assert len(result["entries"]) == 1
+        assert result["entries"][0]["system_name"] == "Dict System"
 
 
 # ---- API endpoint tests ----
