@@ -18,12 +18,12 @@ from config import settings
 logger = logging.getLogger(__name__)
 
 # Default TTL values (seconds) — tuned to BCP data update cadences
-TTL_DASHBOARD = 60        # readiness dashboard: refresh every minute
-TTL_SYSTEM_LIST = 300     # system list: rarely changes
-TTL_EXERCISE_LIST = 300   # exercise list: rarely changes
-TTL_INCIDENT_LIST = 30    # active incidents: update frequently
-TTL_BIA = 600             # BIA data: changes infrequently
-TTL_DEFAULT = 120         # fallback
+TTL_DASHBOARD = 60  # readiness dashboard: refresh every minute
+TTL_SYSTEM_LIST = 300  # system list: rarely changes
+TTL_EXERCISE_LIST = 300  # exercise list: rarely changes
+TTL_INCIDENT_LIST = 30  # active incidents: update frequently
+TTL_BIA = 600  # BIA data: changes infrequently
+TTL_DEFAULT = 120  # fallback
 
 
 _pool: aioredis.Redis | None = None

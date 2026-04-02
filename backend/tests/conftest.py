@@ -27,6 +27,7 @@ async def _mock_admin_user() -> dict[str, Any]:
     """Return a mock admin user — used to bypass JWT auth in tests."""
     return _MOCK_ADMIN
 
+
 # ---------------------------------------------------------------------------
 # Fake DB dependency
 # ---------------------------------------------------------------------------

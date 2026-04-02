@@ -18,7 +18,6 @@ from apps.cache import (
     set_cached,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -85,6 +84,7 @@ class TestGetCached:
     @pytest.mark.asyncio
     async def test_returns_deserialized_value(self):
         import json
+
         payload = {"status": "healthy", "score": 95}
         mock_client = _make_redis_mock(get=AsyncMock(return_value=json.dumps(payload)))
         with patch("apps.cache._get_client", return_value=mock_client):

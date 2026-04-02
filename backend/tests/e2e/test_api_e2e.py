@@ -156,6 +156,4 @@ class TestSecurityHeadersE2E:
         resp = page.request.get(f"{base_url}/api/health")
         for header, expected_value in self.EXPECTED_HEADERS.items():
             actual = resp.headers.get(header, "")
-            assert actual == expected_value, (
-                f"Header {header}: expected '{expected_value}', got '{actual}'"
-            )
+            assert actual == expected_value, f"Header {header}: expected '{expected_value}', got '{actual}'"
