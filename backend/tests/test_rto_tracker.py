@@ -153,3 +153,22 @@ class TestRTOTrackerDashboard:
         assert result["total_systems"] == 0
         assert result["readiness_score"] == 100.0
         assert result["rto_statuses"] == []
+
+    def test_dashboard_at_risk_system(self) -> None:
+        """Dashboard should count at_risk when system is near RTO threshold (< 20% remaining)."""
+        now = datetime(2026, 3, 27, 12, 0, 0, tzinfo=timezone.utc)
+        systems = [
+            {"system_name": "System A", "rto_target_hours": 4.0},
+        ]
+        incidents = [
+            {
+                "affected_systems": ["System A"],
+                "occurred_at": now - timedelta(hours=3, minutes=30),  # 87.5% elapsed
+                "resolved_at": None,
+                "status": "active",
+            }
+        ]
+        result = RTOTracker.get_dashboard(systems, incidents, now=now)
+        system_a = result["rto_statuses"][0]
+        assert system_a["status"] == "at_risk"
+        assert result["systems_overdue"] == 0

@@ -278,6 +278,31 @@ def test_command_dashboard_not_found(mock_get: AsyncMock, client) -> None:
     assert response.status_code == 404
 
 
+@patch("apps.crud.get_all_systems", new_callable=AsyncMock)
+@patch("apps.crud.get_situation_reports_by_incident", new_callable=AsyncMock)
+@patch("apps.crud.get_incident_tasks_by_incident", new_callable=AsyncMock)
+@patch("apps.crud.get_incident", new_callable=AsyncMock)
+def test_command_dashboard_no_tasks(
+    mock_get_inc: AsyncMock,
+    mock_tasks: AsyncMock,
+    mock_reports: AsyncMock,
+    mock_systems: AsyncMock,
+    client,
+) -> None:
+    """GET /api/incidents/{id}/command-dashboard should return zero-stat TaskStatistics when no tasks exist."""
+    mock_get_inc.return_value = MockIncident()
+    mock_tasks.return_value = []
+    mock_reports.return_value = []
+    mock_systems.return_value = []
+
+    response = client.get(f"/api/incidents/{FIXED_UUID}/command-dashboard")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["task_statistics"]["total"] == 0
+    assert data["task_statistics"]["completed"] == 0
+    assert data["task_statistics"]["completion_rate"] == 0.0
+
+
 def test_create_task_invalid_priority(client) -> None:
     """POST task with invalid priority should return 422."""
     payload = {

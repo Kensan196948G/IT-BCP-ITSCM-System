@@ -21,6 +21,9 @@ class MockScenario:
             "scenario_type": "dc_failure",
             "severity": "critical",
             "description": "Data center power failure",
+            "initial_inject": "DC power failure detected",
+            "injects": ["Initial alert", "Escalation"],
+            "difficulty": "medium",
             "affected_systems": ["AD", "File Server"],
             "mitigation_steps": ["Activate backup power", "Failover to DR site"],
             "is_active": True,
@@ -95,3 +98,18 @@ class TestScenarioErrorPaths:
         """GET /api/scenarios with limit > 500 returns 422."""
         resp = client.get("/api/scenarios?limit=501")
         assert resp.status_code == 422
+
+    def test_update_scenario_success(self, client: TestClient) -> None:
+        """PUT /api/scenarios/{id} returns updated object on success."""
+        with patch(
+            "apps.crud.update_scenario",
+            new_callable=AsyncMock,
+            return_value=MockScenario(title="Updated Title"),
+        ):
+            resp = client.put(
+                f"/api/scenarios/{FIXED_UUID}",
+                json={"title": "Updated Title"},
+            )
+
+        assert resp.status_code == 200
+        assert resp.json()["title"] == "Updated Title"

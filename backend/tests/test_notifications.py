@@ -232,6 +232,51 @@ class TestEscalationEngine:
         status = engine.get_escalation_status(uuid.uuid4())
         assert status["total_notifications"] == 0
 
+    def test_trigger_escalation_else_channel(self):
+        """Test else-branch (line 164) when channel is neither 'teams' nor 'email'."""
+        svc = NotificationService(dry_run=True)
+        engine = EscalationEngine(notification_service=svc)
+        iid = uuid.uuid4()
+        # Mock get_escalation_plan to return a plan with a 'phone' channel
+        custom_plan = {
+            "severity": "p1",
+            "plan_name": "Custom Phone Plan",
+            "levels": [
+                {
+                    "level": 1,
+                    "role": "担当者",
+                    "delay_minutes": 0,
+                    "channels": ["phone"],
+                }
+            ],
+        }
+        with patch.object(engine, "get_escalation_plan", return_value=custom_plan):
+            result = engine.trigger_escalation(
+                incident_id=iid,
+                severity="p1",
+                contacts=[{"role": "担当者", "name": "Test User", "email": "user@test.local"}],
+            )
+        assert result["notifications_queued"] == 1
+        # recipient should be email fallback (contact.get("email") or role)
+        assert result["notifications"][0]["recipient"] == "user@test.local"
+
+    def test_send_email_with_smtp_auth(self):
+        """Test email send uses starttls/login when SMTP_USER is configured (lines 102-103)."""
+        svc = NotificationService(dry_run=False)
+        mock_smtp_instance = MagicMock()
+        with patch("smtplib.SMTP") as mock_smtp, patch("apps.notification_service.settings") as mock_settings:
+            mock_smtp.return_value.__enter__ = MagicMock(return_value=mock_smtp_instance)
+            mock_smtp.return_value.__exit__ = MagicMock(return_value=False)
+            mock_settings.SMTP_HOST = "smtp.example.com"
+            mock_settings.SMTP_PORT = 587
+            mock_settings.SMTP_USER = "user@example.com"
+            mock_settings.SMTP_PASSWORD = "secret"
+            mock_settings.SMTP_FROM = "noreply@example.com"
+            result = svc.send_email("admin@example.com", "Test Subject", "Test body")
+        assert result["status"] == "sent"
+        mock_smtp_instance.starttls.assert_called_once()
+        mock_smtp_instance.login.assert_called_once_with("user@example.com", "secret")
+
 
 # ---------------------------------------------------------------------------
 # API route tests
