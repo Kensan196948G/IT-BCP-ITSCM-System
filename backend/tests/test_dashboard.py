@@ -76,9 +76,7 @@ def test_rto_overview_empty(mock_systems: AsyncMock, mock_incidents: AsyncMock, 
 
 @patch("apps.crud.get_active_incidents", new_callable=AsyncMock)
 @patch("apps.crud.get_all_systems", new_callable=AsyncMock)
-def test_rto_overview_with_matching_incident(
-    mock_systems: AsyncMock, mock_incidents: AsyncMock, client
-) -> None:
+def test_rto_overview_with_matching_incident(mock_systems: AsyncMock, mock_incidents: AsyncMock, client) -> None:
     """RTO overview builds RTOTracker from matched incident (covers lines 57-59, 65)."""
     mock_systems.return_value = [MockSystem(system_name="Core Banking System", rto_target_hours=4.0)]
     mock_incidents.return_value = [MockIncident(affected_systems=["Core Banking System"])]

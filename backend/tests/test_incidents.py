@@ -117,9 +117,7 @@ def test_incident_rto_dashboard_not_found(mock_get: AsyncMock, client) -> None:
 
 @patch("apps.crud.get_all_systems", new_callable=AsyncMock)
 @patch("apps.crud.get_incident", new_callable=AsyncMock)
-def test_incident_rto_dashboard_no_affected_systems(
-    mock_get_inc: AsyncMock, mock_get_sys: AsyncMock, client
-) -> None:
+def test_incident_rto_dashboard_no_affected_systems(mock_get_inc: AsyncMock, mock_get_sys: AsyncMock, client) -> None:
     """GET /api/incidents/{id}/rto-dashboard returns [] when no affected_systems (line 87)."""
     mock_get_inc.return_value = MockIncident(affected_systems=[])
     response = client.get(f"/api/incidents/{FIXED_UUID}/rto-dashboard")
