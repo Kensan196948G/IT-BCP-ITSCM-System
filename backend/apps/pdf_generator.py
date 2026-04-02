@@ -5,7 +5,6 @@ downloadable PDF documents.
 """
 
 import io
-from datetime import datetime, timezone
 from typing import Any
 
 from reportlab.lib import colors
