@@ -10,9 +10,9 @@
 
 <p align="center">
   <a href="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml"><img src="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml/badge.svg" alt="CI"></a>
-  <img src="https://img.shields.io/badge/tests-515_passed-brightgreen?style=flat-square" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-538_passed-brightgreen?style=flat-square" alt="Tests">
   <img src="https://img.shields.io/badge/coverage-100%25-brightgreen?style=flat-square" alt="Coverage">
-  <img src="https://img.shields.io/badge/PRs-101_merged-blue?style=flat-square" alt="PRs">
+  <img src="https://img.shields.io/badge/PRs-104_merged-blue?style=flat-square" alt="PRs">
   <img src="https://img.shields.io/badge/Open_PRs-0-brightgreen?style=flat-square" alt="Open PRs">
   <img src="https://img.shields.io/badge/STABLE-✅-brightgreen?style=flat-square" alt="STABLE">
   <img src="https://img.shields.io/badge/security-0_CVE-brightgreen?style=flat-square&logo=shield" alt="Security">
@@ -359,7 +359,7 @@ npm run dev
 | mypy strict | 7エラー | **0エラー** | 型安全性向上・type:ignore削除 | ✅ Quality | 2026-04-02 |
 | Node.js CI | 20.x | **22.x LTS** | EOL対応・ISO 27001 A.5.30準拠 | ✅ Compliance | 2026-04-02 |
 | テストカバレッジ | 86% | **99%** | crud.py 100%（PR#87: CRUD全11エンティティ網羅）、全体99% | ✅ Quality | 2026-04-02 |
-| テスト総数 | 149件 | **459件** | PR#87: crud.py 78テスト追加、全エンティティCRUD網羅 | ✅ Quality | 2026-04-02 |
+| テスト総数 | 149件 | **538件** | PR#87: crud.py 78テスト追加、PR#104: PDFレポートテスト追加、全エンティティCRUD網羅 | ✅ Quality | 2026-04-02 |
 | TypeScript | 5.7.x | **6.0.2** | CSS型宣言追加でTS6対応（css.d.ts） | ✅ Quality | 2026-04-02 |
 | FastAPI | 0.115.6 | **0.120.4** | CVE-2025-54121/62727解消、starlette 0.49.3固定 | 🔐 Security | 2026-04-02 |
 | starlette | 0.41.3 | **0.49.3** | CVE-2025-54121 (fix:0.47.2+) / CVE-2025-62727 (fix:0.49.1+) 解消 | 🔐 Security | 2026-04-02 |
@@ -490,7 +490,7 @@ MIT License
 | GitHub Issues | 1 open (#97 Phase3 BIA Cache) | 🔄 |
 | Project #13 | Phase 3 完了・Phase 4 準備中 | ✅ |
 | セキュリティ | 0 CVE / JWT全ルーター + WebSocket保護済み | ✅ |
-| STABLE判定 | **✅ STABLE** (PR #99/#100/#101 全マージ済み) | ✅ |
+| STABLE判定 | **✅ STABLE** (PR #101/#103 マージ済み、#104 CI待機中) | ✅ |
 
 ### Phase 3 セキュリティ・キャッシュ・監査強化 進捗
 
@@ -505,6 +505,8 @@ MIT License
 | 🔧 E2E BIA キャッシュテスト分離修正 | #99 | ✅ Merged | ローカルRedis干渉防止・509テスト全通過 |
 | 📝 HTTP ミドルウェア監査ログ（ISO27001） | #100 | ✅ Merged | 全CRUD操作自動記録、横断的関心事実装 |
 | 📤 CSV エクスポートエンドポイント | #101 | ✅ Merged | systems/exercises/BIA の3エンドポイント追加、515テスト |
+| 📥 CSV インポートエンドポイント | #103 | ✅ Merged | systems/exercisesのCSVバルクインポート、バリデーション付き |
+| 📄 PDFレポートエクスポート | #104 | 🔄 CI中 | reportlab使用、RPT-001〜004の4種PDF生成、538テスト |
 
 <p align="center">
   <sub>Built with ❤️ by ClaudeOS v4 Auto Development Pipeline</sub>
