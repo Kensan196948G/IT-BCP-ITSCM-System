@@ -423,6 +423,16 @@ graph LR
 
 ---
 
+## 🔧 最新 Improvement ループ成果（2026-04-02 12:15 JST）
+
+| 改善項目 | 状態 | 詳細 |
+|:---------|:----:|:-----|
+| 🟢 GitHub Projects #13 | **✅ 整合確認** | GraphQL検証: 全19件 Done済み（CLI誤検知 → 実際は正常） |
+| 🟢 systemd BACKEND_URL | **✅ 追加完了** | `/etc/systemd/system/it-bcp-itscm-frontend.service` に環境変数一元化 |
+| 🟢 静的アセット自動化 | **✅ 完了** | `scripts/copy-static-assets.sh` 作成 + ExecStartPre 統合（PR不要・直接改善） |
+| 🟢 Next.js standalone | **✅ 本番確認** | ExecStartPre SUCCESS・.next/static + public 自動コピー動作確認済み |
+| 🟢 コミット | **✅ push済み** | `ca79151` → `origin/main` push完了 |
+
 ## 🔍 最新 Monitor ループ状態（2026-04-02 11:40 JST）
 
 | 確認項目 | 状態 | 詳細 |
