@@ -63,11 +63,18 @@ class TestITSystemBCPCRUD:
     @pytest.mark.asyncio
     async def test_create_system(self):
         db = AsyncMock()
-        await crud.create_system(db, {
-            "system_name": "SysA", "system_type": "onprem", "criticality": "tier1",
-            "rto_target_hours": 4.0, "rpo_target_hours": 1.0, "mtpd_hours": 24.0,
-            "primary_owner": "IT Ops",
-        })
+        await crud.create_system(
+            db,
+            {
+                "system_name": "SysA",
+                "system_type": "onprem",
+                "criticality": "tier1",
+                "rto_target_hours": 4.0,
+                "rpo_target_hours": 1.0,
+                "mtpd_hours": 24.0,
+                "primary_owner": "IT Ops",
+            },
+        )
         assert db.add.called
         assert db.flush.called
 
@@ -129,11 +136,17 @@ class TestRecoveryProcedureCRUD:
     @pytest.mark.asyncio
     async def test_create_procedure(self):
         db = AsyncMock()
-        await crud.create_procedure(db, {
-            "procedure_id": "PROC-001", "system_name": "Core DB",
-            "scenario_type": "dc_failure", "title": "Restart DB",
-            "priority_order": 1, "procedure_steps": [{"step": 1, "action": "Do X"}],
-        })
+        await crud.create_procedure(
+            db,
+            {
+                "procedure_id": "PROC-001",
+                "system_name": "Core DB",
+                "scenario_type": "dc_failure",
+                "title": "Restart DB",
+                "priority_order": 1,
+                "procedure_steps": [{"step": 1, "action": "Do X"}],
+            },
+        )
         assert db.add.called
 
     @pytest.mark.asyncio
@@ -188,10 +201,15 @@ class TestEmergencyContactCRUD:
     @pytest.mark.asyncio
     async def test_create_emergency_contact(self):
         db = AsyncMock()
-        await crud.create_emergency_contact(db, {
-            "name": "Alice", "role": "Manager",
-            "escalation_level": 1, "escalation_group": "L1",
-        })
+        await crud.create_emergency_contact(
+            db,
+            {
+                "name": "Alice",
+                "role": "Manager",
+                "escalation_level": 1,
+                "escalation_group": "L1",
+            },
+        )
         assert db.add.called
 
     @pytest.mark.asyncio
@@ -253,9 +271,13 @@ class TestVendorContactCRUD:
     @pytest.mark.asyncio
     async def test_create_vendor_contact(self):
         db = AsyncMock()
-        await crud.create_vendor_contact(db, {
-            "vendor_name": "ACME", "service_name": "Cloud Hosting",
-        })
+        await crud.create_vendor_contact(
+            db,
+            {
+                "vendor_name": "ACME",
+                "service_name": "Cloud Hosting",
+            },
+        )
         assert db.add.called
 
     @pytest.mark.asyncio
@@ -310,11 +332,16 @@ class TestBCPExerciseCRUD:
     @pytest.mark.asyncio
     async def test_create_exercise(self):
         db = AsyncMock()
-        await crud.create_exercise(db, {
-            "exercise_id": "EX-001", "title": "Drill",
-            "exercise_type": "tabletop", "scheduled_date": "2026-01-01",
-            "status": "planned",
-        })
+        await crud.create_exercise(
+            db,
+            {
+                "exercise_id": "EX-001",
+                "title": "Drill",
+                "exercise_type": "tabletop",
+                "scheduled_date": "2026-01-01",
+                "status": "planned",
+            },
+        )
         assert db.add.called
 
     @pytest.mark.asyncio
@@ -358,14 +385,20 @@ class TestActiveIncidentCRUD:
     @pytest.mark.asyncio
     async def test_create_incident(self):
         db = AsyncMock()
-        await crud.create_incident(db, {
-            "incident_id": "INC-001", "title": "Outage",
-            "scenario_type": "dc_failure", "severity": "p1",
-            "occurred_at": "2026-01-01T00:00:00Z",
-            "detected_at": "2026-01-01T00:01:00Z",
-            "status": "active",
-            "affected_systems": ["SysA"], "affected_users": 100,
-        })
+        await crud.create_incident(
+            db,
+            {
+                "incident_id": "INC-001",
+                "title": "Outage",
+                "scenario_type": "dc_failure",
+                "severity": "p1",
+                "occurred_at": "2026-01-01T00:00:00Z",
+                "detected_at": "2026-01-01T00:01:00Z",
+                "status": "active",
+                "affected_systems": ["SysA"],
+                "affected_users": 100,
+            },
+        )
         assert db.add.called
 
     @pytest.mark.asyncio
@@ -416,10 +449,15 @@ class TestBIAAssessmentCRUD:
     @pytest.mark.asyncio
     async def test_create_bia_assessment(self):
         db = AsyncMock()
-        await crud.create_bia_assessment(db, {
-            "assessment_id": "BIA-001", "system_name": "Core DB",
-            "assessment_date": "2026-01-01", "business_processes": ["Payments"],
-        })
+        await crud.create_bia_assessment(
+            db,
+            {
+                "assessment_id": "BIA-001",
+                "system_name": "Core DB",
+                "assessment_date": "2026-01-01",
+                "business_processes": ["Payments"],
+            },
+        )
         assert db.add.called
 
     @pytest.mark.asyncio
@@ -474,11 +512,17 @@ class TestBCPScenarioCRUD:
     @pytest.mark.asyncio
     async def test_create_scenario(self):
         db = AsyncMock()
-        await crud.create_scenario(db, {
-            "scenario_id": "SCN-001", "title": "DC Failure",
-            "scenario_type": "dc_failure", "description": "Primary DC fails",
-            "initial_inject": "DC power lost", "injects": [{"time": 0, "event": "Alert"}],
-        })
+        await crud.create_scenario(
+            db,
+            {
+                "scenario_id": "SCN-001",
+                "title": "DC Failure",
+                "scenario_type": "dc_failure",
+                "description": "Primary DC fails",
+                "initial_inject": "DC power lost",
+                "injects": [{"time": 0, "event": "Alert"}],
+            },
+        )
         assert db.add.called
 
     @pytest.mark.asyncio
@@ -533,10 +577,14 @@ class TestExerciseRTORecordCRUD:
     @pytest.mark.asyncio
     async def test_create_rto_record(self):
         db = AsyncMock()
-        await crud.create_rto_record(db, {
-            "exercise_id": SAMPLE_UUID, "system_name": "Core DB",
-            "rto_target_hours": 4.0,
-        })
+        await crud.create_rto_record(
+            db,
+            {
+                "exercise_id": SAMPLE_UUID,
+                "system_name": "Core DB",
+                "rto_target_hours": 4.0,
+            },
+        )
         assert db.add.called
 
     @pytest.mark.asyncio
@@ -562,10 +610,15 @@ class TestIncidentTaskCRUD:
     @pytest.mark.asyncio
     async def test_create_incident_task(self):
         db = AsyncMock()
-        await crud.create_incident_task(db, {
-            "incident_id": SAMPLE_UUID, "task_title": "Restart DB",
-            "priority": "critical", "assigned_team": "DBA",
-        })
+        await crud.create_incident_task(
+            db,
+            {
+                "incident_id": SAMPLE_UUID,
+                "task_title": "Restart DB",
+                "priority": "critical",
+                "assigned_team": "DBA",
+            },
+        )
         assert db.add.called
 
     @pytest.mark.asyncio
@@ -621,10 +674,15 @@ class TestSituationReportCRUD:
     @pytest.mark.asyncio
     async def test_create_situation_report(self):
         db = AsyncMock()
-        await crud.create_situation_report(db, {
-            "incident_id": SAMPLE_UUID, "report_number": 1,
-            "summary": "Initial report", "audience": "internal",
-        })
+        await crud.create_situation_report(
+            db,
+            {
+                "incident_id": SAMPLE_UUID,
+                "report_number": 1,
+                "summary": "Initial report",
+                "audience": "internal",
+            },
+        )
         assert db.add.called
 
     @pytest.mark.asyncio
