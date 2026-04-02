@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps import crud
+from apps.escalation_engine import EscalationEngine
 from apps.incident_commander import (
     generate_situation_report,
     get_command_dashboard,
@@ -15,15 +16,24 @@ from apps.schemas import (
     ActiveIncidentCreate,
     ActiveIncidentResponse,
     ActiveIncidentUpdate,
+    EscalationPlanResponse,
+    EscalationStatusResponse,
+    EscalationTriggerRequest,
+    EscalationTriggerResponse,
     IncidentCommandDashboard,
     IncidentTaskCreate,
     IncidentTaskResponse,
     IncidentTaskUpdate,
+    NotificationLogResponse,
+    NotificationSendRequest,
     RTOStatusResponse,
     SituationReportCreate,
     SituationReportResponse,
 )
+from apps.notification_service import NotificationService
 from database import get_db
+
+_escalation_engine = EscalationEngine()
 
 router = APIRouter(prefix="/api/incidents", tags=["incidents"])
 
@@ -235,3 +245,54 @@ async def auto_generate_situation_report(
     if report_data is None:
         raise HTTPException(status_code=404, detail="Incident not found")
     return await crud.create_situation_report(db, report_data)
+
+
+# ---------------------------------------------------------------------------
+# Escalation endpoints
+# ---------------------------------------------------------------------------
+
+
+@router.get("/escalation/plan/{severity}", response_model=EscalationPlanResponse)
+async def get_escalation_plan(severity: str) -> dict:
+    """Get the escalation plan for a given severity (p1, p2, p3)."""
+    plan = _escalation_engine.get_escalation_plan(severity)
+    if not plan["levels"]:
+        raise HTTPException(status_code=404, detail=f"No escalation plan for severity '{severity}'")
+    return plan
+
+
+@router.post("/escalation/trigger", response_model=EscalationTriggerResponse, status_code=201)
+async def trigger_escalation(payload: EscalationTriggerRequest) -> dict:
+    """Trigger an escalation for an incident (dry-run mode; no real notifications sent)."""
+    contacts = [c.model_dump() for c in payload.contacts]
+    result = _escalation_engine.trigger_escalation(
+        incident_id=payload.incident_id,
+        severity=payload.severity,
+        contacts=contacts,
+    )
+    return result
+
+
+@router.get("/escalation/status/{incident_id}", response_model=EscalationStatusResponse)
+async def get_escalation_status(incident_id: uuid.UUID) -> dict:
+    """Get the escalation notification status for an incident."""
+    return _escalation_engine.get_escalation_status(incident_id)
+
+
+# ---------------------------------------------------------------------------
+# Notification endpoints
+# ---------------------------------------------------------------------------
+
+
+@router.post("/notifications/send", response_model=NotificationLogResponse, status_code=201)
+async def send_notification(payload: NotificationSendRequest) -> dict:
+    """Send a manual notification (dry-run; logged but not actually delivered)."""
+    svc = NotificationService()
+    log_entry = svc.send_notification(
+        notification_type=payload.notification_type,
+        recipient=payload.recipient,
+        subject=payload.subject,
+        body=payload.body,
+        incident_id=payload.incident_id,
+    )
+    return log_entry

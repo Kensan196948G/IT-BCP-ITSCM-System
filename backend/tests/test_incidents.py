@@ -184,3 +184,138 @@ def test_list_situation_reports_incident_not_found(mock_get: AsyncMock, client) 
     mock_get.return_value = None
     response = client.get(f"/api/incidents/{FIXED_UUID}/situation-reports")
     assert response.status_code == 404
+
+
+# ---------------------------------------------------------------------------
+# GET /api/incidents/escalation/plan/{severity}
+# ---------------------------------------------------------------------------
+
+
+def test_get_escalation_plan_p1(client) -> None:
+    """GET /api/incidents/escalation/plan/p1 returns P1 Full BCP plan."""
+    response = client.get("/api/incidents/escalation/plan/p1")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["severity"] == "p1"
+    assert data["plan_name"] == "P1 Full BCP Activation"
+    assert len(data["levels"]) == 4
+
+
+def test_get_escalation_plan_p2(client) -> None:
+    """GET /api/incidents/escalation/plan/p2 returns P2 Partial BCP plan."""
+    response = client.get("/api/incidents/escalation/plan/p2")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["severity"] == "p2"
+    assert len(data["levels"]) == 2
+
+
+def test_get_escalation_plan_p3(client) -> None:
+    """GET /api/incidents/escalation/plan/p3 returns P3 Monitoring plan."""
+    response = client.get("/api/incidents/escalation/plan/p3")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["severity"] == "p3"
+    assert len(data["levels"]) == 1
+
+
+def test_get_escalation_plan_unknown_severity(client) -> None:
+    """GET /api/incidents/escalation/plan/p9 returns 404 for unknown severity."""
+    response = client.get("/api/incidents/escalation/plan/p9")
+    assert response.status_code == 404
+
+
+# ---------------------------------------------------------------------------
+# POST /api/incidents/escalation/trigger
+# ---------------------------------------------------------------------------
+
+
+def test_trigger_escalation_p1(client) -> None:
+    """POST /api/incidents/escalation/trigger triggers P1 escalation notifications."""
+    payload = {
+        "incident_id": str(FIXED_UUID),
+        "severity": "p1",
+        "contacts": [
+            {"role": "IT部門長", "name": "田中部長", "email": "tanaka@example.com"},
+        ],
+    }
+    response = client.post("/api/incidents/escalation/trigger", json=payload)
+    assert response.status_code == 201
+    data = response.json()
+    assert data["severity"] == "p1"
+    assert data["plan_name"] == "P1 Full BCP Activation"
+    assert data["notifications_queued"] > 0
+
+
+def test_trigger_escalation_invalid_severity(client) -> None:
+    """POST /api/incidents/escalation/trigger rejects invalid severity."""
+    payload = {
+        "incident_id": str(FIXED_UUID),
+        "severity": "p9",
+        "contacts": [],
+    }
+    response = client.post("/api/incidents/escalation/trigger", json=payload)
+    assert response.status_code == 422
+
+
+# ---------------------------------------------------------------------------
+# GET /api/incidents/escalation/status/{incident_id}
+# ---------------------------------------------------------------------------
+
+
+def test_get_escalation_status_empty(client) -> None:
+    """GET /api/incidents/escalation/status/{id} returns empty status for unknown incident."""
+    response = client.get(f"/api/incidents/escalation/status/{uuid.uuid4()}")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total_notifications"] == 0
+    assert data["sent"] == 0
+
+
+def test_get_escalation_status_after_trigger(client) -> None:
+    """GET /api/incidents/escalation/status returns notifications after trigger."""
+    trigger_payload = {
+        "incident_id": str(FIXED_UUID),
+        "severity": "p2",
+        "contacts": [],
+    }
+    client.post("/api/incidents/escalation/trigger", json=trigger_payload)
+
+    response = client.get(f"/api/incidents/escalation/status/{FIXED_UUID}")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total_notifications"] >= 0
+
+
+# ---------------------------------------------------------------------------
+# POST /api/incidents/notifications/send
+# ---------------------------------------------------------------------------
+
+
+def test_send_notification_teams(client) -> None:
+    """POST /api/incidents/notifications/send sends a Teams notification (dry-run)."""
+    payload = {
+        "notification_type": "teams",
+        "recipient": "teams-channel-001",
+        "subject": "BCP Drill Test",
+        "body": "This is a dry-run notification test.",
+        "incident_id": str(FIXED_UUID),
+    }
+    response = client.post("/api/incidents/notifications/send", json=payload)
+    assert response.status_code == 201
+    data = response.json()
+    assert data["notification_type"] == "teams"
+    assert data["recipient"] == "teams-channel-001"
+    assert data["status"] in ("sent", "pending", "failed")
+
+
+def test_send_notification_invalid_type(client) -> None:
+    """POST /api/incidents/notifications/send rejects invalid notification_type."""
+    payload = {
+        "notification_type": "slack",
+        "recipient": "someone",
+        "subject": "Test",
+        "body": "Test body",
+    }
+    response = client.post("/api/incidents/notifications/send", json=payload)
+    assert response.status_code == 422
