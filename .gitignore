@@ -39,3 +39,13 @@ coverage/
 # Build
 *.tsbuildinfo
 next-env.d.ts
+
+# Backend coverage
+/backend/coverage.json
+
+# WebUI screenshots
+webui-*.png
+bcp-webui-*.png
+
+# Playwright MCP
+.playwright-mcp/
