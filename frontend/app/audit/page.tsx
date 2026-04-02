@@ -182,7 +182,7 @@ export default function AuditPage() {
     try {
       const params = new URLSearchParams();
       if (actionFilter !== "all") params.set("action", actionFilter);
-      const base = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+      const base = process.env.NEXT_PUBLIC_API_URL ?? "";
       const resp = await fetch(`${base}/api/audit/logs?${params.toString()}`);
       if (!resp.ok) throw new Error("API error");
       const data: AuditLogEntry[] = await resp.json();
@@ -205,7 +205,7 @@ export default function AuditPage() {
 
   const handleExport = async () => {
     try {
-      const base = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+      const base = process.env.NEXT_PUBLIC_API_URL ?? "";
       const resp = await fetch(`${base}/api/audit/logs/export`);
       if (!resp.ok) throw new Error("Export failed");
       const data = await resp.json();

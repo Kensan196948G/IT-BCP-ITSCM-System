@@ -34,18 +34,18 @@ const apiEndpoints = [
   { path: "/api/systems/", label: "システム一覧" },
   { path: "/api/exercises/", label: "訓練一覧" },
   { path: "/api/incidents/", label: "インシデント一覧" },
-  { path: "/api/contacts/", label: "連絡先一覧" },
+  { path: "/api/contacts/emergency", label: "緊急連絡先一覧" },
   { path: "/api/procedures/", label: "復旧手順一覧" },
   { path: "/api/bia/risk-matrix", label: "BIAリスクマトリクス" },
   { path: "/api/scenarios/", label: "シナリオ一覧" },
-  { path: "/api/monitoring/health/live", label: "Liveness Probe" },
+  { path: "/api/health/live", label: "Liveness Probe" },
   { path: "/api/runbook/deployment-checklist", label: "デプロイチェックリスト" },
   { path: "/api/runbook/rollback-procedure", label: "ロールバック手順" },
   { path: "/api/runbook/dr-failover", label: "DRフェイルオーバー" },
   { path: "/api/runbook/incident-playbook/earthquake", label: "インシデントPB(地震)" },
 ];
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 
 interface EndpointStatus {
   path: string;

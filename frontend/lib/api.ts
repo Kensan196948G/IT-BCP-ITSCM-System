@@ -26,10 +26,7 @@ import type {
   EscalationStatus,
 } from "./types";
 
-const API_BASE_URL =
-  (typeof window !== "undefined"
-    ? process.env.NEXT_PUBLIC_API_URL
-    : process.env.NEXT_PUBLIC_API_URL) || "http://localhost:8000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 export class ApiError extends Error {
   status: number;
@@ -83,42 +80,42 @@ async function fetchAPI<T>(
 
 // Systems API
 export const systems = {
-  list: () => fetchAPI<ITSystemBCP[]>("/api/v1/systems"),
+  list: () => fetchAPI<ITSystemBCP[]>("/api/systems"),
 
-  get: (id: string) => fetchAPI<ITSystemBCP>(`/api/v1/systems/${id}`),
+  get: (id: string) => fetchAPI<ITSystemBCP>(`/api/systems/${id}`),
 
   create: (data: Omit<ITSystemBCP, "id" | "created_at">) =>
-    fetchAPI<ITSystemBCP>("/api/v1/systems", {
+    fetchAPI<ITSystemBCP>("/api/systems", {
       method: "POST",
       body: JSON.stringify(data),
     }),
 
   update: (id: string, data: Partial<ITSystemBCP>) =>
-    fetchAPI<ITSystemBCP>(`/api/v1/systems/${id}`, {
+    fetchAPI<ITSystemBCP>(`/api/systems/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
     }),
 
   delete: (id: string) =>
-    fetchAPI<void>(`/api/v1/systems/${id}`, {
+    fetchAPI<void>(`/api/systems/${id}`, {
       method: "DELETE",
     }),
 };
 
 // Exercises API
 export const exercises = {
-  list: () => fetchAPI<BCPExercise[]>("/api/v1/exercises"),
+  list: () => fetchAPI<BCPExercise[]>("/api/exercises"),
 
-  get: (id: string) => fetchAPI<BCPExercise>(`/api/v1/exercises/${id}`),
+  get: (id: string) => fetchAPI<BCPExercise>(`/api/exercises/${id}`),
 
   create: (data: Omit<BCPExercise, "id" | "created_at">) =>
-    fetchAPI<BCPExercise>("/api/v1/exercises", {
+    fetchAPI<BCPExercise>("/api/exercises", {
       method: "POST",
       body: JSON.stringify(data),
     }),
 
   update: (id: string, data: Partial<BCPExercise>) =>
-    fetchAPI<BCPExercise>(`/api/v1/exercises/${id}`, {
+    fetchAPI<BCPExercise>(`/api/exercises/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
     }),
@@ -151,24 +148,24 @@ export const exercises = {
 
 // Incidents API
 export const incidents = {
-  list: () => fetchAPI<ActiveIncident[]>("/api/v1/incidents"),
+  list: () => fetchAPI<ActiveIncident[]>("/api/incidents"),
 
-  get: (id: string) => fetchAPI<ActiveIncident>(`/api/v1/incidents/${id}`),
+  get: (id: string) => fetchAPI<ActiveIncident>(`/api/incidents/${id}`),
 
   create: (data: Omit<ActiveIncident, "id" | "created_at">) =>
-    fetchAPI<ActiveIncident>("/api/v1/incidents", {
+    fetchAPI<ActiveIncident>("/api/incidents", {
       method: "POST",
       body: JSON.stringify(data),
     }),
 
   update: (id: string, data: Partial<ActiveIncident>) =>
-    fetchAPI<ActiveIncident>(`/api/v1/incidents/${id}`, {
+    fetchAPI<ActiveIncident>(`/api/incidents/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
     }),
 
   rtoDashboard: (incidentId: string) =>
-    fetchAPI<RTOStatus[]>(`/api/v1/incidents/${incidentId}/rto-status`),
+    fetchAPI<RTOStatus[]>(`/api/incidents/${incidentId}/rto-status`),
 
   commandDashboard: (incidentId: string) =>
     fetchAPI<IncidentCommandDashboard>(
@@ -220,10 +217,27 @@ export const incidents = {
 // Dashboard API
 export const dashboard = {
   readiness: () =>
-    fetchAPI<DashboardReadiness>("/api/v1/dashboard/readiness"),
+    fetchAPI<DashboardReadiness>("/api/dashboard/readiness"),
 
-  rtoOverview: () =>
-    fetchAPI<RTOOverview>("/api/v1/dashboard/rto-overview"),
+  rtoOverview: async (): Promise<RTOOverview> => {
+    // Backend returns RTOStatusResponse[] (array with hours units).
+    // Transform to RTOOverview { systems: RTOMonitorSystem[] } (minutes units).
+    type RawItem = {
+      system_name: string;
+      status: string;
+      elapsed_hours: number | null;
+      rto_target: number;
+    };
+    const list = await fetchAPI<RawItem[]>("/api/dashboard/rto-overview");
+    return {
+      systems: list.map((s) => ({
+        name: s.system_name,
+        rto_target_minutes: s.rto_target * 60,
+        elapsed_minutes: (s.elapsed_hours ?? 0) * 60,
+        status: s.status,
+      })),
+    };
+  },
 
   reports: {
     readiness: () =>

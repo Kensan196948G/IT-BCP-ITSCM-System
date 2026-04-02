@@ -75,7 +75,7 @@ export default function SystemStatusPage() {
     const fetchHealth = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/health/detailed`
+          `${process.env.NEXT_PUBLIC_API_URL || ""}/api/health/detailed`
         );
         if (res.ok) {
           const json = await res.json();
