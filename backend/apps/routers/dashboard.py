@@ -1,11 +1,13 @@
 """API routes for dashboard and readiness overview."""
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps import crud
 from apps.cache import TTL_DASHBOARD, get_cached, set_cached
 from apps.models import ActiveIncident
+from apps.pdf_generator import generate_pdf
 from apps.report_generator import ReportGenerator
 from apps.rto_tracker import RTOTracker
 from apps.schemas import (
@@ -183,3 +185,46 @@ async def get_iso20000_report(
     """Generate ISO20000 ITSCM Compliance Report (RPT-004)."""
     gen = await _build_report_generator(db)
     return gen.generate_iso20000_report()
+
+
+# ---------------------------------------------------------------------------
+# PDF export endpoints (Phase 3)
+# ---------------------------------------------------------------------------
+
+_REPORT_TYPE_MAP = {
+    "readiness": "generate_readiness_report",
+    "rto-compliance": "generate_rto_compliance_report",
+    "exercise-trends": "generate_exercise_trend_report",
+    "iso20000": "generate_iso20000_report",
+}
+
+
+@router.get("/reports/{report_type}/pdf")
+async def export_report_pdf(
+    report_type: str,
+    db: AsyncSession = Depends(get_db),
+) -> StreamingResponse:
+    """Export a BCP/ITSCM report as a PDF file.
+
+    report_type must be one of: readiness, rto-compliance, exercise-trends, iso20000.
+    """
+    method_name = _REPORT_TYPE_MAP.get(report_type)
+    if method_name is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Unknown report type '{report_type}'. Valid: {', '.join(_REPORT_TYPE_MAP)}",
+        )
+
+    gen = await _build_report_generator(db)
+    data = getattr(gen, method_name)()
+
+    try:
+        pdf_bytes, filename = generate_pdf(report_type, data)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    return StreamingResponse(
+        iter([pdf_bytes]),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
+    )
