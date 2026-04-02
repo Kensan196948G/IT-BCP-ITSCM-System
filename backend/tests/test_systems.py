@@ -258,3 +258,118 @@ def test_export_systems_csv_empty(mock_get_all: AsyncMock) -> None:
         assert len(lines) == 1  # header only
     finally:
         app.dependency_overrides.clear()
+
+
+# ---------------------------------------------------------------------------
+# POST /api/systems/import/csv
+# ---------------------------------------------------------------------------
+
+_SYSTEMS_CSV_HEADER = "system_name,system_type,criticality,rto_target_hours,rpo_target_hours\n"
+_SYSTEMS_CSV_ROW = "Core Banking System,onprem,tier1,4.0,1.0\n"
+
+
+@patch("apps.routers.systems.invalidate_pattern", new_callable=AsyncMock)
+@patch("apps.crud.create_system", new_callable=AsyncMock)
+def test_import_systems_csv_success(mock_create: AsyncMock, mock_inv: AsyncMock) -> None:
+    """POST /api/systems/import/csv imports valid rows and returns summary."""
+    mock_create.return_value = MockSystem()
+
+    from database import get_db
+
+    app.dependency_overrides[get_db] = _mock_db_override()
+    try:
+        csv_content = _SYSTEMS_CSV_HEADER + _SYSTEMS_CSV_ROW
+        response = client.post(
+            "/api/systems/import/csv",
+            files={"file": ("systems.csv", csv_content.encode(), "text/csv")},
+        )
+        assert response.status_code == 201
+        data = response.json()
+        assert data["total_rows"] == 1
+        assert data["imported"] == 1
+        assert data["skipped"] == 0
+        assert data["errors"] == []
+        mock_inv.assert_awaited_once()
+    finally:
+        app.dependency_overrides.clear()
+
+
+@patch("apps.routers.systems.invalidate_pattern", new_callable=AsyncMock)
+@patch("apps.crud.create_system", new_callable=AsyncMock)
+def test_import_systems_csv_partial_error(mock_create: AsyncMock, mock_inv: AsyncMock) -> None:
+    """POST /api/systems/import/csv skips invalid rows and reports errors."""
+    mock_create.return_value = MockSystem()
+
+    from database import get_db
+
+    app.dependency_overrides[get_db] = _mock_db_override()
+    try:
+        # Row 2 valid, Row 3 has invalid system_type
+        csv_content = (
+            "system_name,system_type,criticality,rto_target_hours,rpo_target_hours\n"
+            "Core Banking System,onprem,tier1,4.0,1.0\n"
+            "Bad System,invalid_type,tier1,4.0,1.0\n"
+        )
+        response = client.post(
+            "/api/systems/import/csv",
+            files={"file": ("systems.csv", csv_content.encode(), "text/csv")},
+        )
+        assert response.status_code == 201
+        data = response.json()
+        assert data["total_rows"] == 2
+        assert data["imported"] == 1
+        assert data["skipped"] == 1
+        assert len(data["errors"]) == 1
+        assert data["errors"][0]["row"] == 3
+    finally:
+        app.dependency_overrides.clear()
+
+
+@patch("apps.crud.create_system", new_callable=AsyncMock)
+def test_import_systems_csv_empty_file(mock_create: AsyncMock) -> None:
+    """POST /api/systems/import/csv handles an empty CSV (header only)."""
+    from database import get_db
+
+    app.dependency_overrides[get_db] = _mock_db_override()
+    try:
+        csv_content = _SYSTEMS_CSV_HEADER  # header only, no data rows
+        response = client.post(
+            "/api/systems/import/csv",
+            files={"file": ("systems.csv", csv_content.encode(), "text/csv")},
+        )
+        assert response.status_code == 201
+        data = response.json()
+        assert data["total_rows"] == 0
+        assert data["imported"] == 0
+        mock_create.assert_not_called()
+    finally:
+        app.dependency_overrides.clear()
+
+
+@patch("apps.routers.systems.invalidate_pattern", new_callable=AsyncMock)
+@patch("apps.crud.create_system", new_callable=AsyncMock)
+def test_import_systems_csv_multiple_rows(mock_create: AsyncMock, mock_inv: AsyncMock) -> None:
+    """POST /api/systems/import/csv imports multiple valid rows."""
+    mock_create.return_value = MockSystem()
+
+    from database import get_db
+
+    app.dependency_overrides[get_db] = _mock_db_override()
+    try:
+        csv_content = (
+            "system_name,system_type,criticality,rto_target_hours,rpo_target_hours\n"
+            "System A,onprem,tier1,4.0,1.0\n"
+            "System B,cloud,tier2,8.0,2.0\n"
+            "System C,hybrid,tier3,24.0,4.0\n"
+        )
+        response = client.post(
+            "/api/systems/import/csv",
+            files={"file": ("systems.csv", csv_content.encode(), "text/csv")},
+        )
+        assert response.status_code == 201
+        data = response.json()
+        assert data["total_rows"] == 3
+        assert data["imported"] == 3
+        assert data["skipped"] == 0
+    finally:
+        app.dependency_overrides.clear()

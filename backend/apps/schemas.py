@@ -1049,3 +1049,22 @@ class ISO20000ReportResponse(BaseModel):
     checklist_results: list[ChecklistItemResult]
     non_compliant_items: list[ChecklistItemResult]
     next_audit_actions: list[str]
+
+
+# ---- CSV Import ----
+
+
+class CSVImportRowError(BaseModel):
+    """Schema for a single row error in CSV import."""
+
+    row: int
+    error: str
+
+
+class CSVImportResponse(BaseModel):
+    """Schema for bulk CSV import result."""
+
+    total_rows: int
+    imported: int
+    skipped: int
+    errors: list[CSVImportRowError]
