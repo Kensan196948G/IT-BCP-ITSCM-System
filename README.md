@@ -10,9 +10,9 @@
 
 <p align="center">
   <a href="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml"><img src="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml/badge.svg" alt="CI"></a>
-  <img src="https://img.shields.io/badge/tests-505_passed-brightgreen?style=flat-square" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-507_passed-brightgreen?style=flat-square" alt="Tests">
   <img src="https://img.shields.io/badge/coverage-100%25-brightgreen?style=flat-square" alt="Coverage">
-  <img src="https://img.shields.io/badge/PRs-56_merged-blue?style=flat-square" alt="PRs">
+  <img src="https://img.shields.io/badge/PRs-94_merged-blue?style=flat-square" alt="PRs">
   <img src="https://img.shields.io/badge/STABLE-5%2F5_✅-brightgreen?style=flat-square" alt="STABLE">
   <img src="https://img.shields.io/badge/security-0_CVE-brightgreen?style=flat-square&logo=shield" alt="Security">
 </p>
@@ -477,27 +477,29 @@ MIT License
 
 ---
 
-## 📊 最新 Monitor サマリー（2026-04-02）
+## 📊 最新 Monitor サマリー（2026-04-02 14:45 JST）
 
 | 指標 | 値 | 状態 |
 |:-----|:---|:----:|
-| テスト数 | 505 passed / 0 failed (+21 cacheテスト) | ✅ |
+| テスト数 | **507 passed** / 0 failed | ✅ |
 | E2Eテスト | 39 tests (Playwright、live server用) | ✅ |
 | カバレッジ | 100% (2535+ stmts) | ✅ |
-| Merged PRs | 92 | ✅ |
-| Open PRs | 1 (PR #93 — W3フェーズ CI進行中) | 🔄 |
+| Merged PRs | **94** | ✅ |
+| Open PRs | 2 (PR #95 BIA Cache, PR #96 WebSocket JWT) | 🔄 |
 | GitHub Issues | 0 open | ✅ |
-| Project #13 | W3フェーズ進行中 | 🔄 |
-| セキュリティ | 0 CVE / JWT全保護ルーター適用済み | ✅ |
-| STABLE判定 | CI確認中 | 🔄 |
+| Project #13 | Phase 3 セキュリティ強化進行中 | 🔄 |
+| セキュリティ | 0 CVE / JWT全ルーター + WebSocket保護済み | ✅ |
+| STABLE判定 | PR #95 CI全パス、PR #96 CI進行中 | 🔄 |
 
-### W3フェーズ 進捗
+### Phase 3 セキュリティ・キャッシュ強化 進捗
 
-| タスク | 状態 | 詳細 |
-|:-------|:----:|:-----|
-| 🔐 JWT認証全保護ルーター適用 | ✅ | 11ルーター保護、3公開エンドポイント除外 |
-| ⚡ Redisキャッシュモジュール | ✅ | apps/cache.py、graceful degradation対応 |
-| 🎭 Playwright E2Eテスト基盤 | ✅ | tests/e2e/、39テスト、live server対応 |
+| タスク | PR | 状態 | 詳細 |
+|:-------|:--:|:----:|:-----|
+| 🔐 JWT認証全保護ルーター適用 | #94 | ✅ Merged | 11ルーター保護、3公開エンドポイント除外 |
+| ⚡ Redisキャッシュモジュール | #94 | ✅ Merged | apps/cache.py、graceful degradation対応 |
+| 🎭 Playwright E2Eテスト基盤 | #94 | ✅ Merged | tests/e2e/、39テスト、live server対応 |
+| 📊 BIA エンドポイント Redis キャッシュ | #95 | 🔄 CI中 | /api/bia/summary・/api/bia/risk-matrix、TTL=600s |
+| 🔌 WebSocket JWT認証強化 | #96 | 🔄 CI中 | /ws/rto-dashboard、close 1008 on auth failure |
 
 <p align="center">
   <sub>Built with ❤️ by ClaudeOS v4 Auto Development Pipeline</sub>
