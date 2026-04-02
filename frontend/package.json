@@ -24,6 +24,6 @@
     "eslint": "^8.57.1",
     "eslint-config-next": "14.2.35",
     "jest": "^30.3.0",
-    "typescript": "^5.7.3"
+    "typescript": "^6.0.2"
   }
 }
