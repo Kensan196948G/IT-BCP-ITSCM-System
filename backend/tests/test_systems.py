@@ -55,8 +55,10 @@ def _mock_db_override():  # type: ignore[no-untyped-def]
     return _fake_db
 
 
+@patch("apps.routers.systems.get_cached", new_callable=AsyncMock, return_value=None)
+@patch("apps.routers.systems.set_cached", new_callable=AsyncMock)
 @patch("apps.crud.get_all_systems", new_callable=AsyncMock)
-def test_list_systems(mock_get_all: AsyncMock) -> None:
+def test_list_systems(mock_get_all: AsyncMock, _sc: AsyncMock, _gc: AsyncMock) -> None:
     """Test GET /api/systems returns a list."""
     mock_get_all.return_value = [MockSystem()]
 
@@ -74,9 +76,28 @@ def test_list_systems(mock_get_all: AsyncMock) -> None:
         app.dependency_overrides.clear()
 
 
+@patch("apps.routers.systems.get_cached", new_callable=AsyncMock)
+@patch("apps.crud.get_all_systems", new_callable=AsyncMock)
+def test_list_systems_cache_hit(mock_get_all: AsyncMock, mock_gc: AsyncMock) -> None:
+    """Test GET /api/systems returns cached result without calling DB."""
+    mock_gc.return_value = [MockSystem(system_name="Cached System")]
+
+    from database import get_db
+
+    app.dependency_overrides[get_db] = _mock_db_override()
+    try:
+        response = client.get("/api/systems")
+        assert response.status_code == 200
+        assert response.json()[0]["system_name"] == "Cached System"
+        mock_get_all.assert_not_called()
+    finally:
+        app.dependency_overrides.clear()
+
+
+@patch("apps.routers.systems.invalidate_pattern", new_callable=AsyncMock)
 @patch("apps.crud.create_system", new_callable=AsyncMock)
-def test_create_system(mock_create: AsyncMock) -> None:
-    """Test POST /api/systems creates a new system."""
+def test_create_system(mock_create: AsyncMock, mock_inv: AsyncMock) -> None:
+    """Test POST /api/systems creates a new system and invalidates cache."""
     mock_create.return_value = MockSystem(**SAMPLE_SYSTEM)
 
     from database import get_db
@@ -88,6 +109,7 @@ def test_create_system(mock_create: AsyncMock) -> None:
         data = response.json()
         assert data["system_name"] == "Core Banking System"
         assert data["criticality"] == "tier1"
+        mock_inv.assert_awaited_once()
     finally:
         app.dependency_overrides.clear()
 
@@ -124,9 +146,10 @@ def test_get_system_not_found(mock_get: AsyncMock) -> None:
         app.dependency_overrides.clear()
 
 
+@patch("apps.routers.systems.invalidate_pattern", new_callable=AsyncMock)
 @patch("apps.crud.update_system", new_callable=AsyncMock)
-def test_update_system(mock_update: AsyncMock) -> None:
-    """Test PUT /api/systems/{id} updates a system."""
+def test_update_system(mock_update: AsyncMock, mock_inv: AsyncMock) -> None:
+    """Test PUT /api/systems/{id} updates a system and invalidates cache."""
     updated = MockSystem(system_name="Updated System")
     mock_update.return_value = updated
 
@@ -141,13 +164,15 @@ def test_update_system(mock_update: AsyncMock) -> None:
         assert response.status_code == 200
         data = response.json()
         assert data["system_name"] == "Updated System"
+        mock_inv.assert_awaited_once()
     finally:
         app.dependency_overrides.clear()
 
 
+@patch("apps.routers.systems.invalidate_pattern", new_callable=AsyncMock)
 @patch("apps.crud.delete_system", new_callable=AsyncMock)
-def test_delete_system(mock_delete: AsyncMock) -> None:
-    """Test DELETE /api/systems/{id} removes a system."""
+def test_delete_system(mock_delete: AsyncMock, mock_inv: AsyncMock) -> None:
+    """Test DELETE /api/systems/{id} removes a system and invalidates cache."""
     mock_delete.return_value = True
 
     from database import get_db
@@ -156,6 +181,7 @@ def test_delete_system(mock_delete: AsyncMock) -> None:
     try:
         response = client.delete(f"/api/systems/{MOCK_SYSTEM_ID}")
         assert response.status_code == 204
+        mock_inv.assert_awaited_once()
     finally:
         app.dependency_overrides.clear()
 
