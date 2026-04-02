@@ -20,8 +20,8 @@ const mockDashboard: DashboardReadiness = {
 export default function DashboardPage() {
   const { data, loading, error } = useDashboard();
 
-  // API失敗時はモックデータにフォールバック
-  const d = error || !data ? mockDashboard : data;
+  // APIが返すフィールドでモックを上書き。未実装フィールドはモックで補完
+  const d = error || !data ? mockDashboard : { ...mockDashboard, ...data };
 
   if (loading) {
     return (

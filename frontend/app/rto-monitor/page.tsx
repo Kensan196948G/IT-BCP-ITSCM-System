@@ -91,10 +91,11 @@ export default function RtoMonitorPage() {
 
   const connectWebSocket = useCallback(() => {
     try {
-      const wsUrl =
-        (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000")
-          .replace("http://", "ws://")
-          .replace("https://", "wss://") + "/ws/rto-dashboard";
+      // Same origin (via Next.js rewrite) — derive WS URL from current window location.
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const wsUrl = origin
+        .replace("http://", "ws://")
+        .replace("https://", "wss://") + "/ws/rto-dashboard";
 
       setWsStatus("connecting");
       const ws = new WebSocket(wsUrl);
@@ -150,8 +151,8 @@ export default function RtoMonitorPage() {
       }
     : null;
 
-  // Use WS data if available, else API, else mock
-  const rtoData = wsDisplayData || (error || !data ? mockRtoData : data);
+  // Use WS data if available, else API (when systems exist), else mock
+  const rtoData = wsDisplayData || (error || !data || data.systems.length === 0 ? mockRtoData : data);
 
   if (loading && !wsData) {
     return (

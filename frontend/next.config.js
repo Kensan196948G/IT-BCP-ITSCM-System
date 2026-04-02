@@ -1,6 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
+  async rewrites() {
+    const backendUrl = process.env.BACKEND_URL || "http://192.168.0.185:8002";
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${backendUrl}/api/:path*`,
+      },
+    ];
+  },
   async headers() {
     return [
       {
