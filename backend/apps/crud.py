@@ -552,3 +552,59 @@ async def get_audit_logs_by_incident(
     )
     result = await db.execute(stmt)
     return list(result.scalars().all())
+
+
+async def get_bcp_statistics(db: AsyncSession) -> dict:
+    """Compute aggregate BCP/ITSCM statistics for the dashboard."""
+    systems = await get_all_systems(db, limit=10000)
+    incidents = await get_all_incidents(db, limit=10000)
+
+    # Systems aggregation
+    total_systems = len(systems)
+    systems_by_criticality: dict[str, int] = {}
+    rto_sum = 0.0
+    rto_count = 0
+    for s in systems:
+        crit = getattr(s, "criticality", "unknown") or "unknown"
+        systems_by_criticality[crit] = systems_by_criticality.get(crit, 0) + 1
+        if s.rto_target_hours is not None:
+            rto_sum += s.rto_target_hours
+            rto_count += 1
+    avg_rto = round(rto_sum / rto_count, 2) if rto_count > 0 else None
+
+    # Incident aggregation
+    active = sum(1 for i in incidents if i.status in ("active", "recovering"))
+    resolved = sum(1 for i in incidents if i.status in ("resolved", "closed"))
+
+    # MTTR: mean hours from occurred_at to resolved_at for resolved/closed incidents
+    mttr_values: list[float] = []
+    for i in incidents:
+        if i.status in ("resolved", "closed") and i.occurred_at and i.resolved_at:
+            delta_hours = (i.resolved_at - i.occurred_at).total_seconds() / 3600
+            if delta_hours >= 0:
+                mttr_values.append(delta_hours)
+    mttr = round(sum(mttr_values) / len(mttr_values), 2) if mttr_values else None
+
+    # RTO breach: incidents where actual recovery time > minimum RTO target of affected systems
+    system_rto_map = {s.system_name: s.rto_target_hours for s in systems if s.rto_target_hours is not None}
+    breach_count = 0
+    for i in incidents:
+        if i.status in ("resolved", "closed") and i.occurred_at and i.resolved_at and i.affected_systems:
+            actual_hours = (i.resolved_at - i.occurred_at).total_seconds() / 3600
+            rto_targets = [system_rto_map[sys] for sys in i.affected_systems if sys in system_rto_map]
+            if rto_targets and actual_hours > min(rto_targets):
+                breach_count += 1
+
+    breach_rate = round(breach_count / resolved, 4) if resolved > 0 else None
+
+    return {
+        "total_systems": total_systems,
+        "systems_by_criticality": systems_by_criticality,
+        "avg_rto_target_hours": avg_rto,
+        "total_incidents": len(incidents),
+        "active_incidents": active,
+        "resolved_incidents": resolved,
+        "mttr_hours": mttr,
+        "rto_breach_count": breach_count,
+        "rto_breach_rate": breach_rate,
+    }

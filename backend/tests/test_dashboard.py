@@ -204,3 +204,54 @@ def test_export_report_pdf_unknown_type(
 
     response = client.get("/api/dashboard/reports/unknown-type/pdf")
     assert response.status_code == 404
+
+
+# ---------------------------------------------------------------------------
+# GET /api/dashboard/statistics
+# ---------------------------------------------------------------------------
+
+
+@patch("apps.crud.get_bcp_statistics", new_callable=AsyncMock)
+def test_get_statistics_empty(mock_stats: AsyncMock, client) -> None:
+    """GET /api/dashboard/statistics returns 200 with all expected fields."""
+    mock_stats.return_value = {
+        "total_systems": 0,
+        "systems_by_criticality": {},
+        "avg_rto_target_hours": None,
+        "total_incidents": 0,
+        "active_incidents": 0,
+        "resolved_incidents": 0,
+        "mttr_hours": None,
+        "rto_breach_count": 0,
+        "rto_breach_rate": None,
+    }
+    response = client.get("/api/dashboard/statistics")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total_systems"] == 0
+    assert data["rto_breach_count"] == 0
+    assert data["mttr_hours"] is None
+
+
+@patch("apps.crud.get_bcp_statistics", new_callable=AsyncMock)
+def test_get_statistics_with_data(mock_stats: AsyncMock, client) -> None:
+    """GET /api/dashboard/statistics returns computed MTTR and breach rate."""
+    mock_stats.return_value = {
+        "total_systems": 5,
+        "systems_by_criticality": {"tier1": 2, "tier2": 3},
+        "avg_rto_target_hours": 6.0,
+        "total_incidents": 10,
+        "active_incidents": 2,
+        "resolved_incidents": 8,
+        "mttr_hours": 3.5,
+        "rto_breach_count": 2,
+        "rto_breach_rate": 0.25,
+    }
+    response = client.get("/api/dashboard/statistics")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total_systems"] == 5
+    assert data["systems_by_criticality"]["tier1"] == 2
+    assert data["avg_rto_target_hours"] == 6.0
+    assert data["mttr_hours"] == 3.5
+    assert data["rto_breach_rate"] == 0.25

@@ -1068,3 +1068,17 @@ class CSVImportResponse(BaseModel):
     imported: int
     skipped: int
     errors: list[CSVImportRowError]
+
+
+class BCPStatisticsResponse(BaseModel):
+    """Schema for BCP/ITSCM aggregate statistics."""
+
+    total_systems: int
+    systems_by_criticality: dict[str, int]
+    avg_rto_target_hours: float | None
+    total_incidents: int
+    active_incidents: int
+    resolved_incidents: int
+    mttr_hours: float | None
+    rto_breach_count: int
+    rto_breach_rate: float | None

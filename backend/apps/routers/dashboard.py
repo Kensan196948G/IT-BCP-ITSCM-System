@@ -11,6 +11,7 @@ from apps.pdf_generator import generate_pdf
 from apps.report_generator import ReportGenerator
 from apps.rto_tracker import RTOTracker
 from apps.schemas import (
+    BCPStatisticsResponse,
     DashboardResponse,
     ExerciseTrendReportResponse,
     ISO20000ReportResponse,
@@ -92,6 +93,14 @@ async def get_rto_overview(
 
     await set_cached(_CACHE_RTO_OVERVIEW, results, TTL_DASHBOARD)
     return results
+
+
+@router.get("/statistics", response_model=BCPStatisticsResponse)
+async def get_bcp_statistics(
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """Get aggregate BCP/ITSCM statistics: MTTR, RTO breach rate, system distribution."""
+    return await crud.get_bcp_statistics(db)
 
 
 # ---------------------------------------------------------------------------
