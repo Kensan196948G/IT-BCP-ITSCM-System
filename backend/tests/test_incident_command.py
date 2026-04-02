@@ -286,3 +286,114 @@ def test_create_task_invalid_priority(client) -> None:
     }
     response = client.post(f"/api/incidents/{FIXED_UUID}/tasks", json=payload)
     assert response.status_code == 422
+
+
+# ---------------------------------------------------------------------------
+# Edge-case coverage for incident_commander.py uncovered branches
+# ---------------------------------------------------------------------------
+
+
+@patch("apps.crud.create_situation_report", new_callable=AsyncMock)
+@patch("apps.crud.get_situation_reports_by_incident", new_callable=AsyncMock)
+@patch("apps.crud.get_all_systems", new_callable=AsyncMock)
+@patch("apps.crud.get_incident_tasks_by_incident", new_callable=AsyncMock)
+@patch("apps.crud.get_incident", new_callable=AsyncMock)
+def test_auto_generate_with_empty_tasks(
+    mock_get_inc: AsyncMock,
+    mock_tasks: AsyncMock,
+    mock_systems: AsyncMock,
+    mock_reports: AsyncMock,
+    mock_create: AsyncMock,
+    client,
+) -> None:
+    """Auto-generate with zero tasks hits TaskStatistics() early return (line 26)."""
+    mock_get_inc.return_value = MockIncident()
+    mock_tasks.return_value = []  # no tasks → total == 0 branch
+    mock_systems.return_value = [MockSystem(system_name="Core Banking System", rto_target_hours=4.0)]
+    mock_reports.return_value = []
+    mock_create.return_value = MockSituationReport(report_number=2)
+
+    response = client.post(f"/api/incidents/{FIXED_UUID}/situation-reports/auto-generate")
+    assert response.status_code == 201
+    data = response.json()
+    assert data["report_number"] == 2
+
+
+@patch("apps.crud.create_situation_report", new_callable=AsyncMock)
+@patch("apps.crud.get_situation_reports_by_incident", new_callable=AsyncMock)
+@patch("apps.crud.get_all_systems", new_callable=AsyncMock)
+@patch("apps.crud.get_incident_tasks_by_incident", new_callable=AsyncMock)
+@patch("apps.crud.get_incident", new_callable=AsyncMock)
+def test_auto_generate_no_affected_systems(
+    mock_get_inc: AsyncMock,
+    mock_tasks: AsyncMock,
+    mock_systems: AsyncMock,
+    mock_reports: AsyncMock,
+    mock_create: AsyncMock,
+    client,
+) -> None:
+    """Auto-generate with empty affected_systems hits early [] return (line 48)."""
+    incident = MockIncident(affected_systems=[])  # empty → _get_rto_statuses returns []
+    mock_get_inc.return_value = incident
+    mock_tasks.return_value = [MockIncidentTask(status="completed")]
+    mock_systems.return_value = []
+    mock_reports.return_value = []
+    mock_create.return_value = MockSituationReport(report_number=3)
+
+    response = client.post(f"/api/incidents/{FIXED_UUID}/situation-reports/auto-generate")
+    assert response.status_code == 201
+
+
+@patch("apps.crud.create_situation_report", new_callable=AsyncMock)
+@patch("apps.crud.get_situation_reports_by_incident", new_callable=AsyncMock)
+@patch("apps.crud.get_all_systems", new_callable=AsyncMock)
+@patch("apps.crud.get_incident_tasks_by_incident", new_callable=AsyncMock)
+@patch("apps.crud.get_incident", new_callable=AsyncMock)
+def test_auto_generate_with_blocked_task(
+    mock_get_inc: AsyncMock,
+    mock_tasks: AsyncMock,
+    mock_systems: AsyncMock,
+    mock_reports: AsyncMock,
+    mock_create: AsyncMock,
+    client,
+) -> None:
+    """Auto-generate with blocked task triggers 'Resolve blocked task(s)' next action (line 131)."""
+    mock_get_inc.return_value = MockIncident()
+    mock_tasks.return_value = [
+        MockIncidentTask(status="blocked"),  # blocked_tasks > 0 branch
+        MockIncidentTask(status="pending"),
+    ]
+    mock_systems.return_value = [MockSystem(system_name="Core Banking System", rto_target_hours=4.0)]
+    mock_reports.return_value = []
+    mock_create.return_value = MockSituationReport(report_number=4)
+
+    response = client.post(f"/api/incidents/{FIXED_UUID}/situation-reports/auto-generate")
+    assert response.status_code == 201
+
+
+@patch("apps.crud.create_situation_report", new_callable=AsyncMock)
+@patch("apps.crud.get_situation_reports_by_incident", new_callable=AsyncMock)
+@patch("apps.crud.get_all_systems", new_callable=AsyncMock)
+@patch("apps.crud.get_incident_tasks_by_incident", new_callable=AsyncMock)
+@patch("apps.crud.get_incident", new_callable=AsyncMock)
+def test_auto_generate_continue_monitoring_fallback(
+    mock_get_inc: AsyncMock,
+    mock_tasks: AsyncMock,
+    mock_systems: AsyncMock,
+    mock_reports: AsyncMock,
+    mock_create: AsyncMock,
+    client,
+) -> None:
+    """All tasks completed + no overdue systems → 'Continue monitoring' fallback (line 140)."""
+    mock_get_inc.return_value = MockIncident()
+    mock_tasks.return_value = [
+        MockIncidentTask(status="completed"),
+        MockIncidentTask(status="in_progress"),
+    ]
+    # RTO-compliant system (last_test_rto <= rto_target_hours) → no overdue
+    mock_systems.return_value = [MockSystem(system_name="Core Banking System", rto_target_hours=999.0)]
+    mock_reports.return_value = []
+    mock_create.return_value = MockSituationReport(report_number=5)
+
+    response = client.post(f"/api/incidents/{FIXED_UUID}/situation-reports/auto-generate")
+    assert response.status_code == 201
