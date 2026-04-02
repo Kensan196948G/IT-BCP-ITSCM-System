@@ -10,8 +10,8 @@
 
 <p align="center">
   <a href="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml"><img src="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml/badge.svg" alt="CI"></a>
-  <img src="https://img.shields.io/badge/tests-342_passed-brightgreen?style=flat-square" alt="Tests">
-  <img src="https://img.shields.io/badge/coverage-87%25-brightgreen?style=flat-square" alt="Coverage">
+  <img src="https://img.shields.io/badge/tests-364_passed-brightgreen?style=flat-square" alt="Tests">
+  <img src="https://img.shields.io/badge/coverage-89%25-brightgreen?style=flat-square" alt="Coverage">
   <img src="https://img.shields.io/badge/PRs-35_merged-blue?style=flat-square" alt="PRs">
   <img src="https://img.shields.io/badge/STABLE-5%2F5_✅-brightgreen?style=flat-square" alt="STABLE">
   <img src="https://img.shields.io/badge/security-CVE_patched-brightgreen?style=flat-square&logo=shield" alt="Security">
@@ -357,8 +357,9 @@ npm run dev
 | `SECURITY.md` | — | **新規作成** | ISO 27001 A.5.29脆弱性開示ポリシー整備 | ✅ Compliance | 2026-04-02 |
 | mypy strict | 7エラー | **0エラー** | 型安全性向上・type:ignore削除 | ✅ Quality | 2026-04-02 |
 | Node.js CI | 20.x | **22.x LTS** | EOL対応・ISO 27001 A.5.30準拠 | ✅ Compliance | 2026-04-02 |
-| テストカバレッジ | 86% | **87%** | scenarios/contacts 404パス追加（+11テスト） | ✅ Quality | 2026-04-02 |
-| テスト総数 | 331件 | **342件** | test_scenarios.py新規・test_contacts.py拡充 | ✅ Quality | 2026-04-02 |
+| テストカバレッジ | 86% | **89%** | notification/websocket/auth/exercise 100%達成（+215テスト） | ✅ Quality | 2026-04-02 |
+| テスト総数 | 149件 | **364件** | PR#83: 4モジュールのカバレッジ大幅向上 | ✅ Quality | 2026-04-02 |
+| TypeScript | 5.7.x | **6.0.2** | CSS型宣言追加でTS6対応（css.d.ts） | ✅ Quality | 2026-04-02 |
 
 ### ⚠️ 既知の未解消脆弱性（追跡中）
 
@@ -411,6 +412,27 @@ graph LR
     style H fill:#bbf7d0
     style I fill:#fecaca
 ```
+
+---
+
+## 🔍 最新 Monitor ループ状態（2026-04-02 09:47 JST）
+
+| 確認項目 | 状態 | 詳細 |
+|:---------|:----:|:-----|
+| 🟢 CI (main) | **✅ 全成功** | 直近10件すべて success |
+| 🟢 テスト | **✅ 364件 全通過** | 0失敗、0エラー |
+| 🟢 カバレッジ | **✅ 89%** | notification 97% / auth 100% / websocket 100% / exercise 100% |
+| 🟡 オープンPR | **0件** | PR #82(TS6)・#83(coverage)完了・マージ済み |
+| 🟡 オープンIssue | **2件** | #72 Next.js 16, #73 FastAPI CVE (追跡中) |
+| 🟢 GitHub Projects | **Done: 18件** | Blocked/進行中: なし |
+| 🟢 STABLE判定 | **✅ STABLE** | CI連続成功・全テスト通過 |
+
+### 📌 技術負債トラッキング
+
+| Issue | タイトル | 重要度 | 方針 |
+|:-----:|:---------|:------:|:-----|
+| [#72](https://github.com/Kensan196948G/IT-BCP-ITSCM-System/issues/72) | Next.js 16 フルエコシステム移行 | 🟠 High | react@19 + eslint@9 協調アップグレードが必要 |
+| [#73](https://github.com/Kensan196948G/IT-BCP-ITSCM-System/issues/73) | FastAPI/starlette CVE-2025-54121 | 🟠 High | FastAPI 0.120.x+ 破壊的変更を伴うアップグレード |
 
 ---
 
