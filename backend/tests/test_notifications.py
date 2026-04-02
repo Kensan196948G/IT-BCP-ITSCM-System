@@ -1,6 +1,7 @@
 """Tests for notification service, escalation engine, and notification API routes."""
 
 import uuid
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -88,6 +89,56 @@ class TestNotificationService:
             incident_id=iid,
         )
         assert log["incident_id"] == iid
+
+    def test_send_teams_webhook_success(self):
+        """Test Teams webhook send (non-dry-run) succeeds."""
+        svc = NotificationService(dry_run=False)
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        with patch("apps.notification_service.httpx.post", return_value=mock_response) as mock_post:
+            result = svc.send_teams_webhook("https://webhook.example.com", "Alert", "Body")
+        mock_post.assert_called_once()
+        assert result["status"] == "sent"
+        assert result["error_message"] is None
+
+    def test_send_teams_webhook_failure(self):
+        """Test Teams webhook send (non-dry-run) fails gracefully."""
+        svc = NotificationService(dry_run=False)
+        with patch("apps.notification_service.httpx.post", side_effect=Exception("Connection refused")):
+            result = svc.send_teams_webhook("https://webhook.example.com", "Alert", "Body")
+        assert result["status"] == "failed"
+        assert "Connection refused" in result["error_message"]
+
+    def test_send_email_success(self):
+        """Test email send (non-dry-run) succeeds."""
+        svc = NotificationService(dry_run=False)
+        mock_smtp_instance = MagicMock()
+        with patch("smtplib.SMTP") as mock_smtp:
+            mock_smtp.return_value.__enter__ = MagicMock(return_value=mock_smtp_instance)
+            mock_smtp.return_value.__exit__ = MagicMock(return_value=False)
+            result = svc.send_email("admin@example.com", "Test Subject", "Test body")
+        assert result["status"] == "sent"
+        assert result["error_message"] is None
+
+    def test_send_email_failure(self):
+        """Test email send (non-dry-run) fails gracefully."""
+        svc = NotificationService(dry_run=False)
+        with patch("smtplib.SMTP", side_effect=Exception("SMTP connection failed")):
+            result = svc.send_email("admin@example.com", "Test Subject", "Test body")
+        assert result["status"] == "failed"
+        assert "SMTP connection failed" in result["error_message"]
+
+    def test_send_notification_sms_not_dry_run(self):
+        """Test that SMS non-dry-run returns failed status (SMS not configured)."""
+        svc = NotificationService(dry_run=False)
+        log = svc.send_notification(
+            notification_type="sms",
+            recipient="+81-90-1234-5678",
+            subject="Alert",
+            body="Emergency",
+        )
+        assert log["status"] == "failed"
+        assert "SMS not configured" in log["error_message"]
 
 
 # ---------------------------------------------------------------------------
