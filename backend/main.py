@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from apps.audit_service import audit_service
 from apps.auth import AuthService
 from apps.monitoring import metrics_collector
 from apps.rate_limiter import RateLimiter
@@ -196,6 +197,42 @@ async def metrics_middleware(request: Request, call_next: object) -> JSONRespons
         status_code=response.status_code,
         duration=duration,
     )
+    return response
+
+
+_AUDIT_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
+_AUDIT_PATH_PREFIX = "/api/"
+_AUDIT_SKIP_PATHS = {"/api/auth/login", "/api/auth/me"}
+
+
+@app.middleware("http")
+async def audit_log_middleware(request: Request, call_next: object) -> JSONResponse:
+    """Record mutation operations to the audit log for ISO27001 compliance."""
+    response = await call_next(request)  # type: ignore[operator]
+    path = request.url.path
+    method = request.method
+    if method in _AUDIT_METHODS and path.startswith(_AUDIT_PATH_PREFIX) and path not in _AUDIT_SKIP_PATHS:
+        user_id: str | None = None
+        role: str | None = None
+        token = (request.headers.get("authorization") or "").removeprefix("Bearer ").strip()
+        if token:
+            try:
+                claims = AuthService.verify_token(token)
+                user_id = claims.get("user_id")
+                role = claims.get("role")
+            except Exception:
+                pass
+        resource_type = path.split("/")[2] if path.count("/") >= 2 else path
+        audit_service.log(
+            action=method.lower(),
+            resource_type=resource_type,
+            user_id=user_id,
+            role=role,
+            details={"path": path, "status_code": response.status_code},
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent"),
+            status="success" if response.status_code < 400 else "failure",
+        )
     return response
 
 
