@@ -490,7 +490,7 @@ MIT License
 | GitHub Issues | 1 open (#97 Phase3 BIA Cache) | 🔄 |
 | Project #13 | Phase 3 完了・Phase 4 準備中 | ✅ |
 | セキュリティ | 0 CVE / JWT全ルーター + WebSocket保護済み | ✅ |
-| STABLE判定 | **✅ STABLE** (PR #101/#103 マージ済み、#104 CI待機中) | ✅ |
+| STABLE判定 | **✅ STABLE** (PR #101/#103/#104 全マージ済み) | ✅ |
 
 ### Phase 3 セキュリティ・キャッシュ・監査強化 進捗
 
@@ -506,7 +506,7 @@ MIT License
 | 📝 HTTP ミドルウェア監査ログ（ISO27001） | #100 | ✅ Merged | 全CRUD操作自動記録、横断的関心事実装 |
 | 📤 CSV エクスポートエンドポイント | #101 | ✅ Merged | systems/exercises/BIA の3エンドポイント追加、515テスト |
 | 📥 CSV インポートエンドポイント | #103 | ✅ Merged | systems/exercisesのCSVバルクインポート、バリデーション付き |
-| 📄 PDFレポートエクスポート | #104 | 🔄 CI中 | reportlab使用、RPT-001〜004の4種PDF生成、538テスト |
+| 📄 PDFレポートエクスポート | #104 | ✅ Merged | reportlab使用、RPT-001〜004の4種PDF生成、538テスト |
 
 <p align="center">
   <sub>Built with ❤️ by ClaudeOS v4 Auto Development Pipeline</sub>
