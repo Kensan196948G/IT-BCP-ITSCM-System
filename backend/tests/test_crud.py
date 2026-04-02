@@ -63,11 +63,7 @@ class TestITSystemBCPCRUD:
     @pytest.mark.asyncio
     async def test_create_system(self):
         db = AsyncMock()
-        obj = ITSystemBCP(system_name="SysA", system_type="onprem", criticality="tier1",
-                          rto_target_hours=4.0, rpo_target_hours=1.0, mtpd_hours=24.0,
-                          primary_owner="IT Ops")
-        db.refresh.side_effect = lambda o: None
-        result = await crud.create_system(db, {
+        await crud.create_system(db, {
             "system_name": "SysA", "system_type": "onprem", "criticality": "tier1",
             "rto_target_hours": 4.0, "rpo_target_hours": 1.0, "mtpd_hours": 24.0,
             "primary_owner": "IT Ops",
@@ -314,9 +310,11 @@ class TestBCPExerciseCRUD:
     @pytest.mark.asyncio
     async def test_create_exercise(self):
         db = AsyncMock()
-        await crud.create_exercise(db, {"exercise_id": "EX-001", "title": "Drill",
-                                         "exercise_type": "tabletop", "scheduled_date": "2026-01-01",
-                                         "status": "planned"})
+        await crud.create_exercise(db, {
+            "exercise_id": "EX-001", "title": "Drill",
+            "exercise_type": "tabletop", "scheduled_date": "2026-01-01",
+            "status": "planned",
+        })
         assert db.add.called
 
     @pytest.mark.asyncio
@@ -360,12 +358,14 @@ class TestActiveIncidentCRUD:
     @pytest.mark.asyncio
     async def test_create_incident(self):
         db = AsyncMock()
-        await crud.create_incident(db, {"incident_id": "INC-001", "title": "Outage",
-                                         "scenario_type": "dc_failure", "severity": "p1",
-                                         "occurred_at": "2026-01-01T00:00:00Z",
-                                         "detected_at": "2026-01-01T00:01:00Z",
-                                         "status": "active",
-                                         "affected_systems": ["SysA"], "affected_users": 100})
+        await crud.create_incident(db, {
+            "incident_id": "INC-001", "title": "Outage",
+            "scenario_type": "dc_failure", "severity": "p1",
+            "occurred_at": "2026-01-01T00:00:00Z",
+            "detected_at": "2026-01-01T00:01:00Z",
+            "status": "active",
+            "affected_systems": ["SysA"], "affected_users": 100,
+        })
         assert db.add.called
 
     @pytest.mark.asyncio
@@ -562,10 +562,10 @@ class TestIncidentTaskCRUD:
     @pytest.mark.asyncio
     async def test_create_incident_task(self):
         db = AsyncMock()
-        await crud.create_incident_task(db, {"incident_id": SAMPLE_UUID,
-                                              "task_title": "Restart DB",
-                                              "priority": "critical",
-                                              "assigned_team": "DBA"})
+        await crud.create_incident_task(db, {
+            "incident_id": SAMPLE_UUID, "task_title": "Restart DB",
+            "priority": "critical", "assigned_team": "DBA",
+        })
         assert db.add.called
 
     @pytest.mark.asyncio
@@ -621,10 +621,10 @@ class TestSituationReportCRUD:
     @pytest.mark.asyncio
     async def test_create_situation_report(self):
         db = AsyncMock()
-        await crud.create_situation_report(db, {"incident_id": SAMPLE_UUID,
-                                                  "report_number": 1,
-                                                  "summary": "Initial report",
-                                                  "audience": "internal"})
+        await crud.create_situation_report(db, {
+            "incident_id": SAMPLE_UUID, "report_number": 1,
+            "summary": "Initial report", "audience": "internal",
+        })
         assert db.add.called
 
     @pytest.mark.asyncio
