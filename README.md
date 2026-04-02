@@ -12,9 +12,9 @@
   <a href="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml"><img src="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml/badge.svg" alt="CI"></a>
   <img src="https://img.shields.io/badge/tests-381_passed-brightgreen?style=flat-square" alt="Tests">
   <img src="https://img.shields.io/badge/coverage-90%25-brightgreen?style=flat-square" alt="Coverage">
-  <img src="https://img.shields.io/badge/PRs-36_merged-blue?style=flat-square" alt="PRs">
+  <img src="https://img.shields.io/badge/PRs-37_merged-blue?style=flat-square" alt="PRs">
   <img src="https://img.shields.io/badge/STABLE-5%2F5_✅-brightgreen?style=flat-square" alt="STABLE">
-  <img src="https://img.shields.io/badge/security-CVE_patched-brightgreen?style=flat-square&logo=shield" alt="Security">
+  <img src="https://img.shields.io/badge/security-0_CVE-brightgreen?style=flat-square&logo=shield" alt="Security">
 </p>
 
 <p align="center">
@@ -360,13 +360,21 @@ npm run dev
 | テストカバレッジ | 86% | **90%** | bia_calculator/report_generator 100%、全体90%（+18テスト） | ✅ Quality | 2026-04-02 |
 | テスト総数 | 149件 | **381件** | PR#84: bia/report/incident 3モジュール分岐網羅強化 | ✅ Quality | 2026-04-02 |
 | TypeScript | 5.7.x | **6.0.2** | CSS型宣言追加でTS6対応（css.d.ts） | ✅ Quality | 2026-04-02 |
+| FastAPI | 0.115.6 | **0.120.4** | CVE-2025-54121/62727解消、starlette 0.49.3固定 | 🔐 Security | 2026-04-02 |
+| starlette | 0.41.3 | **0.49.3** | CVE-2025-54121 (fix:0.47.2+) / CVE-2025-62727 (fix:0.49.1+) 解消 | 🔐 Security | 2026-04-02 |
+
+### ✅ 解消済み脆弱性（PR #85 / 2026-04-02）
+
+| パッケージ | CVE | 修正バージョン | 状態 |
+|:-----------|:----|:-------------|:----:|
+| `starlette` | CVE-2025-54121 | 0.47.2+ → **0.49.3適用** | ✅ 解消 |
+| `starlette` | CVE-2025-62727 | 0.49.1+ → **0.49.3適用** | ✅ 解消 |
 
 ### ⚠️ 既知の未解消脆弱性（追跡中）
 
 | パッケージ | CVE | 重要度 | 対応方針 | 追跡Issue |
 |:-----------|:----|:------:|:---------|:---------:|
-| `starlette` (via FastAPI) | CVE-2025-54121 / CVE-2025-62727 | 🟠 High | FastAPI 0.120.x+へのアップグレードが必要（破壊的変更）| [#73](https://github.com/Kensan196948G/IT-BCP-ITSCM-System/issues/73) |
-| `next` | GHSA-9g9p-9gw9-jx7f 他3件 | 🟠 High (DoS) | Next.js 16へのメジャーアップグレードが必要 | [#72](https://github.com/Kensan196948G/IT-BCP-ITSCM-System/issues/72) |
+| `next` | GHSA-9g9p-9gw9-jx7f 他3件 | 🟠 High (DoS) | Next.js 16へのメジャーアップグレードが必要（react@19+eslint@9協調移行） | [#72](https://github.com/Kensan196948G/IT-BCP-ITSCM-System/issues/72) |
 
 ### 🔍 セキュリティスキャン構成
 
@@ -415,17 +423,18 @@ graph LR
 
 ---
 
-## 🔍 最新 Monitor ループ状態（2026-04-02 10:05 JST）
+## 🔍 最新 Monitor ループ状態（2026-04-02 10:15 JST）
 
 | 確認項目 | 状態 | 詳細 |
 |:---------|:----:|:-----|
-| 🟢 CI (main) | **✅ 全成功** | PR #84 Lint/Test/Build 全パス |
-| 🟢 テスト | **✅ 381件 全通過** | 0失敗、0エラー (+17件) |
+| 🟢 CI (main) | **✅ 全成功** | PR #84・#85 Lint/Test/Build 全パス |
+| 🟢 テスト | **✅ 381件 全通過** | 0失敗、0エラー |
 | 🟢 カバレッジ | **✅ 90%** | bia_calculator 100% / report_generator 100% / incident_commander 99% |
-| 🟡 オープンPR | **0件** | PR #84(coverage向上)マージ済み |
-| 🟡 オープンIssue | **2件** | #72 Next.js 16, #73 FastAPI CVE (追跡中) |
+| 🟢 オープンPR | **0件** | PR #84(coverage)・#85(FastAPI CVE)マージ済み |
+| 🟡 オープンIssue | **1件** | #72 Next.js 16 (長期課題) |
+| 🟢 セキュリティ | **✅ CVE 0件** | pip-audit: No known vulnerabilities found |
 | 🟢 GitHub Projects | **Done: 18件+** | Blocked/進行中: なし |
-| 🟢 STABLE判定 | **✅ STABLE** | CI連続成功・全テスト通過 |
+| 🟢 STABLE判定 | **✅ STABLE** | CI連続成功・全テスト通過・CVEゼロ |
 
 ### 📌 技術負債トラッキング
 
