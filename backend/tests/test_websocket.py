@@ -1,7 +1,7 @@
 """Tests for WebSocket RTO dashboard endpoint and ConnectionManager."""
 
 import json
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock
 
 import pytest
 from fastapi.testclient import TestClient
