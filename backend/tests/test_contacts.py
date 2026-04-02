@@ -336,3 +336,43 @@ def test_delete_vendor_contact_not_found(mock_delete: AsyncMock) -> None:
         assert response.json()["detail"] == "Vendor contact not found"
     finally:
         app.dependency_overrides.clear()
+
+
+@patch("apps.crud.update_emergency_contact", new_callable=AsyncMock)
+def test_update_emergency_contact_success(mock_update: AsyncMock) -> None:
+    """Test PUT /api/contacts/emergency/{id} returns updated object on success."""
+    contact_id = MOCK_CONTACT_ID
+    mock_update.return_value = MockEmergencyContact(name="Updated Name")
+
+    from database import get_db
+
+    app.dependency_overrides[get_db] = _mock_db_override()
+    try:
+        response = client.put(
+            f"/api/contacts/emergency/{contact_id}",
+            json={"name": "Updated Name"},
+        )
+        assert response.status_code == 200
+        assert response.json()["name"] == "Updated Name"
+    finally:
+        app.dependency_overrides.clear()
+
+
+@patch("apps.crud.update_vendor_contact", new_callable=AsyncMock)
+def test_update_vendor_contact_success(mock_update: AsyncMock) -> None:
+    """Test PUT /api/contacts/vendors/{id} returns updated object on success."""
+    vendor_id = MOCK_VENDOR_ID
+    mock_update.return_value = MockVendorContact(vendor_name="Updated Corp")
+
+    from database import get_db
+
+    app.dependency_overrides[get_db] = _mock_db_override()
+    try:
+        response = client.put(
+            f"/api/contacts/vendors/{vendor_id}",
+            json={"vendor_name": "Updated Corp"},
+        )
+        assert response.status_code == 200
+        assert response.json()["vendor_name"] == "Updated Corp"
+    finally:
+        app.dependency_overrides.clear()
