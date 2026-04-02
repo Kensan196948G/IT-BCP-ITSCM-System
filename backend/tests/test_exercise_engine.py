@@ -175,6 +175,15 @@ def test_start_exercise_already_in_progress(mock_get: AsyncMock, client) -> None
     assert response.status_code == 400
 
 
+@patch("apps.crud.get_exercise", new_callable=AsyncMock)
+def test_start_exercise_not_found(mock_get: AsyncMock, client) -> None:
+    """POST /api/exercises/{id}/start should return 400 when exercise not found."""
+    mock_get.return_value = None
+    response = client.post(f"/api/exercises/{uuid.uuid4()}/start")
+    assert response.status_code == 400
+    assert "Exercise not found" in response.json()["detail"]
+
+
 @patch("apps.crud.get_rto_records_by_exercise", new_callable=AsyncMock)
 @patch("apps.crud.get_exercise", new_callable=AsyncMock)
 def test_complete_exercise_pass(mock_get: AsyncMock, mock_rto: AsyncMock, client) -> None:
@@ -311,3 +320,110 @@ def test_generate_report_not_found(mock_get: AsyncMock, client) -> None:
     mock_get.return_value = None
     response = client.get(f"/api/exercises/{uuid.uuid4()}/report")
     assert response.status_code == 400
+
+
+# ---------------------------------------------------------------------------
+# inject_scenario tests — cover engine lines 36-55
+# ---------------------------------------------------------------------------
+
+
+@patch("apps.crud.get_scenario", new_callable=AsyncMock)
+@patch("apps.crud.get_exercise", new_callable=AsyncMock)
+def test_inject_scenario_success(mock_get: AsyncMock, mock_scenario: AsyncMock, client) -> None:
+    """POST /api/exercises/{id}/inject should return inject data."""
+    exercise = MockExercise(status="in_progress", scenario_ref_id=SCENARIO_UUID)
+    mock_get.return_value = exercise
+    mock_scenario.return_value = MockScenario()
+    response = client.post(
+        f"/api/exercises/{FIXED_UUID}/inject",
+        json={"inject_index": 0},
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["inject_index"] == 0
+    assert "inject" in data
+    assert data["total_injects"] == 2
+
+
+@patch("apps.crud.get_scenario", new_callable=AsyncMock)
+@patch("apps.crud.get_exercise", new_callable=AsyncMock)
+def test_inject_scenario_out_of_range(mock_get: AsyncMock, mock_scenario: AsyncMock, client) -> None:
+    """POST /api/exercises/{id}/inject should return 400 for out-of-range index."""
+    exercise = MockExercise(status="in_progress", scenario_ref_id=SCENARIO_UUID)
+    mock_get.return_value = exercise
+    mock_scenario.return_value = MockScenario()
+    response = client.post(
+        f"/api/exercises/{FIXED_UUID}/inject",
+        json={"inject_index": 99},
+    )
+    assert response.status_code == 400
+    assert "out of range" in response.json()["detail"]
+
+
+@patch("apps.crud.get_exercise", new_callable=AsyncMock)
+def test_inject_scenario_not_in_progress(mock_get: AsyncMock, client) -> None:
+    """POST /api/exercises/{id}/inject should return 400 when exercise not in_progress."""
+    mock_get.return_value = MockExercise(status="planned")
+    response = client.post(
+        f"/api/exercises/{FIXED_UUID}/inject",
+        json={"inject_index": 0},
+    )
+    assert response.status_code == 400
+    assert "not in progress" in response.json()["detail"]
+
+
+@patch("apps.crud.get_exercise", new_callable=AsyncMock)
+def test_inject_scenario_exercise_not_found(mock_get: AsyncMock, client) -> None:
+    """POST /api/exercises/{id}/inject should return 400 when exercise not found."""
+    mock_get.return_value = None
+    response = client.post(
+        f"/api/exercises/{uuid.uuid4()}/inject",
+        json={"inject_index": 0},
+    )
+    assert response.status_code == 400
+    assert "Exercise not found" in response.json()["detail"]
+
+
+@patch("apps.crud.get_exercise", new_callable=AsyncMock)
+def test_inject_scenario_no_scenario_linked(mock_get: AsyncMock, client) -> None:
+    """POST /api/exercises/{id}/inject should return 400 when no scenario linked."""
+    exercise = MockExercise(status="in_progress", scenario_ref_id=None)
+    mock_get.return_value = exercise
+    response = client.post(
+        f"/api/exercises/{FIXED_UUID}/inject",
+        json={"inject_index": 0},
+    )
+    assert response.status_code == 400
+    assert "No scenario linked" in response.json()["detail"]
+
+
+@patch("apps.crud.get_rto_records_by_exercise", new_callable=AsyncMock)
+@patch("apps.crud.get_exercise", new_callable=AsyncMock)
+def test_complete_exercise_not_found(mock_get: AsyncMock, mock_rto: AsyncMock, client) -> None:
+    """POST /api/exercises/{id}/complete should return 400 when exercise not found."""
+    mock_get.return_value = None
+    response = client.post(f"/api/exercises/{uuid.uuid4()}/complete")
+    assert response.status_code == 400
+    assert "Exercise not found" in response.json()["detail"]
+
+
+@patch("apps.crud.get_rto_records_by_exercise", new_callable=AsyncMock)
+@patch("apps.crud.get_exercise", new_callable=AsyncMock)
+def test_complete_exercise_wrong_status(mock_get: AsyncMock, mock_rto: AsyncMock, client) -> None:
+    """POST /api/exercises/{id}/complete should return 400 for non-in_progress status."""
+    mock_get.return_value = MockExercise(status="planned")
+    response = client.post(f"/api/exercises/{FIXED_UUID}/complete")
+    assert response.status_code == 400
+    assert "Cannot complete" in response.json()["detail"]
+
+
+@patch("apps.crud.get_rto_records_by_exercise", new_callable=AsyncMock)
+@patch("apps.crud.get_exercise", new_callable=AsyncMock)
+def test_complete_exercise_no_rto_records(mock_get: AsyncMock, mock_rto: AsyncMock, client) -> None:
+    """POST /api/exercises/{id}/complete with no RTO records defaults to pass."""
+    exercise = MockExercise(status="in_progress")
+    mock_get.return_value = exercise
+    mock_rto.return_value = []
+    response = client.post(f"/api/exercises/{FIXED_UUID}/complete")
+    assert response.status_code == 200
+    assert response.json()["overall_result"] == "pass"
