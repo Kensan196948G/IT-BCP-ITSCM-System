@@ -12,7 +12,7 @@
   <a href="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml"><img src="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml/badge.svg" alt="CI"></a>
   <img src="https://img.shields.io/badge/tests-459_passed-brightgreen?style=flat-square" alt="Tests">
   <img src="https://img.shields.io/badge/coverage-99%25-brightgreen?style=flat-square" alt="Coverage">
-  <img src="https://img.shields.io/badge/PRs-39_merged-blue?style=flat-square" alt="PRs">
+  <img src="https://img.shields.io/badge/PRs-40_merged-blue?style=flat-square" alt="PRs">
   <img src="https://img.shields.io/badge/STABLE-5%2F5_✅-brightgreen?style=flat-square" alt="STABLE">
   <img src="https://img.shields.io/badge/security-0_CVE-brightgreen?style=flat-square&logo=shield" alt="Security">
 </p>
@@ -21,7 +21,7 @@
   <img src="https://img.shields.io/badge/ISO20000-ITSCM-blue?style=flat-square" alt="ISO20000">
   <img src="https://img.shields.io/badge/ISO27001-A.5.29%2FA.5.30-green?style=flat-square" alt="ISO27001">
   <img src="https://img.shields.io/badge/NIST_CSF-RECOVER_RC-orange?style=flat-square" alt="NIST CSF">
-  <img src="https://img.shields.io/badge/Next.js-14.2.35-black?style=flat-square&logo=next.js" alt="Next.js">
+  <img src="https://img.shields.io/badge/Next.js-16.2.2-black?style=flat-square&logo=next.js" alt="Next.js">
   <img src="https://img.shields.io/badge/FastAPI-0.115-009688?style=flat-square&logo=fastapi" alt="FastAPI">
   <img src="https://img.shields.io/badge/PostgreSQL-16-336791?style=flat-square&logo=postgresql" alt="PostgreSQL">
   <img src="https://img.shields.io/badge/Azure-Container_Apps-0078D4?style=flat-square&logo=microsoftazure" alt="Azure">
@@ -144,7 +144,7 @@ graph TB
 
 | レイヤー | 技術 | バージョン |
 |:---------|:-----|:----------|
-| 🖥️ フロントエンド | Next.js / TypeScript / Tailwind CSS | 14.x |
+| 🖥️ フロントエンド | Next.js / TypeScript / Tailwind CSS | 16.x |
 | ⚡ バックエンド | Python FastAPI | 0.115.x |
 | 🐘 データベース | PostgreSQL（Geo冗長） | 16 |
 | ⚡ キャッシュ | Redis Cluster | 7 |
@@ -423,18 +423,19 @@ graph LR
 
 ---
 
-## 🔍 最新 Monitor ループ状態（2026-04-02 11:00 JST）
+## 🔍 最新 Monitor ループ状態（2026-04-02 11:40 JST）
 
 | 確認項目 | 状態 | 詳細 |
 |:---------|:----:|:-----|
-| 🟢 CI (main) | **✅ 全成功** | PR #86・#87 Lint/Test/Build 全パス |
+| 🟢 CI (main) | **✅ 全成功** | PR #89 Lint/Test/Build 全パス → main マージ完了 |
 | 🟢 テスト | **✅ 459件 全通過** | 0失敗、0エラー |
 | 🟢 カバレッジ | **✅ 99%** | crud.py 100% / report_generator 100% / bia_calculator 100% / 全体99% |
-| 🟢 オープンPR | **0件** | PR #86(Next.js 16)・#87(crud coverage)マージ済み |
-| 🟢 オープンIssue | **0件** | #72 Next.js 16: PR#86で解消済み |
+| 🟢 オープンPR | **0件** | PR #89(CORS/APIスキーマ修正・全14ページ)マージ済み |
+| 🟢 オープンIssue | **0件** | 全Issue解消済み |
 | 🟢 セキュリティ | **✅ CVE 0件** | pip-audit: No known vulnerabilities / npm audit: 0 vulnerabilities |
+| 🟢 WebUI | **✅ 全14ページ正常** | API接続テスト 14/14 OK、CORS解消、RTOモニタ正常表示 |
 | 🟢 GitHub Projects | **Done: 19件** | Blocked/進行中: なし |
-| 🟢 STABLE判定 | **✅ STABLE** | CI連続成功・全テスト通過・CVEゼロ |
+| 🟢 STABLE判定 | **✅ STABLE** | CI連続成功・全テスト通過・CVEゼロ・WebUI全ページ確認済み |
 
 ### 📌 技術負債トラッキング
 
