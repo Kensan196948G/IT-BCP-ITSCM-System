@@ -4,14 +4,23 @@ from unittest.mock import AsyncMock, patch
 
 from tests.conftest import MockIncident, MockSystem
 
+# Cache is always bypassed in unit tests — Redis may be running locally and
+# would serve stale data across test runs, breaking test isolation.
+_patch_cache = patch("apps.routers.dashboard.get_cached", new_callable=AsyncMock, return_value=None)
+_patch_set_cache = patch("apps.routers.dashboard.set_cached", new_callable=AsyncMock)
+
 # ---------------------------------------------------------------------------
 # GET /api/dashboard/readiness
 # ---------------------------------------------------------------------------
 
 
+@_patch_cache
+@_patch_set_cache
 @patch("apps.crud.get_active_incidents", new_callable=AsyncMock)
 @patch("apps.crud.get_all_systems", new_callable=AsyncMock)
-def test_readiness_no_incidents(mock_systems: AsyncMock, mock_incidents: AsyncMock, client) -> None:
+def test_readiness_no_incidents(
+    mock_systems: AsyncMock, mock_incidents: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client
+) -> None:
     """Readiness endpoint should return 100% when there are no active incidents."""
     mock_systems.return_value = [MockSystem(), MockSystem(system_name="Email System", rto_target_hours=8.0)]
     mock_incidents.return_value = []
@@ -24,9 +33,13 @@ def test_readiness_no_incidents(mock_systems: AsyncMock, mock_incidents: AsyncMo
     assert data["readiness_score"] == 100.0
 
 
+@_patch_cache
+@_patch_set_cache
 @patch("apps.crud.get_active_incidents", new_callable=AsyncMock)
 @patch("apps.crud.get_all_systems", new_callable=AsyncMock)
-def test_readiness_with_incident(mock_systems: AsyncMock, mock_incidents: AsyncMock, client) -> None:
+def test_readiness_with_incident(
+    mock_systems: AsyncMock, mock_incidents: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client
+) -> None:
     """Readiness endpoint should reflect active incident impact."""
     mock_systems.return_value = [MockSystem()]
     mock_incidents.return_value = [MockIncident(affected_systems=["Core Banking System"])]
@@ -43,9 +56,13 @@ def test_readiness_with_incident(mock_systems: AsyncMock, mock_incidents: AsyncM
 # ---------------------------------------------------------------------------
 
 
+@patch("apps.routers.dashboard.get_cached", new_callable=AsyncMock, return_value=None)
+@patch("apps.routers.dashboard.set_cached", new_callable=AsyncMock)
 @patch("apps.crud.get_active_incidents", new_callable=AsyncMock)
 @patch("apps.crud.get_all_systems", new_callable=AsyncMock)
-def test_rto_overview(mock_systems: AsyncMock, mock_incidents: AsyncMock, client) -> None:
+def test_rto_overview(
+    mock_systems: AsyncMock, mock_incidents: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client
+) -> None:
     """RTO overview should list all systems with their RTO status."""
     mock_systems.return_value = [
         MockSystem(system_name="System A", rto_target_hours=4.0),
@@ -62,9 +79,13 @@ def test_rto_overview(mock_systems: AsyncMock, mock_incidents: AsyncMock, client
     assert names == {"System A", "System B"}
 
 
+@patch("apps.routers.dashboard.get_cached", new_callable=AsyncMock, return_value=None)
+@patch("apps.routers.dashboard.set_cached", new_callable=AsyncMock)
 @patch("apps.crud.get_active_incidents", new_callable=AsyncMock)
 @patch("apps.crud.get_all_systems", new_callable=AsyncMock)
-def test_rto_overview_empty(mock_systems: AsyncMock, mock_incidents: AsyncMock, client) -> None:
+def test_rto_overview_empty(
+    mock_systems: AsyncMock, mock_incidents: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client
+) -> None:
     """RTO overview should return empty list when no systems exist."""
     mock_systems.return_value = []
     mock_incidents.return_value = []
@@ -74,9 +95,13 @@ def test_rto_overview_empty(mock_systems: AsyncMock, mock_incidents: AsyncMock, 
     assert response.json() == []
 
 
+@patch("apps.routers.dashboard.get_cached", new_callable=AsyncMock, return_value=None)
+@patch("apps.routers.dashboard.set_cached", new_callable=AsyncMock)
 @patch("apps.crud.get_active_incidents", new_callable=AsyncMock)
 @patch("apps.crud.get_all_systems", new_callable=AsyncMock)
-def test_rto_overview_with_matching_incident(mock_systems: AsyncMock, mock_incidents: AsyncMock, client) -> None:
+def test_rto_overview_with_matching_incident(
+    mock_systems: AsyncMock, mock_incidents: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client
+) -> None:
     """RTO overview builds RTOTracker from matched incident (covers lines 57-59, 65)."""
     mock_systems.return_value = [MockSystem(system_name="Core Banking System", rto_target_hours=4.0)]
     mock_incidents.return_value = [MockIncident(affected_systems=["Core Banking System"])]

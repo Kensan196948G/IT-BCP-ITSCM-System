@@ -1,7 +1,7 @@
 """API routes for monitoring, metrics, and health probes."""
 
 from fastapi import APIRouter
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 
 from apps.monitoring import health_checker, metrics_collector
 
@@ -46,9 +46,15 @@ async def get_metrics() -> str:
 
 
 @router.get("/api/health/ready")
-async def readiness_probe() -> dict:
-    """Kubernetes-compatible readiness probe."""
-    return health_checker.get_readiness()
+async def readiness_probe() -> JSONResponse:
+    """Kubernetes-compatible readiness probe.
+
+    Returns 200 when all dependencies are healthy, 503 otherwise so that
+    Kubernetes stops routing traffic to a pod whose database or cache is down.
+    """
+    result = await health_checker.get_readiness()
+    status_code = 200 if result["status"] == "ready" else 503
+    return JSONResponse(content=result, status_code=status_code)
 
 
 @router.get("/api/health/live")
@@ -60,7 +66,7 @@ async def liveness_probe() -> dict:
 @router.get("/api/health/detailed")
 async def detailed_health() -> dict:
     """Detailed health information including metrics and system resources."""
-    readiness = health_checker.get_readiness()
+    readiness = await health_checker.get_readiness()
     details = metrics_collector.get_health_details()
     return {
         "status": readiness["status"],

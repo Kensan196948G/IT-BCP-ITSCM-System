@@ -222,8 +222,18 @@ def test_metrics_contains_all_metric_types(client):
 # ---------------------------------------------------------------------------
 
 
-def test_readiness_probe(client):
-    """GET /api/health/ready returns readiness status."""
+@patch(
+    "apps.monitoring.HealthChecker.check_database",
+    new_callable=AsyncMock,
+    return_value={"name": "database", "status": "healthy", "latency_ms": 1.0},
+)
+@patch(
+    "apps.monitoring.HealthChecker.check_redis",
+    new_callable=AsyncMock,
+    return_value={"name": "redis", "status": "healthy", "latency_ms": 0.5},
+)
+def test_readiness_probe(_mock_redis, _mock_db, client):
+    """GET /api/health/ready returns readiness status (mocked deps for test isolation)."""
     resp = client.get("/api/health/ready")
     assert resp.status_code == 200
     data = resp.json()
@@ -421,9 +431,11 @@ def test_escalation_trigger_and_notification_logs(client):
 # ---------------------------------------------------------------------------
 
 
+@patch("apps.routers.dashboard.get_cached", new_callable=AsyncMock, return_value=None)
+@patch("apps.routers.dashboard.set_cached", new_callable=AsyncMock)
 @patch("apps.crud.get_active_incidents", new_callable=AsyncMock)
 @patch("apps.crud.get_all_systems", new_callable=AsyncMock)
-def test_dashboard_readiness(mock_systems, mock_incidents, client):
+def test_dashboard_readiness(mock_systems, mock_incidents, _sc, _gc, client):
     """GET /api/dashboard/readiness returns readiness dashboard."""
     mock_systems.return_value = [_MockSystem()]
     mock_incidents.return_value = []
