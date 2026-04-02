@@ -223,7 +223,7 @@ async def audit_log_middleware(request: Request, call_next: object) -> JSONRespo
             except Exception:
                 pass
         resource_type = path.split("/")[2] if path.count("/") >= 2 else path
-        audit_service.log(
+        audit_service.schedule_log(
             action=method.lower(),
             resource_type=resource_type,
             user_id=user_id,

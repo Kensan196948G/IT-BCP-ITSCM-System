@@ -5,8 +5,11 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from sqlalchemy import desc
+
 from apps.models import (
     ActiveIncident,
+    AuditLog,
     BCPExercise,
     BCPScenario,
     BIAAssessment,
@@ -479,4 +482,73 @@ async def get_situation_reports_by_incident(db: AsyncSession, incident_id: uuid.
         .where(SituationReport.incident_id == incident_id)
         .order_by(SituationReport.report_number)
     )
+    return list(result.scalars().all())
+
+
+# ---- AuditLog CRUD ----
+
+
+async def create_audit_log(
+    db: AsyncSession,
+    action: str,
+    resource_type: str,
+    resource_id: str | None = None,
+    user_id: str | None = None,
+    user_role: str | None = None,
+    details: dict | None = None,
+    ip_address: str | None = None,
+    user_agent: str | None = None,
+    status: str = "success",
+) -> AuditLog:
+    """Persist an audit log entry to the database."""
+    entry = AuditLog(
+        user_id=user_id,
+        user_role=user_role,
+        action=action,
+        resource_type=resource_type,
+        resource_id=resource_id,
+        details=details,
+        ip_address=ip_address,
+        user_agent=user_agent,
+        status=status,
+    )
+    db.add(entry)
+    await db.flush()
+    await db.refresh(entry)
+    return entry
+
+
+async def get_audit_logs(
+    db: AsyncSession,
+    limit: int = 100,
+    resource_type: str | None = None,
+    action: str | None = None,
+    user_id: str | None = None,
+) -> list[AuditLog]:
+    """Query audit logs from database with optional filters."""
+    stmt = select(AuditLog).order_by(desc(AuditLog.timestamp)).limit(limit)
+    if resource_type is not None:
+        stmt = stmt.where(AuditLog.resource_type == resource_type)
+    if action is not None:
+        stmt = stmt.where(AuditLog.action == action)
+    if user_id is not None:
+        stmt = stmt.where(AuditLog.user_id == user_id)
+    result = await db.execute(stmt)
+    return list(result.scalars().all())
+
+
+async def get_audit_logs_by_incident(
+    db: AsyncSession,
+    incident_id: str,
+) -> list[AuditLog]:
+    """Query audit logs for a specific incident."""
+    stmt = (
+        select(AuditLog)
+        .where(
+            AuditLog.resource_type == "incident",
+            AuditLog.resource_id == incident_id,
+        )
+        .order_by(desc(AuditLog.timestamp))
+    )
+    result = await db.execute(stmt)
     return list(result.scalars().all())

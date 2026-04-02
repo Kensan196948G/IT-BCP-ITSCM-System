@@ -1,5 +1,7 @@
 """Tests for audit log service and API."""
 
+from unittest.mock import AsyncMock, patch
+
 from fastapi.testclient import TestClient
 
 from apps.audit_service import AuditService
@@ -115,12 +117,14 @@ class TestAuditService:
 class TestAuditAPI:
     """API-level audit log tests."""
 
-    def test_get_audit_logs_empty(self, client: TestClient):
+    @patch("apps.crud.get_audit_logs", new_callable=AsyncMock, return_value=[])
+    def test_get_audit_logs_empty(self, _mock_logs, client: TestClient):
         resp = client.get("/api/audit/logs")
         assert resp.status_code == 200
         assert isinstance(resp.json(), list)
 
-    def test_export_audit_logs(self, client: TestClient):
+    @patch("apps.crud.get_audit_logs", new_callable=AsyncMock, return_value=[])
+    def test_export_audit_logs(self, _mock_logs, client: TestClient):
         resp = client.get("/api/audit/logs/export")
         assert resp.status_code == 200
         data = resp.json()
@@ -128,7 +132,8 @@ class TestAuditAPI:
         assert "total_count" in data
         assert data["standard"] == "ISO20000-ITSCM"
 
-    def test_get_incident_logs(self, client: TestClient):
+    @patch("apps.crud.get_audit_logs_by_incident", new_callable=AsyncMock, return_value=[])
+    def test_get_incident_logs(self, _mock_logs, client: TestClient):
         resp = client.get("/api/audit/logs/incident/INC-001")
         assert resp.status_code == 200
         assert isinstance(resp.json(), list)

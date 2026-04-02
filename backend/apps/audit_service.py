@@ -1,9 +1,10 @@
 """Audit log service for IT-BCP-ITSCM-System.
 
-Provides in-memory audit logging with filtering and export capabilities.
-Designed to be easily extended to database persistence.
+Provides audit logging with database persistence and in-memory fallback.
+DB writes use fire-and-forget via asyncio tasks to avoid blocking HTTP responses.
 """
 
+import asyncio
 import uuid
 from datetime import datetime, timezone
 from typing import Any
@@ -80,6 +81,78 @@ class AuditService:
             "standard": "ISO20000-ITSCM",
             "logs": logs,
         }
+
+    async def log_async(
+        self,
+        action: str,
+        resource_type: str,
+        resource_id: str | None = None,
+        user_id: str | None = None,
+        role: str | None = None,
+        details: dict[str, Any] | None = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
+        status: str = "success",
+    ) -> None:
+        """Persist an audit log entry to DB; fall back to in-memory on failure."""
+        try:
+            from apps import crud
+            from database import async_session
+
+            async with async_session() as session:
+                await crud.create_audit_log(
+                    session,
+                    action=action,
+                    resource_type=resource_type,
+                    resource_id=resource_id,
+                    user_id=user_id,
+                    user_role=role,
+                    details=details,
+                    ip_address=ip_address,
+                    user_agent=user_agent,
+                    status=status,
+                )
+                await session.commit()
+        except Exception:
+            # Graceful degradation: keep the entry in-memory if DB is unavailable
+            self.log(
+                action=action,
+                resource_type=resource_type,
+                resource_id=resource_id,
+                user_id=user_id,
+                role=role,
+                details=details,
+                ip_address=ip_address,
+                user_agent=user_agent,
+                status=status,
+            )
+
+    def schedule_log(
+        self,
+        action: str,
+        resource_type: str,
+        resource_id: str | None = None,
+        user_id: str | None = None,
+        role: str | None = None,
+        details: dict[str, Any] | None = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
+        status: str = "success",
+    ) -> None:
+        """Fire-and-forget: schedule a DB audit log write without blocking."""
+        asyncio.create_task(
+            self.log_async(
+                action=action,
+                resource_type=resource_type,
+                resource_id=resource_id,
+                user_id=user_id,
+                role=role,
+                details=details,
+                ip_address=ip_address,
+                user_agent=user_agent,
+                status=status,
+            )
+        )
 
 
 # Singleton instance
