@@ -15,7 +15,7 @@ from typing import Any
 import pytest
 
 playwright = pytest.importorskip("playwright", reason="playwright not installed")
-from playwright.sync_api import Page  # type: ignore[import-not-found]  # noqa: E402
+from playwright.sync_api import Page  # noqa: E402
 
 pytestmark = pytest.mark.e2e
 
