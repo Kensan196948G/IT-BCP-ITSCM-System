@@ -2,6 +2,8 @@
 
 from unittest.mock import AsyncMock, patch
 
+from fastapi.testclient import TestClient
+
 from tests.conftest import MockExercise, MockIncident, MockSystem
 
 # Cache is always bypassed in unit tests — Redis may be running locally and
@@ -19,7 +21,7 @@ _patch_set_cache = patch("apps.routers.dashboard.set_cached", new_callable=Async
 @patch("apps.crud.get_active_incidents", new_callable=AsyncMock)
 @patch("apps.crud.get_all_systems", new_callable=AsyncMock)
 def test_readiness_no_incidents(
-    mock_systems: AsyncMock, mock_incidents: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client
+    mock_systems: AsyncMock, mock_incidents: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client: TestClient
 ) -> None:
     """Readiness endpoint should return 100% when there are no active incidents."""
     mock_systems.return_value = [MockSystem(), MockSystem(system_name="Email System", rto_target_hours=8.0)]
@@ -38,7 +40,7 @@ def test_readiness_no_incidents(
 @patch("apps.crud.get_active_incidents", new_callable=AsyncMock)
 @patch("apps.crud.get_all_systems", new_callable=AsyncMock)
 def test_readiness_with_incident(
-    mock_systems: AsyncMock, mock_incidents: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client
+    mock_systems: AsyncMock, mock_incidents: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client: TestClient
 ) -> None:
     """Readiness endpoint should reflect active incident impact."""
     mock_systems.return_value = [MockSystem()]
@@ -61,7 +63,7 @@ def test_readiness_with_incident(
 @patch("apps.crud.get_active_incidents", new_callable=AsyncMock)
 @patch("apps.crud.get_all_systems", new_callable=AsyncMock)
 def test_rto_overview(
-    mock_systems: AsyncMock, mock_incidents: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client
+    mock_systems: AsyncMock, mock_incidents: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client: TestClient
 ) -> None:
     """RTO overview should list all systems with their RTO status."""
     mock_systems.return_value = [
@@ -84,7 +86,7 @@ def test_rto_overview(
 @patch("apps.crud.get_active_incidents", new_callable=AsyncMock)
 @patch("apps.crud.get_all_systems", new_callable=AsyncMock)
 def test_rto_overview_empty(
-    mock_systems: AsyncMock, mock_incidents: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client
+    mock_systems: AsyncMock, mock_incidents: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client: TestClient
 ) -> None:
     """RTO overview should return empty list when no systems exist."""
     mock_systems.return_value = []
@@ -100,7 +102,7 @@ def test_rto_overview_empty(
 @patch("apps.crud.get_active_incidents", new_callable=AsyncMock)
 @patch("apps.crud.get_all_systems", new_callable=AsyncMock)
 def test_rto_overview_with_matching_incident(
-    mock_systems: AsyncMock, mock_incidents: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client
+    mock_systems: AsyncMock, mock_incidents: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client: TestClient
 ) -> None:
     """RTO overview builds RTOTracker from matched incident (covers lines 57-59, 65)."""
     mock_systems.return_value = [MockSystem(system_name="Core Banking System", rto_target_hours=4.0)]
@@ -124,7 +126,7 @@ def test_rto_overview_with_matching_incident(
 @patch("apps.crud.get_all_exercises", new_callable=AsyncMock)
 @patch("apps.crud.get_all_systems", new_callable=AsyncMock)
 def test_export_report_pdf_readiness(
-    mock_systems: AsyncMock, mock_exercises: AsyncMock, mock_incidents: AsyncMock, client
+    mock_systems: AsyncMock, mock_exercises: AsyncMock, mock_incidents: AsyncMock, client: TestClient
 ) -> None:
     """GET /api/dashboard/reports/readiness/pdf returns a PDF file."""
     mock_systems.return_value = [MockSystem()]
@@ -144,7 +146,7 @@ def test_export_report_pdf_readiness(
 @patch("apps.crud.get_all_exercises", new_callable=AsyncMock)
 @patch("apps.crud.get_all_systems", new_callable=AsyncMock)
 def test_export_report_pdf_rto_compliance(
-    mock_systems: AsyncMock, mock_exercises: AsyncMock, mock_incidents: AsyncMock, client
+    mock_systems: AsyncMock, mock_exercises: AsyncMock, mock_incidents: AsyncMock, client: TestClient
 ) -> None:
     """GET /api/dashboard/reports/rto-compliance/pdf returns a PDF file."""
     mock_systems.return_value = [MockSystem()]
@@ -161,7 +163,7 @@ def test_export_report_pdf_rto_compliance(
 @patch("apps.crud.get_all_exercises", new_callable=AsyncMock)
 @patch("apps.crud.get_all_systems", new_callable=AsyncMock)
 def test_export_report_pdf_exercise_trends(
-    mock_systems: AsyncMock, mock_exercises: AsyncMock, mock_incidents: AsyncMock, client
+    mock_systems: AsyncMock, mock_exercises: AsyncMock, mock_incidents: AsyncMock, client: TestClient
 ) -> None:
     """GET /api/dashboard/reports/exercise-trends/pdf returns a PDF file."""
     mock_systems.return_value = []
@@ -178,7 +180,7 @@ def test_export_report_pdf_exercise_trends(
 @patch("apps.crud.get_all_exercises", new_callable=AsyncMock)
 @patch("apps.crud.get_all_systems", new_callable=AsyncMock)
 def test_export_report_pdf_iso20000(
-    mock_systems: AsyncMock, mock_exercises: AsyncMock, mock_incidents: AsyncMock, client
+    mock_systems: AsyncMock, mock_exercises: AsyncMock, mock_incidents: AsyncMock, client: TestClient
 ) -> None:
     """GET /api/dashboard/reports/iso20000/pdf returns a PDF file."""
     mock_systems.return_value = []
@@ -195,7 +197,7 @@ def test_export_report_pdf_iso20000(
 @patch("apps.crud.get_all_exercises", new_callable=AsyncMock)
 @patch("apps.crud.get_all_systems", new_callable=AsyncMock)
 def test_export_report_pdf_unknown_type(
-    mock_systems: AsyncMock, mock_exercises: AsyncMock, mock_incidents: AsyncMock, client
+    mock_systems: AsyncMock, mock_exercises: AsyncMock, mock_incidents: AsyncMock, client: TestClient
 ) -> None:
     """GET /api/dashboard/reports/unknown/pdf returns 404."""
     mock_systems.return_value = []
@@ -212,7 +214,7 @@ def test_export_report_pdf_unknown_type(
 
 
 @patch("apps.crud.get_bcp_statistics", new_callable=AsyncMock)
-def test_get_statistics_empty(mock_stats: AsyncMock, client) -> None:
+def test_get_statistics_empty(mock_stats: AsyncMock, client: TestClient) -> None:
     """GET /api/dashboard/statistics returns 200 with all expected fields."""
     mock_stats.return_value = {
         "total_systems": 0,
@@ -234,7 +236,7 @@ def test_get_statistics_empty(mock_stats: AsyncMock, client) -> None:
 
 
 @patch("apps.crud.get_bcp_statistics", new_callable=AsyncMock)
-def test_get_statistics_with_data(mock_stats: AsyncMock, client) -> None:
+def test_get_statistics_with_data(mock_stats: AsyncMock, client: TestClient) -> None:
     """GET /api/dashboard/statistics returns computed MTTR and breach rate."""
     mock_stats.return_value = {
         "total_systems": 5,

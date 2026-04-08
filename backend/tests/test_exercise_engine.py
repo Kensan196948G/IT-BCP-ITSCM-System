@@ -4,6 +4,8 @@ import uuid
 from typing import Any
 from unittest.mock import AsyncMock, patch
 
+from fastapi.testclient import TestClient
+
 from tests.conftest import FIXED_UUID, FIXED_NOW, MockExercise
 
 # ---------------------------------------------------------------------------
@@ -96,7 +98,7 @@ def sample_scenario_payload() -> dict[str, Any]:
 
 
 @patch("apps.crud.get_all_scenarios", new_callable=AsyncMock)
-def test_list_scenarios(mock_get_all: AsyncMock, client) -> None:
+def test_list_scenarios(mock_get_all: AsyncMock, client: TestClient) -> None:
     """GET /api/scenarios should return a list of scenarios."""
     mock_get_all.return_value = [MockScenario()]
     response = client.get("/api/scenarios")
@@ -108,7 +110,7 @@ def test_list_scenarios(mock_get_all: AsyncMock, client) -> None:
 
 
 @patch("apps.crud.get_all_scenarios", new_callable=AsyncMock)
-def test_list_scenarios_empty(mock_get_all: AsyncMock, client) -> None:
+def test_list_scenarios_empty(mock_get_all: AsyncMock, client: TestClient) -> None:
     """GET /api/scenarios should return empty list when none exist."""
     mock_get_all.return_value = []
     response = client.get("/api/scenarios")
@@ -117,7 +119,7 @@ def test_list_scenarios_empty(mock_get_all: AsyncMock, client) -> None:
 
 
 @patch("apps.crud.create_scenario", new_callable=AsyncMock)
-def test_create_scenario(mock_create: AsyncMock, client) -> None:
+def test_create_scenario(mock_create: AsyncMock, client: TestClient) -> None:
     """POST /api/scenarios should create and return a scenario."""
     mock_create.return_value = MockScenario()
     payload = sample_scenario_payload()
@@ -128,7 +130,7 @@ def test_create_scenario(mock_create: AsyncMock, client) -> None:
     assert data["difficulty"] == "hard"
 
 
-def test_create_scenario_invalid_type(client) -> None:
+def test_create_scenario_invalid_type(client: TestClient) -> None:
     """POST /api/scenarios should reject invalid scenario_type."""
     payload = sample_scenario_payload()
     payload["scenario_type"] = "zombie_apocalypse"
@@ -137,7 +139,7 @@ def test_create_scenario_invalid_type(client) -> None:
 
 
 @patch("apps.crud.get_scenario", new_callable=AsyncMock)
-def test_get_scenario(mock_get: AsyncMock, client) -> None:
+def test_get_scenario(mock_get: AsyncMock, client: TestClient) -> None:
     """GET /api/scenarios/{id} should return the scenario."""
     mock_get.return_value = MockScenario()
     response = client.get(f"/api/scenarios/{SCENARIO_UUID}")
@@ -146,7 +148,7 @@ def test_get_scenario(mock_get: AsyncMock, client) -> None:
 
 
 @patch("apps.crud.get_scenario", new_callable=AsyncMock)
-def test_get_scenario_not_found(mock_get: AsyncMock, client) -> None:
+def test_get_scenario_not_found(mock_get: AsyncMock, client: TestClient) -> None:
     """GET /api/scenarios/{id} should return 404 when not found."""
     mock_get.return_value = None
     response = client.get(f"/api/scenarios/{uuid.uuid4()}")
@@ -159,7 +161,7 @@ def test_get_scenario_not_found(mock_get: AsyncMock, client) -> None:
 
 
 @patch("apps.crud.get_exercise", new_callable=AsyncMock)
-def test_start_exercise(mock_get: AsyncMock, client) -> None:
+def test_start_exercise(mock_get: AsyncMock, client: TestClient) -> None:
     """POST /api/exercises/{id}/start should set status to in_progress."""
     exercise = MockExercise(status="planned")
     mock_get.return_value = exercise
@@ -169,7 +171,7 @@ def test_start_exercise(mock_get: AsyncMock, client) -> None:
 
 
 @patch("apps.crud.get_exercise", new_callable=AsyncMock)
-def test_start_exercise_already_in_progress(mock_get: AsyncMock, client) -> None:
+def test_start_exercise_already_in_progress(mock_get: AsyncMock, client: TestClient) -> None:
     """POST /api/exercises/{id}/start should reject non-planned exercises."""
     mock_get.return_value = MockExercise(status="in_progress")
     response = client.post(f"/api/exercises/{FIXED_UUID}/start")
@@ -177,7 +179,7 @@ def test_start_exercise_already_in_progress(mock_get: AsyncMock, client) -> None
 
 
 @patch("apps.crud.get_exercise", new_callable=AsyncMock)
-def test_start_exercise_not_found(mock_get: AsyncMock, client) -> None:
+def test_start_exercise_not_found(mock_get: AsyncMock, client: TestClient) -> None:
     """POST /api/exercises/{id}/start should return 400 when exercise not found."""
     mock_get.return_value = None
     response = client.post(f"/api/exercises/{uuid.uuid4()}/start")
@@ -187,7 +189,7 @@ def test_start_exercise_not_found(mock_get: AsyncMock, client) -> None:
 
 @patch("apps.crud.get_rto_records_by_exercise", new_callable=AsyncMock)
 @patch("apps.crud.get_exercise", new_callable=AsyncMock)
-def test_complete_exercise_pass(mock_get: AsyncMock, mock_rto: AsyncMock, client) -> None:
+def test_complete_exercise_pass(mock_get: AsyncMock, mock_rto: AsyncMock, client: TestClient) -> None:
     """POST /api/exercises/{id}/complete should set pass when all achieved."""
     exercise = MockExercise(status="in_progress")
     mock_get.return_value = exercise
@@ -203,7 +205,7 @@ def test_complete_exercise_pass(mock_get: AsyncMock, mock_rto: AsyncMock, client
 
 @patch("apps.crud.get_rto_records_by_exercise", new_callable=AsyncMock)
 @patch("apps.crud.get_exercise", new_callable=AsyncMock)
-def test_complete_exercise_partial(mock_get: AsyncMock, mock_rto: AsyncMock, client) -> None:
+def test_complete_exercise_partial(mock_get: AsyncMock, mock_rto: AsyncMock, client: TestClient) -> None:
     """POST /api/exercises/{id}/complete should set partial_pass."""
     exercise = MockExercise(status="in_progress")
     mock_get.return_value = exercise
@@ -218,7 +220,7 @@ def test_complete_exercise_partial(mock_get: AsyncMock, mock_rto: AsyncMock, cli
 
 @patch("apps.crud.get_rto_records_by_exercise", new_callable=AsyncMock)
 @patch("apps.crud.get_exercise", new_callable=AsyncMock)
-def test_complete_exercise_fail(mock_get: AsyncMock, mock_rto: AsyncMock, client) -> None:
+def test_complete_exercise_fail(mock_get: AsyncMock, mock_rto: AsyncMock, client: TestClient) -> None:
     """POST /api/exercises/{id}/complete should set fail."""
     exercise = MockExercise(status="in_progress")
     mock_get.return_value = exercise
@@ -238,7 +240,7 @@ def test_complete_exercise_fail(mock_get: AsyncMock, mock_rto: AsyncMock, client
 
 @patch("apps.crud.create_rto_record", new_callable=AsyncMock)
 @patch("apps.crud.get_exercise", new_callable=AsyncMock)
-def test_record_rto(mock_get: AsyncMock, mock_create: AsyncMock, client) -> None:
+def test_record_rto(mock_get: AsyncMock, mock_create: AsyncMock, client: TestClient) -> None:
     """POST /api/exercises/{id}/rto-record should create RTO record."""
     mock_get.return_value = MockExercise(status="in_progress")
     mock_create.return_value = MockRTORecord()
@@ -255,7 +257,7 @@ def test_record_rto(mock_get: AsyncMock, mock_create: AsyncMock, client) -> None
 
 
 @patch("apps.crud.get_exercise", new_callable=AsyncMock)
-def test_record_rto_exercise_not_found(mock_get: AsyncMock, client) -> None:
+def test_record_rto_exercise_not_found(mock_get: AsyncMock, client: TestClient) -> None:
     """POST /api/exercises/{id}/rto-record should return 400 for missing exercise."""
     mock_get.return_value = None
     payload = {
@@ -273,7 +275,7 @@ def test_record_rto_exercise_not_found(mock_get: AsyncMock, client) -> None:
 
 @patch("apps.crud.get_rto_records_by_exercise", new_callable=AsyncMock)
 @patch("apps.crud.get_exercise", new_callable=AsyncMock)
-def test_generate_report_with_records(mock_get: AsyncMock, mock_rto: AsyncMock, client) -> None:
+def test_generate_report_with_records(mock_get: AsyncMock, mock_rto: AsyncMock, client: TestClient) -> None:
     """GET /api/exercises/{id}/report should return report with RTO data."""
     mock_get.return_value = MockExercise(status="completed")
     mock_rto.return_value = [
@@ -303,7 +305,7 @@ def test_generate_report_with_records(mock_get: AsyncMock, mock_rto: AsyncMock, 
 
 @patch("apps.crud.get_rto_records_by_exercise", new_callable=AsyncMock)
 @patch("apps.crud.get_exercise", new_callable=AsyncMock)
-def test_generate_report_no_records(mock_get: AsyncMock, mock_rto: AsyncMock, client) -> None:
+def test_generate_report_no_records(mock_get: AsyncMock, mock_rto: AsyncMock, client: TestClient) -> None:
     """GET /api/exercises/{id}/report should handle no RTO records."""
     mock_get.return_value = MockExercise(status="completed")
     mock_rto.return_value = []
@@ -316,7 +318,7 @@ def test_generate_report_no_records(mock_get: AsyncMock, mock_rto: AsyncMock, cl
 
 
 @patch("apps.crud.get_exercise", new_callable=AsyncMock)
-def test_generate_report_not_found(mock_get: AsyncMock, client) -> None:
+def test_generate_report_not_found(mock_get: AsyncMock, client: TestClient) -> None:
     """GET /api/exercises/{id}/report should return 400 for missing exercise."""
     mock_get.return_value = None
     response = client.get(f"/api/exercises/{uuid.uuid4()}/report")
@@ -330,7 +332,7 @@ def test_generate_report_not_found(mock_get: AsyncMock, client) -> None:
 
 @patch("apps.crud.get_scenario", new_callable=AsyncMock)
 @patch("apps.crud.get_exercise", new_callable=AsyncMock)
-def test_inject_scenario_success(mock_get: AsyncMock, mock_scenario: AsyncMock, client) -> None:
+def test_inject_scenario_success(mock_get: AsyncMock, mock_scenario: AsyncMock, client: TestClient) -> None:
     """POST /api/exercises/{id}/inject should return inject data."""
     exercise = MockExercise(status="in_progress", scenario_ref_id=SCENARIO_UUID)
     mock_get.return_value = exercise
@@ -348,7 +350,7 @@ def test_inject_scenario_success(mock_get: AsyncMock, mock_scenario: AsyncMock, 
 
 @patch("apps.crud.get_scenario", new_callable=AsyncMock)
 @patch("apps.crud.get_exercise", new_callable=AsyncMock)
-def test_inject_scenario_out_of_range(mock_get: AsyncMock, mock_scenario: AsyncMock, client) -> None:
+def test_inject_scenario_out_of_range(mock_get: AsyncMock, mock_scenario: AsyncMock, client: TestClient) -> None:
     """POST /api/exercises/{id}/inject should return 400 for out-of-range index."""
     exercise = MockExercise(status="in_progress", scenario_ref_id=SCENARIO_UUID)
     mock_get.return_value = exercise
@@ -362,7 +364,7 @@ def test_inject_scenario_out_of_range(mock_get: AsyncMock, mock_scenario: AsyncM
 
 
 @patch("apps.crud.get_exercise", new_callable=AsyncMock)
-def test_inject_scenario_not_in_progress(mock_get: AsyncMock, client) -> None:
+def test_inject_scenario_not_in_progress(mock_get: AsyncMock, client: TestClient) -> None:
     """POST /api/exercises/{id}/inject should return 400 when exercise not in_progress."""
     mock_get.return_value = MockExercise(status="planned")
     response = client.post(
@@ -374,7 +376,7 @@ def test_inject_scenario_not_in_progress(mock_get: AsyncMock, client) -> None:
 
 
 @patch("apps.crud.get_exercise", new_callable=AsyncMock)
-def test_inject_scenario_exercise_not_found(mock_get: AsyncMock, client) -> None:
+def test_inject_scenario_exercise_not_found(mock_get: AsyncMock, client: TestClient) -> None:
     """POST /api/exercises/{id}/inject should return 400 when exercise not found."""
     mock_get.return_value = None
     response = client.post(
@@ -386,7 +388,7 @@ def test_inject_scenario_exercise_not_found(mock_get: AsyncMock, client) -> None
 
 
 @patch("apps.crud.get_exercise", new_callable=AsyncMock)
-def test_inject_scenario_no_scenario_linked(mock_get: AsyncMock, client) -> None:
+def test_inject_scenario_no_scenario_linked(mock_get: AsyncMock, client: TestClient) -> None:
     """POST /api/exercises/{id}/inject should return 400 when no scenario linked."""
     exercise = MockExercise(status="in_progress", scenario_ref_id=None)
     mock_get.return_value = exercise
@@ -400,7 +402,7 @@ def test_inject_scenario_no_scenario_linked(mock_get: AsyncMock, client) -> None
 
 @patch("apps.crud.get_rto_records_by_exercise", new_callable=AsyncMock)
 @patch("apps.crud.get_exercise", new_callable=AsyncMock)
-def test_complete_exercise_not_found(mock_get: AsyncMock, mock_rto: AsyncMock, client) -> None:
+def test_complete_exercise_not_found(mock_get: AsyncMock, mock_rto: AsyncMock, client: TestClient) -> None:
     """POST /api/exercises/{id}/complete should return 400 when exercise not found."""
     mock_get.return_value = None
     response = client.post(f"/api/exercises/{uuid.uuid4()}/complete")
@@ -410,7 +412,7 @@ def test_complete_exercise_not_found(mock_get: AsyncMock, mock_rto: AsyncMock, c
 
 @patch("apps.crud.get_rto_records_by_exercise", new_callable=AsyncMock)
 @patch("apps.crud.get_exercise", new_callable=AsyncMock)
-def test_complete_exercise_wrong_status(mock_get: AsyncMock, mock_rto: AsyncMock, client) -> None:
+def test_complete_exercise_wrong_status(mock_get: AsyncMock, mock_rto: AsyncMock, client: TestClient) -> None:
     """POST /api/exercises/{id}/complete should return 400 for non-in_progress status."""
     mock_get.return_value = MockExercise(status="planned")
     response = client.post(f"/api/exercises/{FIXED_UUID}/complete")
@@ -420,7 +422,7 @@ def test_complete_exercise_wrong_status(mock_get: AsyncMock, mock_rto: AsyncMock
 
 @patch("apps.crud.get_rto_records_by_exercise", new_callable=AsyncMock)
 @patch("apps.crud.get_exercise", new_callable=AsyncMock)
-def test_complete_exercise_no_rto_records(mock_get: AsyncMock, mock_rto: AsyncMock, client) -> None:
+def test_complete_exercise_no_rto_records(mock_get: AsyncMock, mock_rto: AsyncMock, client: TestClient) -> None:
     """POST /api/exercises/{id}/complete with no RTO records defaults to pass."""
     exercise = MockExercise(status="in_progress")
     mock_get.return_value = exercise

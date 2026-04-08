@@ -1,6 +1,8 @@
 """API coverage tests: route existence, response format, OpenAPI completeness."""
 
 import pytest
+from collections.abc import Iterator
+
 from fastapi.testclient import TestClient
 
 from apps.auth import AuthService
@@ -9,7 +11,7 @@ from tests.conftest import _mock_admin_user
 
 
 @pytest.fixture()
-def raw_client():
+def raw_client() -> Iterator[TestClient]:
     """TestClient without DB override -- for schema / route existence checks.
 
     Auth is overridden so that protected endpoints are reachable (the purpose
@@ -65,13 +67,13 @@ class TestRouteExistence:
     """Every registered route should respond (not 404 or 405)."""
 
     @pytest.mark.parametrize("path", EXPECTED_GET_ROUTES)
-    def test_get_route_exists(self, raw_client: TestClient, path: str):
+    def test_get_route_exists(self, raw_client: TestClient, path: str) -> None:
         resp = raw_client.get(path)
         assert resp.status_code != 404, f"GET {path} returned 404"
         assert resp.status_code != 405, f"GET {path} returned 405"
 
     @pytest.mark.parametrize("path", EXPECTED_POST_ROUTES)
-    def test_post_route_exists(self, raw_client: TestClient, path: str):
+    def test_post_route_exists(self, raw_client: TestClient, path: str) -> None:
         resp = raw_client.post(path, json={})
         assert resp.status_code != 404, f"POST {path} returned 404"
         assert resp.status_code != 405, f"POST {path} returned 405"
@@ -85,27 +87,27 @@ class TestRouteExistence:
 class TestResponseFormat:
     """Major endpoints should return well-structured JSON."""
 
-    def test_health_returns_status_field(self, raw_client: TestClient):
+    def test_health_returns_status_field(self, raw_client: TestClient) -> None:
         data = raw_client.get("/api/health").json()
         assert "status" in data
         assert "version" in data
 
-    def test_health_live_returns_json(self, raw_client: TestClient):
+    def test_health_live_returns_json(self, raw_client: TestClient) -> None:
         resp = raw_client.get("/api/health/live")
         assert resp.status_code == 200
         assert "status" in resp.json()
 
-    def test_health_ready_returns_json(self, raw_client: TestClient):
+    def test_health_ready_returns_json(self, raw_client: TestClient) -> None:
         resp = raw_client.get("/api/health/ready")
         # May be 200 or 503 depending on DB
         assert resp.status_code in (200, 503)
         assert "status" in resp.json()
 
-    def test_metrics_returns_text(self, raw_client: TestClient):
+    def test_metrics_returns_text(self, raw_client: TestClient) -> None:
         resp = raw_client.get("/api/metrics")
         assert resp.status_code == 200
 
-    def test_login_returns_token_on_success(self, raw_client: TestClient):
+    def test_login_returns_token_on_success(self, raw_client: TestClient) -> None:
         resp = raw_client.post(
             "/api/auth/login",
             json={"user_id": "test_user", "password": "test", "role": "admin"},
@@ -115,30 +117,30 @@ class TestResponseFormat:
         assert "access_token" in data
         assert data["token_type"] == "bearer"
 
-    def test_login_invalid_role_returns_422(self, raw_client: TestClient):
+    def test_login_invalid_role_returns_422(self, raw_client: TestClient) -> None:
         resp = raw_client.post(
             "/api/auth/login",
             json={"user_id": "u", "password": "", "role": "invalid_role"},
         )
         assert resp.status_code == 422
 
-    def test_runbook_deployment_checklist_format(self, raw_client: TestClient):
+    def test_runbook_deployment_checklist_format(self, raw_client: TestClient) -> None:
         resp = raw_client.get("/api/runbook/deployment-checklist")
         assert resp.status_code == 200
         data = resp.json()
         assert isinstance(data, dict)
 
-    def test_runbook_rollback_format(self, raw_client: TestClient):
+    def test_runbook_rollback_format(self, raw_client: TestClient) -> None:
         resp = raw_client.get("/api/runbook/rollback-procedure")
         assert resp.status_code == 200
         assert isinstance(resp.json(), dict)
 
-    def test_runbook_dr_failover_format(self, raw_client: TestClient):
+    def test_runbook_dr_failover_format(self, raw_client: TestClient) -> None:
         resp = raw_client.get("/api/runbook/dr-failover")
         assert resp.status_code == 200
         assert isinstance(resp.json(), dict)
 
-    def test_escalation_plan_returns_json(self, raw_client: TestClient):
+    def test_escalation_plan_returns_json(self, raw_client: TestClient) -> None:
         resp = raw_client.get("/api/escalation/plan/p1")
         assert resp.status_code == 200
         data = resp.json()
@@ -183,15 +185,15 @@ class TestOpenAPICoverage:
     """OpenAPI schema should document all registered routes."""
 
     @pytest.fixture(autouse=True)
-    def _load_schema(self, raw_client: TestClient):
+    def _load_schema(self, raw_client: TestClient) -> None:
         self.schema = raw_client.get("/openapi.json").json()
         self.paths = self.schema["paths"]
 
     @pytest.mark.parametrize("path", MUST_HAVE_PATHS)
-    def test_path_in_openapi(self, path: str):
+    def test_path_in_openapi(self, path: str) -> None:
         assert path in self.paths, f"{path} missing from OpenAPI schema"
 
-    def test_all_tags_documented(self):
+    def test_all_tags_documented(self) -> None:
         tag_names = {t["name"] for t in self.schema.get("tags", [])}
         expected = {
             "systems",
@@ -211,14 +213,14 @@ class TestOpenAPICoverage:
         missing = expected - tag_names
         assert not missing, f"Missing tags: {missing}"
 
-    def test_openapi_version_is_3(self):
+    def test_openapi_version_is_3(self) -> None:
         assert self.schema["openapi"].startswith("3.")
 
-    def test_schema_has_components(self):
+    def test_schema_has_components(self) -> None:
         assert "components" in self.schema
         assert "schemas" in self.schema["components"]
 
-    def test_paths_have_methods(self):
+    def test_paths_have_methods(self) -> None:
         """Every path should define at least one HTTP method."""
         for path, methods in self.paths.items():
             http_methods = {k for k in methods.keys() if k in ("get", "post", "put", "delete", "patch")}

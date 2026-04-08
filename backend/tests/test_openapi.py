@@ -7,7 +7,7 @@ from main import app
 
 
 @pytest.fixture()
-def raw_client():
+def raw_client() -> TestClient:
     """TestClient without DB override -- only hitting docs/openapi endpoints."""
     return TestClient(app, raise_server_exceptions=False)
 

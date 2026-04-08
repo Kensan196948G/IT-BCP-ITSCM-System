@@ -478,20 +478,21 @@ MIT License
 
 ---
 
-## 📊 最新 Monitor サマリー（2026-04-08 JST）
+## 📊 最新 Monitor サマリー（2026-04-09 JST）
 
 | 指標 | 値 | 状態 |
 |:-----|:---|:----:|
 | テスト数 | **540 passed** / 0 failed | ✅ |
 | E2Eテスト | 39 tests (Playwright、live server用) | ✅ |
 | カバレッジ | 100% (2535+ stmts) | ✅ |
-| Merged PRs | **124** (86 feature/fix + 38 dependabot) | ✅ |
-| Open PRs | 1 (PR #125: mypy no-untyped-def解消) | 🔵 |
-| GitHub Issues | 1 open (#123: mypy対応中) | 🔵 |
+| Merged PRs | **125** (87 feature/fix + 38 dependabot) | ✅ |
+| Open PRs | 1 (PR #127: mypy Phase 2+3 完了) | 🔵 |
+| GitHub Issues | 1 open (#126: mypy Phase 2+3 対応中) | 🔵 |
 | Project #13 | Phase 4 完了・型安全性改善中 | ✅ |
 | セキュリティ | 0 CVE / JWT全ルーター + WebSocket保護済み | ✅ |
-| mypy strict | `[type-arg]` 0件 ✅ / `[no-untyped-def]` 0件 ✅ | 🔵 |
-| STABLE判定 | **CI確認中** (PR #125 pending) | 🔵 |
+| mypy strict apps/ | **0エラー** (34ファイル) | ✅ |
+| mypy strict tests/ | **0エラー** (全テストファイル) | ✅ |
+| STABLE判定 | **CI確認中** (PR #127 pending) | 🔵 |
 
 ### Phase 3 セキュリティ・キャッシュ・監査強化 進捗
 
@@ -515,7 +516,8 @@ MIT License
 | 📦 依存関係一括更新 | #109-#119 | ✅ Merged | FastAPI 0.135, Starlette 1.0, pytest 9.0, SQLAlchemy 2.0.49 等 |
 | 🔒 CVE-2026-24486 修正 | #120 | ✅ Closed | python-multipart Path Traversal (dependabot対応済み) |
 | 🔧 mypy strict type-arg 全解消 | #122 | ✅ Merged | 164件のtype-argエラーを31ファイルで解消、型安全性向上 |
-| 🔧 mypy strict no-untyped-def 全解消 | #125 | 🔵 CI中 | 22件のno-untyped-defエラーを3ファイルで解消（test_security/rate_limiter/exercises） |
+| 🔧 mypy strict no-untyped-def 全解消 | #125 | ✅ Merged | 22件のno-untyped-defエラーを3ファイルで解消 |
+| 🔧 mypy strict Phase 2+3 完全解消 | #127 | 🔵 CI中 | apps/+tests/ 全ファイル 0エラー達成（call-arg/attr-defined/no-untyped-call解消） |
 
 <p align="center">
   <sub>Built with ❤️ by ClaudeOS v7.1 Autonomous Evolution System</sub>

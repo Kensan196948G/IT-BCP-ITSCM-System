@@ -2,6 +2,7 @@
 
 import uuid
 from datetime import date, datetime, timezone
+from collections.abc import AsyncIterator, Callable, Iterator
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -25,7 +26,7 @@ class _M:
     """Generic mock object builder."""
 
     @staticmethod
-    def system(**kw):
+    def system(**kw: object) -> object:
         defaults = {
             "id": FIXED_UUID,
             "system_name": "Core Banking System",
@@ -49,7 +50,7 @@ class _M:
         return obj
 
     @staticmethod
-    def incident(**kw):
+    def incident(**kw: object) -> object:
         defaults = {
             "id": FIXED_UUID,
             "incident_id": "BCP-2026-001",
@@ -74,7 +75,7 @@ class _M:
         return type("MockIncident", (), defaults)()
 
     @staticmethod
-    def task(**kw):
+    def task(**kw: object) -> object:
         defaults = {
             "id": FIXED_UUID_2,
             "incident_id": FIXED_UUID,
@@ -96,7 +97,7 @@ class _M:
         return type("MockTask", (), defaults)()
 
     @staticmethod
-    def sitrep(**kw):
+    def sitrep(**kw: object) -> object:
         defaults = {
             "id": FIXED_UUID_3,
             "incident_id": FIXED_UUID,
@@ -115,7 +116,7 @@ class _M:
         return type("MockSitReport", (), defaults)()
 
     @staticmethod
-    def exercise(**kw):
+    def exercise(**kw: object) -> object:
         defaults = {
             "id": FIXED_UUID,
             "exercise_id": "EX-2026-001",
@@ -138,7 +139,7 @@ class _M:
         return type("MockExercise", (), defaults)()
 
     @staticmethod
-    def rto_record(**kw):
+    def rto_record(**kw: object) -> object:
         defaults = {
             "id": FIXED_UUID_2,
             "exercise_id": FIXED_UUID,
@@ -154,7 +155,7 @@ class _M:
         return type("MockRTORecord", (), defaults)()
 
     @staticmethod
-    def scenario(**kw):
+    def scenario(**kw: object) -> object:
         defaults = {
             "id": FIXED_UUID,
             "scenario_id": "SCN-2026-001",
@@ -177,7 +178,7 @@ class _M:
         return type("MockScenario", (), defaults)()
 
     @staticmethod
-    def bia(**kw):
+    def bia(**kw: object) -> object:
         defaults = {
             "id": FIXED_UUID,
             "assessment_id": "BIA-2026-001",
@@ -204,15 +205,15 @@ class _M:
         return type("MockBIA", (), defaults)()
 
 
-def _fake_db():
-    async def _gen():
+def _fake_db() -> Callable[[], AsyncIterator[AsyncMock]]:
+    async def _gen() -> AsyncIterator[AsyncMock]:
         yield AsyncMock()
 
     return _gen
 
 
 @pytest.fixture()
-def client():
+def client() -> Iterator[TestClient]:
     app.dependency_overrides[get_db] = _fake_db()
     yield TestClient(app)
     app.dependency_overrides.clear()
@@ -227,7 +228,7 @@ class TestE2E001LargeEarthquake:
     """Full BCP activation flow for a large earthquake scenario."""
 
     @patch("apps.crud.create_incident", new_callable=AsyncMock)
-    def test_step1_bcp_activation(self, mock_create, client):
+    def test_step1_bcp_activation(self, mock_create: AsyncMock, client: TestClient) -> None:
         """Step 1: Create a P1 incident (BCP activation)."""
         mock_create.return_value = _M.incident()
         payload = {
@@ -246,7 +247,7 @@ class TestE2E001LargeEarthquake:
         assert data["severity"] == "p1"
         assert data["scenario_type"] == "earthquake"
 
-    def test_step2_escalation(self, client):
+    def test_step2_escalation(self, client: TestClient) -> None:
         """Step 2: Trigger P1 escalation with emergency contacts."""
         payload = {
             "incident_id": str(FIXED_UUID),
@@ -264,7 +265,7 @@ class TestE2E001LargeEarthquake:
 
     @patch("apps.crud.create_incident_task", new_callable=AsyncMock)
     @patch("apps.crud.get_incident", new_callable=AsyncMock)
-    def test_step3_task_assignment(self, mock_get, mock_create, client):
+    def test_step3_task_assignment(self, mock_get: AsyncMock, mock_create: AsyncMock, client: TestClient) -> None:
         """Step 3: Assign recovery tasks to teams."""
         mock_get.return_value = _M.incident()
         mock_create.return_value = _M.task()
@@ -282,7 +283,7 @@ class TestE2E001LargeEarthquake:
 
     @patch("apps.crud.get_incident", new_callable=AsyncMock)
     @patch("apps.crud.get_all_systems", new_callable=AsyncMock)
-    def test_step4_rto_tracking(self, mock_systems, mock_incident, client):
+    def test_step4_rto_tracking(self, mock_systems: AsyncMock, mock_incident: AsyncMock, client: TestClient) -> None:
         """Step 4: Check RTO dashboard for affected systems."""
         mock_incident.return_value = _M.incident()
         mock_systems.return_value = [_M.system()]
@@ -293,7 +294,7 @@ class TestE2E001LargeEarthquake:
 
     @patch("apps.crud.create_situation_report", new_callable=AsyncMock)
     @patch("apps.crud.get_incident", new_callable=AsyncMock)
-    def test_step5_situation_report(self, mock_get, mock_create, client):
+    def test_step5_situation_report(self, mock_get: AsyncMock, mock_create: AsyncMock, client: TestClient) -> None:
         """Step 5: Generate situation report."""
         mock_get.return_value = _M.incident()
         mock_create.return_value = _M.sitrep()
@@ -310,7 +311,7 @@ class TestE2E001LargeEarthquake:
         assert resp.json()["report_number"] == 1
 
     @patch("apps.crud.update_incident", new_callable=AsyncMock)
-    def test_step6_incident_resolution(self, mock_update, client):
+    def test_step6_incident_resolution(self, mock_update: AsyncMock, client: TestClient) -> None:
         """Step 6: Resolve the incident."""
         mock_update.return_value = _M.incident(
             status="resolved",
@@ -336,7 +337,7 @@ class TestE2E002Ransomware:
     """Ransomware incident flow: create incident + escalation."""
 
     @patch("apps.crud.create_incident", new_callable=AsyncMock)
-    def test_ransomware_incident_and_escalation(self, mock_create, client):
+    def test_ransomware_incident_and_escalation(self, mock_create: AsyncMock, client: TestClient) -> None:
         """Create ransomware incident then trigger escalation."""
         mock_create.return_value = _M.incident(
             incident_id="BCP-2026-002",
@@ -370,7 +371,7 @@ class TestE2E002Ransomware:
         assert resp2.json()["notifications_queued"] >= 1
 
     @patch("apps.crud.update_incident", new_callable=AsyncMock)
-    def test_ransomware_resolution(self, mock_update, client):
+    def test_ransomware_resolution(self, mock_update: AsyncMock, client: TestClient) -> None:
         """Resolve ransomware incident."""
         mock_update.return_value = _M.incident(
             status="resolved",
@@ -394,7 +395,7 @@ class TestE2E003TrainingExercise:
     """Full BCP training flow: scenario -> exercise -> RTO -> report."""
 
     @patch("apps.crud.create_scenario", new_callable=AsyncMock)
-    def test_step1_create_scenario(self, mock_create, client):
+    def test_step1_create_scenario(self, mock_create: AsyncMock, client: TestClient) -> None:
         """Step 1: Create a training scenario."""
         mock_create.return_value = _M.scenario()
         payload = {
@@ -414,7 +415,7 @@ class TestE2E003TrainingExercise:
         assert resp.json()["scenario_type"] == "earthquake"
 
     @patch("apps.crud.create_exercise", new_callable=AsyncMock)
-    def test_step2_create_exercise(self, mock_create, client):
+    def test_step2_create_exercise(self, mock_create: AsyncMock, client: TestClient) -> None:
         """Step 2: Create an exercise linked to the scenario."""
         mock_create.return_value = _M.exercise()
         payload = {
@@ -428,7 +429,7 @@ class TestE2E003TrainingExercise:
         assert resp.json()["status"] == "planned"
 
     @patch("apps.exercise_engine.ExerciseEngine.start_exercise", new_callable=AsyncMock)
-    def test_step3_start_exercise(self, mock_start, client):
+    def test_step3_start_exercise(self, mock_start: AsyncMock, client: TestClient) -> None:
         """Step 3: Start the exercise."""
         mock_start.return_value = _M.exercise(status="in_progress")
         resp = client.post(f"/api/exercises/{FIXED_UUID}/start")
@@ -436,7 +437,7 @@ class TestE2E003TrainingExercise:
         assert resp.json()["status"] == "in_progress"
 
     @patch("apps.exercise_engine.ExerciseEngine.record_rto", new_callable=AsyncMock)
-    def test_step4_record_rto(self, mock_rto, client):
+    def test_step4_record_rto(self, mock_rto: AsyncMock, client: TestClient) -> None:
         """Step 4: Record RTO measurement during exercise."""
         mock_rto.return_value = _M.rto_record()
         payload = {
@@ -453,7 +454,7 @@ class TestE2E003TrainingExercise:
         assert resp.json()["achieved"] is True
 
     @patch("apps.exercise_engine.ExerciseEngine.complete_exercise", new_callable=AsyncMock)
-    def test_step5_complete_exercise(self, mock_complete, client):
+    def test_step5_complete_exercise(self, mock_complete: AsyncMock, client: TestClient) -> None:
         """Step 5: Complete the exercise."""
         mock_complete.return_value = _M.exercise(
             status="completed",
@@ -464,7 +465,7 @@ class TestE2E003TrainingExercise:
         assert resp.json()["status"] == "completed"
 
     @patch("apps.exercise_engine.ExerciseEngine.generate_report", new_callable=AsyncMock)
-    def test_step6_generate_report(self, mock_report, client):
+    def test_step6_generate_report(self, mock_report: AsyncMock, client: TestClient) -> None:
         """Step 6: Generate exercise report."""
         mock_report.return_value = {
             "exercise": _M.exercise(status="completed"),
@@ -492,7 +493,7 @@ class TestE2E004BIAAssessment:
     """BIA assessment: create -> check risk score -> summary."""
 
     @patch("apps.crud.create_bia_assessment", new_callable=AsyncMock)
-    def test_step1_create_assessment(self, mock_create, client):
+    def test_step1_create_assessment(self, mock_create: AsyncMock, client: TestClient) -> None:
         """Step 1: Create a BIA assessment."""
         mock_create.return_value = _M.bia()
         payload = {
@@ -514,7 +515,7 @@ class TestE2E004BIAAssessment:
         assert data["status"] == "reviewed"
 
     @patch("apps.crud.get_bia_assessment", new_callable=AsyncMock)
-    def test_step2_check_risk_score(self, mock_get, client):
+    def test_step2_check_risk_score(self, mock_get: AsyncMock, client: TestClient) -> None:
         """Step 2: Retrieve assessment and verify risk score."""
         mock_get.return_value = _M.bia()
         resp = client.get(f"/api/bia/{FIXED_UUID}")
@@ -526,7 +527,7 @@ class TestE2E004BIAAssessment:
     @patch("apps.routers.bia.get_cached", new_callable=AsyncMock, return_value=None)
     @patch("apps.routers.bia.set_cached", new_callable=AsyncMock)
     @patch("apps.crud.get_all_bia_assessments", new_callable=AsyncMock)
-    def test_step3_get_summary(self, mock_list, _sc, _gc, client):
+    def test_step3_get_summary(self, mock_list: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client: TestClient) -> None:
         """Step 3: Get BIA summary with aggregated statistics."""
         mock_list.return_value = [_M.bia()]
         resp = client.get("/api/bia/summary")
@@ -539,7 +540,7 @@ class TestE2E004BIAAssessment:
     @patch("apps.routers.bia.get_cached", new_callable=AsyncMock, return_value=None)
     @patch("apps.routers.bia.set_cached", new_callable=AsyncMock)
     @patch("apps.crud.get_all_bia_assessments", new_callable=AsyncMock)
-    def test_step4_risk_matrix(self, mock_list, _sc, _gc, client):
+    def test_step4_risk_matrix(self, mock_list: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client: TestClient) -> None:
         """Step 4: Get risk matrix from BIA data."""
         mock_list.return_value = [_M.bia()]
         resp = client.get("/api/bia/risk-matrix")

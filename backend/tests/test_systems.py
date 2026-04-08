@@ -1,6 +1,7 @@
 """Tests for IT System BCP CRUD API endpoints (mocked DB)."""
 
 import uuid
+from collections.abc import AsyncGenerator, Callable
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock, patch
 
@@ -46,10 +47,10 @@ class MockSystem:
         self.updated_at = kwargs.get("updated_at", datetime.now(timezone.utc))
 
 
-def _mock_db_override():  # type: ignore[no-untyped-def]
+def _mock_db_override() -> Callable[[], AsyncGenerator[AsyncMock, None]]:
     """Override get_db with a no-op async generator."""
 
-    async def _fake_db():  # type: ignore[no-untyped-def]
+    async def _fake_db() -> AsyncGenerator[AsyncMock, None]:
         yield AsyncMock()
 
     return _fake_db

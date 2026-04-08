@@ -56,7 +56,7 @@ async def bia_summary(
     """Get aggregated BIA summary statistics."""
     cached = await get_cached(_CACHE_BIA_SUMMARY)
     if cached is not None:
-        return cached
+        return cached  # type: ignore[no-any-return]
 
     assessments = await crud.get_all_bia_assessments(db, skip=0, limit=1000)
     result = get_bia_summary(assessments)
@@ -71,7 +71,7 @@ async def bia_risk_matrix(
     """Get risk matrix data for all assessments."""
     cached = await get_cached(_CACHE_BIA_RISK_MATRIX)
     if cached is not None:
-        return cached
+        return cached  # type: ignore[no-any-return]
 
     assessments = await crud.get_all_bia_assessments(db, skip=0, limit=1000)
     result = get_risk_matrix(assessments)
