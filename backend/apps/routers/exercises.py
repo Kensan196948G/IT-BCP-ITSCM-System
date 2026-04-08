@@ -3,6 +3,7 @@
 import csv
 import io
 import uuid
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
@@ -32,7 +33,7 @@ async def list_exercises(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
     db: AsyncSession = Depends(get_db),
-) -> list:
+) -> list[Any]:
     """Get all BCP exercise records with pagination."""
     cache_key = f"{_CACHE_NS}:{skip}:{limit}"
     cached = await get_cached(cache_key)
@@ -103,7 +104,7 @@ async def inject_scenario(
     exercise_id: uuid.UUID,
     payload: InjectRequest,
     db: AsyncSession = Depends(get_db),
-) -> dict:
+) -> dict[str, Any]:
     """Inject a scenario step into a running exercise."""
     engine = ExerciseEngine(db)
     try:
@@ -154,7 +155,7 @@ async def complete_exercise(
 async def get_exercise_report(
     exercise_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-) -> dict:
+) -> dict[str, Any]:
     """Generate a comprehensive exercise report."""
     engine = ExerciseEngine(db)
     try:

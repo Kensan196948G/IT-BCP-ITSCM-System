@@ -82,7 +82,7 @@ def _make_doc(buf: io.BytesIO, title: str) -> SimpleDocTemplate:
     )
 
 
-def _header_block(title: str, report_id: str, generated_at: str) -> list:
+def _header_block(title: str, report_id: str, generated_at: str) -> list[Any]:
     """Return common header flowables."""
     return [
         Paragraph(title, _TITLE_STYLE),
@@ -102,7 +102,7 @@ def generate_readiness_pdf(data: dict[str, Any]) -> bytes:
     """Generate RPT-001 BCP Readiness Report as PDF bytes."""
     buf = io.BytesIO()
     doc = _make_doc(buf, "BCP Readiness Report (RPT-001)")
-    story: list = []
+    story: list[Any] = []
 
     story += _header_block(
         "BCP Readiness Report (RPT-001)",
@@ -165,7 +165,7 @@ def generate_rto_compliance_pdf(data: dict[str, Any]) -> bytes:
     """Generate RPT-002 RTO/RPO Compliance Report as PDF bytes."""
     buf = io.BytesIO()
     doc = _make_doc(buf, "RTO Compliance Report (RPT-002)")
-    story: list = []
+    story: list[Any] = []
 
     story += _header_block(
         "RTO/RPO Compliance Report (RPT-002)",
@@ -219,7 +219,7 @@ def generate_exercise_trends_pdf(data: dict[str, Any]) -> bytes:
     """Generate RPT-003 Exercise Trend Report as PDF bytes."""
     buf = io.BytesIO()
     doc = _make_doc(buf, "Exercise Trend Report (RPT-003)")
-    story: list = []
+    story: list[Any] = []
 
     story += _header_block(
         "Exercise Trend Report (RPT-003)",
@@ -272,7 +272,7 @@ def generate_iso20000_pdf(data: dict[str, Any]) -> bytes:
     """Generate RPT-004 ISO20000 ITSCM Compliance Report as PDF bytes."""
     buf = io.BytesIO()
     doc = _make_doc(buf, "ISO20000 ITSCM Compliance Report (RPT-004)")
-    story: list = []
+    story: list[Any] = []
 
     story += _header_block(
         "ISO20000 ITSCM Compliance Report (RPT-004)",

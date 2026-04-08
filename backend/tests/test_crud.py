@@ -8,6 +8,7 @@ Strategy:
 """
 
 import uuid
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -43,7 +44,7 @@ def _mock_db_execute_scalar(return_val):
     return db
 
 
-def _mock_db_execute_scalars(items: list):
+def _mock_db_execute_scalars(items: list[Any]):
     """Return an AsyncMock db whose execute().scalars().all() returns items."""
     scalars_mock = MagicMock()
     scalars_mock.all.return_value = items

@@ -1,6 +1,7 @@
 """API routes for Emergency Contact and Vendor Contact management."""
 
 import uuid
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -27,7 +28,7 @@ async def list_emergency_contacts(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
     db: AsyncSession = Depends(get_db),
-) -> list:
+) -> list[Any]:
     """Get all emergency contact records with pagination."""
     return await crud.get_all_emergency_contacts(db, skip=skip, limit=limit)
 
@@ -45,7 +46,7 @@ async def create_emergency_contact(
 async def get_emergency_contacts_by_escalation(
     group: str,
     db: AsyncSession = Depends(get_db),
-) -> list:
+) -> list[Any]:
     """Get emergency contacts filtered by escalation group."""
     return await crud.get_emergency_contacts_by_escalation_group(db, group)
 
@@ -94,7 +95,7 @@ async def list_vendor_contacts(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
     db: AsyncSession = Depends(get_db),
-) -> list:
+) -> list[Any]:
     """Get all vendor contact records with pagination."""
     return await crud.get_all_vendor_contacts(db, skip=skip, limit=limit)
 

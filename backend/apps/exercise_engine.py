@@ -2,6 +2,7 @@
 
 import uuid
 from datetime import datetime, timezone
+from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -28,7 +29,7 @@ class ExerciseEngine:
         await self.db.refresh(exercise)
         return exercise
 
-    async def inject_scenario(self, exercise_id: uuid.UUID, inject_index: int) -> dict:
+    async def inject_scenario(self, exercise_id: uuid.UUID, inject_index: int) -> dict[str, Any]:
         """Inject a scenario step into a running exercise.
 
         Returns the inject data dict from the scenario's injects list.
@@ -122,7 +123,7 @@ class ExerciseEngine:
         await self.db.refresh(exercise)
         return exercise
 
-    async def generate_report(self, exercise_id: uuid.UUID) -> dict:
+    async def generate_report(self, exercise_id: uuid.UUID) -> dict[str, Any]:
         """Generate a comprehensive exercise report."""
         exercise = await crud.get_exercise(self.db, exercise_id)
         if exercise is None:

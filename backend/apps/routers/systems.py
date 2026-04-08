@@ -3,6 +3,7 @@
 import csv
 import io
 import uuid
+from typing import Any
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from fastapi.responses import StreamingResponse
@@ -24,7 +25,7 @@ async def list_systems(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
     db: AsyncSession = Depends(get_db),
-) -> list:
+) -> list[Any]:
     """Get all IT system BCP records with pagination."""
     cache_key = f"{_CACHE_NS}:{skip}:{limit}"
     cached = await get_cached(cache_key)
@@ -152,9 +153,9 @@ _SYSTEM_OPTIONAL_FIELDS = {
 }
 
 
-def _coerce_system_row(row: dict) -> dict:
+def _coerce_system_row(row: dict[str, Any]) -> dict[str, Any]:
     """Coerce CSV string values to correct Python types for ITSystemBCPCreate."""
-    result: dict = {}
+    result: dict[str, Any] = {}
     for field in _SYSTEM_IMPORT_FIELDS:
         raw = row.get(field, "").strip() if row.get(field) is not None else ""
         if raw == "" and field in _SYSTEM_OPTIONAL_FIELDS:
@@ -173,7 +174,7 @@ def _coerce_system_row(row: dict) -> dict:
 async def import_systems_csv(
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
-) -> dict:
+) -> dict[str, Any]:
     """Bulk-import IT system BCP records from a CSV file.
 
     The CSV must include a header row with at minimum:
@@ -186,7 +187,7 @@ async def import_systems_csv(
 
     imported = 0
     skipped = 0
-    errors: list[dict] = []
+    errors: list[dict[str, Any]] = []
 
     for row_num, row in enumerate(reader, start=2):  # row 1 = header
         try:

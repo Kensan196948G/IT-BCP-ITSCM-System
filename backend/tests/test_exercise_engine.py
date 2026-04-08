@@ -1,6 +1,7 @@
 """Tests for the exercise engine and related API endpoints."""
 
 import uuid
+from typing import Any
 from unittest.mock import AsyncMock, patch
 
 from tests.conftest import FIXED_UUID, FIXED_NOW, MockExercise
@@ -69,7 +70,7 @@ class MockRTORecord:
             setattr(self, k, v)
 
 
-def sample_scenario_payload() -> dict:
+def sample_scenario_payload() -> dict[str, Any]:
     """Return a valid payload for creating a BCPScenario."""
     return {
         "scenario_id": "SCN-001",

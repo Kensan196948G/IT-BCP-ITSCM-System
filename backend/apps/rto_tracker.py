@@ -1,6 +1,7 @@
 """RTO (Recovery Time Objective) tracking and status calculation."""
 
 from datetime import datetime, timezone
+from typing import Any
 
 STATUS_COLORS: dict[str, str] = {
     "on_track": "#22c55e",
@@ -26,7 +27,7 @@ class RTOTracker:
         self.resolved_at = resolved_at
         self.status = status
 
-    def calculate_status(self, now: datetime | None = None) -> dict:
+    def calculate_status(self, now: datetime | None = None) -> dict[str, Any]:
         """Calculate the current RTO status.
 
         Returns a dict with: status, color, elapsed_hours, remaining_hours, rto_target, overdue_hours
@@ -98,7 +99,11 @@ class RTOTracker:
             }
 
     @staticmethod
-    def get_dashboard(systems: list[dict], incidents: list[dict], now: datetime | None = None) -> dict:
+    def get_dashboard(
+        systems: list[dict[str, Any]],
+        incidents: list[dict[str, Any]],
+        now: datetime | None = None,
+    ) -> dict[str, Any]:
         """Build a dashboard overview of all system RTO statuses.
 
         Args:
@@ -110,13 +115,13 @@ class RTOTracker:
         if now is None:
             now = datetime.now(timezone.utc)
 
-        rto_statuses: list[dict] = []
+        rto_statuses: list[dict[str, Any]] = []
         on_track = 0
         at_risk = 0
         overdue = 0
 
         # Build a mapping: system_name -> incident info
-        system_incident_map: dict[str, dict] = {}
+        system_incident_map: dict[str, dict[str, Any]] = {}
         for incident_dict in incidents:
             affected = incident_dict.get("affected_systems") or []
             for sys_name in affected:
@@ -126,7 +131,7 @@ class RTOTracker:
             sys_name = system["system_name"]
             rto_target = system["rto_target_hours"]
 
-            matched_inc: dict | None = system_incident_map.get(sys_name)
+            matched_inc: dict[str, Any] | None = system_incident_map.get(sys_name)
             if matched_inc:
                 tracker = RTOTracker(
                     rto_target_hours=rto_target,

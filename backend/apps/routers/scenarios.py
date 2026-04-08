@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps import crud
+from apps.models import BCPScenario
 from apps.schemas import BCPScenarioCreate, BCPScenarioResponse, BCPScenarioUpdate
 from database import get_db
 
@@ -17,7 +18,7 @@ async def list_scenarios(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
     db: AsyncSession = Depends(get_db),
-) -> list:
+) -> list[BCPScenario]:
     """Get all BCP scenario records with pagination."""
     return await crud.get_all_scenarios(db, skip=skip, limit=limit)
 

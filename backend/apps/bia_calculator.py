@@ -17,7 +17,7 @@ IMPACT_MAP: dict[str | None, int] = {
 
 def calculate_risk_score(
     financial_impact_per_day: float | None = None,
-    regulatory_risks: list | None = None,
+    regulatory_risks: list[str] | None = None,
     reputation_impact: str | None = None,
     operational_impact: str | None = None,
 ) -> int:
@@ -85,7 +85,7 @@ def calculate_recommended_rto(
         return 24.0
 
 
-def get_bia_summary(assessments: list[Any]) -> dict:
+def get_bia_summary(assessments: list[Any]) -> dict[str, Any]:
     """Aggregate BIA assessments into a summary.
 
     Parameters
@@ -155,7 +155,7 @@ def get_bia_summary(assessments: list[Any]) -> dict:
     }
 
 
-def get_risk_matrix(assessments: list[Any]) -> dict:
+def get_risk_matrix(assessments: list[Any]) -> dict[str, Any]:
     """Build a 5x5 risk matrix from assessments.
 
     X-axis: likelihood (derived from operational_impact 1-5)
@@ -163,7 +163,7 @@ def get_risk_matrix(assessments: list[Any]) -> dict:
 
     Returns dict with ``entries`` and ``matrix`` keys.
     """
-    entries: list[dict] = []
+    entries: list[dict[str, Any]] = []
     # 5x5 matrix of counts  [impact][likelihood]
     matrix = [[0 for _ in range(5)] for _ in range(5)]
 

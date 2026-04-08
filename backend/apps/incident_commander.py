@@ -2,6 +2,7 @@
 
 import uuid
 from datetime import datetime, timezone
+from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -41,14 +42,14 @@ async def get_task_statistics(db: AsyncSession, incident_id: uuid.UUID) -> TaskS
     )
 
 
-async def _get_rto_statuses(db: AsyncSession, incident: ActiveIncident) -> list[dict]:
+async def _get_rto_statuses(db: AsyncSession, incident: ActiveIncident) -> list[dict[str, Any]]:
     """Get RTO statuses for an incident's affected systems."""
     affected_names = incident.affected_systems or []
     if not affected_names:
         return []
 
     all_systems = await crud.get_all_systems(db)
-    results: list[dict] = []
+    results: list[dict[str, Any]] = []
     for system in all_systems:
         if system.system_name in affected_names:
             tracker = RTOTracker(
@@ -93,7 +94,7 @@ async def get_command_dashboard(db: AsyncSession, incident_id: uuid.UUID) -> Inc
     )
 
 
-async def generate_situation_report(db: AsyncSession, incident_id: uuid.UUID) -> dict | None:
+async def generate_situation_report(db: AsyncSession, incident_id: uuid.UUID) -> dict[str, Any] | None:
     """Auto-generate a situation report for an incident.
 
     Returns None if the incident is not found.
