@@ -3,7 +3,7 @@
 import pytest
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
-from jose import jwt
+from jose import jwt  # type: ignore[import-untyped]
 
 from apps.auth import ALGORITHM, ROLE_PERMISSIONS, ROLES, AuthService, auth_service
 from config import settings

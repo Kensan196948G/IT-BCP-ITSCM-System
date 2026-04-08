@@ -13,7 +13,7 @@ Mark: @pytest.mark.e2e — excluded from default CI unit test runs.
 from typing import Any
 
 import pytest
-from playwright.sync_api import Page
+from playwright.sync_api import Page  # type: ignore[import-not-found]
 
 pytestmark = pytest.mark.e2e
 

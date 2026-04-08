@@ -4,6 +4,7 @@ import uuid
 from unittest.mock import MagicMock, patch
 
 import pytest
+from fastapi.testclient import TestClient
 
 from apps.escalation_engine import EscalationEngine
 from apps.notification_service import NotificationService
@@ -287,7 +288,7 @@ class TestNotificationAPI:
     """Tests for the notification API endpoints."""
 
     @pytest.fixture(autouse=True)
-    def _setup(self, client: object) -> None:
+    def _setup(self, client: TestClient) -> None:
         """Store client and reset module-level services."""
         self.client = client
         # Reset the module-level services before each test

@@ -27,7 +27,7 @@ def base_url(request: pytest.FixtureRequest) -> str:
     """
     url = getattr(request.config, "option", None)
     if url and hasattr(url, "base_url") and url.base_url:
-        return url.base_url.rstrip("/")
+        return url.base_url.rstrip("/")  # type: ignore[no-any-return]
     return DEFAULT_BASE_URL
 
 
@@ -42,7 +42,7 @@ def admin_token(base_url: str) -> str:
         timeout=10,
     )
     resp.raise_for_status()
-    return resp.json()["access_token"]
+    return resp.json()["access_token"]  # type: ignore[no-any-return]
 
 
 @pytest.fixture(scope="session")

@@ -4,7 +4,7 @@ import uuid
 from datetime import date, datetime, timezone
 from unittest.mock import AsyncMock, patch
 
-from collections.abc import AsyncIterator, Iterator
+from collections.abc import AsyncIterator, Callable, Iterator
 
 import pytest
 from fastapi.testclient import TestClient
@@ -173,7 +173,7 @@ class _MockBIA:
             setattr(self, k, v)
 
 
-def _fake_db() -> object:
+def _fake_db() -> Callable[[], AsyncIterator[AsyncMock]]:
     async def _gen() -> AsyncIterator[AsyncMock]:
         yield AsyncMock()
 

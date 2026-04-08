@@ -170,11 +170,11 @@ class TestRecoveryProcedureCRUD:
     @pytest.mark.asyncio
     async def test_update_procedure_found(self) -> None:
         obj = RecoveryProcedure()
-        obj.action_description = "Old"
+        obj.action_description = "Old"  # type: ignore[attr-defined]
         db = _mock_db_execute_scalar(obj)
         result = await crud.update_procedure(db, SAMPLE_UUID, {"action_description": "New"})
         assert result is obj
-        assert obj.action_description == "New"
+        assert obj.action_description == "New"  # type: ignore[attr-defined]
 
     @pytest.mark.asyncio
     async def test_update_procedure_not_found(self) -> None:
@@ -301,11 +301,11 @@ class TestVendorContactCRUD:
     @pytest.mark.asyncio
     async def test_update_vendor_contact_found(self) -> None:
         obj = VendorContact()
-        obj.contact_name = "Old"
+        obj.contact_name = "Old"  # type: ignore[attr-defined]
         db = _mock_db_execute_scalar(obj)
         result = await crud.update_vendor_contact(db, SAMPLE_UUID, {"contact_name": "New"})
         assert result is obj
-        assert obj.contact_name == "New"
+        assert obj.contact_name == "New"  # type: ignore[attr-defined]
 
     @pytest.mark.asyncio
     async def test_update_vendor_contact_not_found(self) -> None:
@@ -481,11 +481,11 @@ class TestBIAAssessmentCRUD:
     @pytest.mark.asyncio
     async def test_update_bia_assessment_found(self) -> None:
         obj = BIAAssessment()
-        obj.business_impact = "Medium"
+        obj.business_impact = "Medium"  # type: ignore[attr-defined]
         db = _mock_db_execute_scalar(obj)
         result = await crud.update_bia_assessment(db, SAMPLE_UUID, {"business_impact": "High"})
         assert result is obj
-        assert obj.business_impact == "High"
+        assert obj.business_impact == "High"  # type: ignore[attr-defined]
 
     @pytest.mark.asyncio
     async def test_update_bia_assessment_not_found(self) -> None:
@@ -546,11 +546,11 @@ class TestBCPScenarioCRUD:
     @pytest.mark.asyncio
     async def test_update_scenario_found(self) -> None:
         obj = BCPScenario()
-        obj.scenario_name = "Old"
+        obj.scenario_name = "Old"  # type: ignore[attr-defined]
         db = _mock_db_execute_scalar(obj)
         result = await crud.update_scenario(db, SAMPLE_UUID, {"scenario_name": "New"})
         assert result is obj
-        assert obj.scenario_name == "New"
+        assert obj.scenario_name == "New"  # type: ignore[attr-defined]
 
     @pytest.mark.asyncio
     async def test_update_scenario_not_found(self) -> None:

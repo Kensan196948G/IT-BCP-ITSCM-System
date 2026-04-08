@@ -1,6 +1,7 @@
 """Tests for Emergency Contact and Vendor Contact API endpoints (mocked DB)."""
 
 import uuid
+from collections.abc import AsyncGenerator, Callable
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock, patch
 
@@ -81,8 +82,8 @@ class MockVendorContact:
         self.updated_at = kwargs.get("updated_at", FIXED_NOW)
 
 
-def _mock_db_override():  # type: ignore[no-untyped-def]
-    async def _fake_db():  # type: ignore[no-untyped-def]
+def _mock_db_override() -> Callable[[], AsyncGenerator[AsyncMock, None]]:
+    async def _fake_db() -> AsyncGenerator[AsyncMock, None]:
         yield AsyncMock()
 
     return _fake_db

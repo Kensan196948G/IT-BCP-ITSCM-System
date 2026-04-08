@@ -2,7 +2,7 @@
 
 import uuid
 from datetime import date, datetime, timezone
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable, Iterator
 from typing import Any
 from unittest.mock import AsyncMock, patch
 
@@ -72,7 +72,7 @@ def _sample_payload() -> dict[str, Any]:
     }
 
 
-def _fake_db() -> object:
+def _fake_db() -> Callable[[], AsyncIterator[AsyncMock]]:
     async def _gen() -> AsyncIterator[AsyncMock]:
         yield AsyncMock()
 
@@ -80,7 +80,7 @@ def _fake_db() -> object:
 
 
 @pytest.fixture()
-def client() -> TestClient:
+def client() -> Iterator[TestClient]:
     app.dependency_overrides[get_db] = _fake_db()
     yield TestClient(app)
     app.dependency_overrides.clear()
@@ -233,7 +233,7 @@ class TestBIAEndpoints:
     """Tests for BIA API endpoints."""
 
     @patch("apps.routers.bia.crud.create_bia_assessment", new_callable=AsyncMock)
-    def test_create_bia(self, mock_create: object, client: object) -> None:
+    def test_create_bia(self, mock_create: AsyncMock, client: TestClient) -> None:
         mock_create.return_value = MockBIA()
         resp = client.post("/api/bia", json=_sample_payload())
         assert resp.status_code == 201
@@ -242,27 +242,27 @@ class TestBIAEndpoints:
         assert data["system_name"] == "Core Banking System"
 
     @patch("apps.routers.bia.crud.get_all_bia_assessments", new_callable=AsyncMock)
-    def test_list_bia(self, mock_list: object, client: object) -> None:
+    def test_list_bia(self, mock_list: AsyncMock, client: TestClient) -> None:
         mock_list.return_value = [MockBIA()]
         resp = client.get("/api/bia")
         assert resp.status_code == 200
         assert len(resp.json()) == 1
 
     @patch("apps.routers.bia.crud.get_bia_assessment", new_callable=AsyncMock)
-    def test_get_bia(self, mock_get: object, client: object) -> None:
+    def test_get_bia(self, mock_get: AsyncMock, client: TestClient) -> None:
         mock_get.return_value = MockBIA()
         resp = client.get(f"/api/bia/{FIXED_UUID}")
         assert resp.status_code == 200
         assert resp.json()["assessment_id"] == "BIA-2026-001"
 
     @patch("apps.routers.bia.crud.get_bia_assessment", new_callable=AsyncMock)
-    def test_get_bia_not_found(self, mock_get: object, client: object) -> None:
+    def test_get_bia_not_found(self, mock_get: AsyncMock, client: TestClient) -> None:
         mock_get.return_value = None
         resp = client.get(f"/api/bia/{FIXED_UUID}")
         assert resp.status_code == 404
 
     @patch("apps.routers.bia.crud.update_bia_assessment", new_callable=AsyncMock)
-    def test_update_bia(self, mock_update: object, client: object) -> None:
+    def test_update_bia(self, mock_update: AsyncMock, client: TestClient) -> None:
         mock_update.return_value = MockBIA(risk_score=85)
         resp = client.put(
             f"/api/bia/{FIXED_UUID}",
@@ -272,7 +272,7 @@ class TestBIAEndpoints:
         assert resp.json()["risk_score"] == 85
 
     @patch("apps.routers.bia.crud.delete_bia_assessment", new_callable=AsyncMock)
-    def test_delete_bia(self, mock_delete: object, client: object) -> None:
+    def test_delete_bia(self, mock_delete: AsyncMock, client: TestClient) -> None:
         mock_delete.return_value = True
         resp = client.delete(f"/api/bia/{FIXED_UUID}")
         assert resp.status_code == 204
@@ -280,7 +280,7 @@ class TestBIAEndpoints:
     @patch("apps.routers.bia.get_cached", new_callable=AsyncMock, return_value=None)
     @patch("apps.routers.bia.set_cached", new_callable=AsyncMock)
     @patch("apps.routers.bia.crud.get_all_bia_assessments", new_callable=AsyncMock)
-    def test_summary(self, mock_list: object, _sc: object, _gc: object, client: object) -> None:
+    def test_summary(self, mock_list: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client: TestClient) -> None:
         mock_list.return_value = [MockBIA(), MockBIA(risk_score=50)]
         resp = client.get("/api/bia/summary")
         assert resp.status_code == 200
@@ -291,7 +291,7 @@ class TestBIAEndpoints:
     @patch("apps.routers.bia.get_cached", new_callable=AsyncMock, return_value=None)
     @patch("apps.routers.bia.set_cached", new_callable=AsyncMock)
     @patch("apps.routers.bia.crud.get_all_bia_assessments", new_callable=AsyncMock)
-    def test_risk_matrix(self, mock_list: object, _sc: object, _gc: object, client: object) -> None:
+    def test_risk_matrix(self, mock_list: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client: TestClient) -> None:
         mock_list.return_value = [MockBIA()]
         resp = client.get("/api/bia/risk-matrix")
         assert resp.status_code == 200
@@ -299,34 +299,34 @@ class TestBIAEndpoints:
         assert len(data["matrix"]) == 5
         assert len(data["entries"]) == 1
 
-    def test_create_bia_invalid_status(self, client: object) -> None:
+    def test_create_bia_invalid_status(self, client: TestClient) -> None:
         payload = _sample_payload()
         payload["status"] = "invalid"
         resp = client.post("/api/bia", json=payload)
         assert resp.status_code == 422
 
-    def test_create_bia_blank_assessment_id(self, client: object) -> None:
+    def test_create_bia_blank_assessment_id(self, client: TestClient) -> None:
         payload = _sample_payload()
         payload["assessment_id"] = "   "
         resp = client.post("/api/bia", json=payload)
         assert resp.status_code == 422
 
     @patch("apps.routers.bia.crud.update_bia_assessment", new_callable=AsyncMock)
-    def test_update_bia_not_found(self, mock_update: object, client: object) -> None:
+    def test_update_bia_not_found(self, mock_update: AsyncMock, client: TestClient) -> None:
         """PUT /api/bia/{id} returns 404 when update returns None (line 80)."""
         mock_update.return_value = None
         resp = client.put(f"/api/bia/{FIXED_UUID}", json={"risk_score": 99})
         assert resp.status_code == 404
 
     @patch("apps.routers.bia.crud.delete_bia_assessment", new_callable=AsyncMock)
-    def test_delete_bia_not_found(self, mock_delete: object, client: object) -> None:
+    def test_delete_bia_not_found(self, mock_delete: AsyncMock, client: TestClient) -> None:
         """DELETE /api/bia/{id} returns 404 when delete returns False (line 92)."""
         mock_delete.return_value = False
         resp = client.delete(f"/api/bia/{FIXED_UUID}")
         assert resp.status_code == 404
 
     @patch("apps.routers.bia.crud.get_all_bia_assessments", new_callable=AsyncMock)
-    def test_export_bia_csv(self, mock_list: object, client: object) -> None:
+    def test_export_bia_csv(self, mock_list: AsyncMock, client: TestClient) -> None:
         """GET /api/bia/export/csv should return CSV content."""
         mock_list.return_value = [MockBIA()]
         resp = client.get("/api/bia/export/csv")
@@ -339,7 +339,7 @@ class TestBIAEndpoints:
         assert "Core Banking System" in lines[1]
 
     @patch("apps.routers.bia.crud.get_all_bia_assessments", new_callable=AsyncMock)
-    def test_export_bia_csv_empty(self, mock_list: object, client: object) -> None:
+    def test_export_bia_csv_empty(self, mock_list: AsyncMock, client: TestClient) -> None:
         """GET /api/bia/export/csv should return header-only CSV when no records."""
         mock_list.return_value = []
         resp = client.get("/api/bia/export/csv")
@@ -351,7 +351,7 @@ class TestBIAEndpoints:
     # ---- CSV Import ----
 
     @patch("apps.routers.bia.crud.create_bia_assessment", new_callable=AsyncMock)
-    def test_import_bia_csv_success(self, mock_create: object, client: object) -> None:
+    def test_import_bia_csv_success(self, mock_create: AsyncMock, client: TestClient) -> None:
         """POST /api/bia/import/csv imports valid rows and returns summary."""
         mock_create.return_value = MockBIA()
         csv_content = (
@@ -370,7 +370,7 @@ class TestBIAEndpoints:
         assert data["errors"] == []
 
     @patch("apps.routers.bia.crud.create_bia_assessment", new_callable=AsyncMock)
-    def test_import_bia_csv_invalid_row(self, mock_create: object, client: object) -> None:
+    def test_import_bia_csv_invalid_row(self, mock_create: AsyncMock, client: TestClient) -> None:
         """POST /api/bia/import/csv skips rows with missing required fields."""
         mock_create.return_value = MockBIA()
         csv_content = (
@@ -389,7 +389,7 @@ class TestBIAEndpoints:
         assert data["errors"][0]["row"] == 2
 
     @patch("apps.routers.bia.crud.create_bia_assessment", new_callable=AsyncMock)
-    def test_import_bia_csv_empty(self, mock_create: object, client: object) -> None:
+    def test_import_bia_csv_empty(self, mock_create: AsyncMock, client: TestClient) -> None:
         """POST /api/bia/import/csv handles header-only CSV gracefully."""
         csv_content = "assessment_id,system_name,assessment_date\n"
         resp = client.post(
@@ -403,7 +403,7 @@ class TestBIAEndpoints:
         mock_create.assert_not_called()
 
     @patch("apps.routers.bia.crud.create_bia_assessment", new_callable=AsyncMock)
-    def test_import_bia_csv_json_fields(self, mock_create: object, client: object) -> None:
+    def test_import_bia_csv_json_fields(self, mock_create: AsyncMock, client: TestClient) -> None:
         """POST /api/bia/import/csv correctly parses JSON-encoded list fields."""
         mock_create.return_value = MockBIA()
         csv_content = (

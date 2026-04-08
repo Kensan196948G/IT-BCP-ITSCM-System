@@ -1,6 +1,6 @@
 """Security middleware, headers, CORS and error handler tests."""
 
-from collections.abc import AsyncIterator, Iterator
+from collections.abc import AsyncIterator, Callable, Iterator
 from unittest.mock import AsyncMock
 
 import pytest
@@ -10,7 +10,7 @@ from database import get_db
 from main import app
 
 
-def _fake_db_generator() -> object:
+def _fake_db_generator() -> Callable[[], AsyncIterator[AsyncMock]]:
     async def _gen() -> AsyncIterator[AsyncMock]:
         yield AsyncMock()
 
