@@ -134,7 +134,9 @@ class TestProtectedEndpointsE2E:
         assert resp.status == 401, f"Expected 401 for GET {path}, got {resp.status}"
 
     @pytest.mark.parametrize("path", PROTECTED_GET)
-    def test_returns_non_401_with_token(self, page: Page, base_url: str, path: str, auth_headers: dict[str, Any]) -> None:
+    def test_returns_non_401_with_token(
+        self, page: Page, base_url: str, path: str, auth_headers: dict[str, Any]
+    ) -> None:
         """Each protected GET endpoint does NOT return 401 when authenticated."""
         resp = page.request.get(f"{base_url}{path}", headers=auth_headers)
         assert resp.status != 401, f"Expected auth to work for GET {path}, got {resp.status}"

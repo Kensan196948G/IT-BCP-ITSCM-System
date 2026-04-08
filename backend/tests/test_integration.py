@@ -441,7 +441,9 @@ def test_escalation_trigger_and_notification_logs(client: TestClient) -> None:
 @patch("apps.routers.dashboard.set_cached", new_callable=AsyncMock)
 @patch("apps.crud.get_active_incidents", new_callable=AsyncMock)
 @patch("apps.crud.get_all_systems", new_callable=AsyncMock)
-def test_dashboard_readiness(mock_systems: AsyncMock, mock_incidents: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client: TestClient) -> None:
+def test_dashboard_readiness(
+    mock_systems: AsyncMock, mock_incidents: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client: TestClient
+) -> None:
     """GET /api/dashboard/readiness returns readiness dashboard."""
     mock_systems.return_value = [_MockSystem()]
     mock_incidents.return_value = []

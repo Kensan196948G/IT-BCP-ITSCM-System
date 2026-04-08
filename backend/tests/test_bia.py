@@ -2,7 +2,7 @@
 
 import uuid
 from datetime import date, datetime, timezone
-from collections.abc import AsyncIterator, Iterator
+from collections.abc import AsyncIterator
 from typing import Any
 from unittest.mock import AsyncMock, patch
 
