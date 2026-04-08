@@ -175,7 +175,7 @@ class MockSystem:
             setattr(self, k, v)
 
 
-def sample_exercise_payload() -> dict:
+def sample_exercise_payload() -> dict[str, Any]:
     """Return a valid payload for creating a BCPExercise."""
     return {
         "exercise_id": "EX-2026-001",
@@ -187,7 +187,7 @@ def sample_exercise_payload() -> dict:
     }
 
 
-def sample_incident_payload() -> dict:
+def sample_incident_payload() -> dict[str, Any]:
     """Return a valid payload for creating an ActiveIncident."""
     return {
         "incident_id": "BCP-2026-001",

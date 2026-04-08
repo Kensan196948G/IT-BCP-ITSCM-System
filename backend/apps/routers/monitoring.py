@@ -1,5 +1,7 @@
 """API routes for monitoring, metrics, and health probes."""
 
+from typing import Any
+
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse, PlainTextResponse
 
@@ -58,13 +60,13 @@ async def readiness_probe() -> JSONResponse:
 
 
 @router.get("/api/health/live")
-async def liveness_probe() -> dict:
+async def liveness_probe() -> dict[str, Any]:
     """Kubernetes-compatible liveness probe."""
     return health_checker.get_liveness()
 
 
 @router.get("/api/health/detailed")
-async def detailed_health() -> dict:
+async def detailed_health() -> dict[str, Any]:
     """Detailed health information including metrics and system resources."""
     readiness = await health_checker.get_readiness()
     details = metrics_collector.get_health_details()

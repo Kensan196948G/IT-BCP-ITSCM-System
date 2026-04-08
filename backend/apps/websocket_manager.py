@@ -2,6 +2,7 @@
 
 import json
 import logging
+from typing import Any
 
 from fastapi import WebSocket
 
@@ -26,7 +27,7 @@ class ConnectionManager:
             self.active_connections.remove(websocket)
         logger.info("WebSocket disconnected. Total: %d", len(self.active_connections))
 
-    async def broadcast(self, data: dict) -> None:
+    async def broadcast(self, data: dict[str, Any]) -> None:
         """Send data to all connected clients."""
         message = json.dumps(data, default=str)
         disconnected: list[WebSocket] = []
@@ -38,7 +39,7 @@ class ConnectionManager:
         for conn in disconnected:
             self.disconnect(conn)
 
-    async def send_rto_update(self, incident_id: str, data: dict) -> None:
+    async def send_rto_update(self, incident_id: str, data: dict[str, Any]) -> None:
         """Broadcast an RTO update for a specific incident."""
         payload = {
             "type": "rto_update",

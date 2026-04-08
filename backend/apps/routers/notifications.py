@@ -1,6 +1,7 @@
 """Notification and escalation API routes."""
 
 import uuid
+from typing import Any
 
 from fastapi import APIRouter
 
@@ -22,7 +23,7 @@ _notification_service = NotificationService()
 _escalation_engine = EscalationEngine(notification_service=_notification_service)
 
 
-def _log_to_response(log: dict) -> NotificationLogResponse:
+def _log_to_response(log: dict[str, Any]) -> NotificationLogResponse:
     """Convert an internal log dict to a NotificationLogResponse."""
     return NotificationLogResponse(
         id=log["id"],

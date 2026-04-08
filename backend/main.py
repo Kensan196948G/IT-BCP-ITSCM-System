@@ -5,6 +5,7 @@ import logging
 import time
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from typing import Any
 
 from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -306,7 +307,7 @@ app.include_router(ws.router)
 
 
 @app.get("/api/health")
-async def health_check() -> dict:
+async def health_check() -> dict[str, Any]:
     """Health check endpoint with DB connectivity, environment and version."""
     db_ok = True
     try:

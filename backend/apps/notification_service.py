@@ -3,6 +3,7 @@
 import logging
 import uuid
 from datetime import datetime, timezone
+from typing import Any
 
 import httpx
 
@@ -16,10 +17,10 @@ class NotificationService:
 
     def __init__(self, dry_run: bool | None = None):
         self.dry_run = dry_run if dry_run is not None else settings.NOTIFICATION_DRY_RUN
-        self._logs: list[dict] = []
+        self._logs: list[dict[str, Any]] = []
 
     @property
-    def logs(self) -> list[dict]:
+    def logs(self) -> list[dict[str, Any]]:
         """Return all notification logs."""
         return list(self._logs)
 
@@ -29,7 +30,7 @@ class NotificationService:
         title: str,
         body: str,
         color: str = "0076D7",
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Send a Teams Adaptive Card via webhook.
 
         Returns a dict with status and optional error_message.
@@ -79,7 +80,7 @@ class NotificationService:
         to: str,
         subject: str,
         body: str,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Send an email via SMTP.
 
         Returns a dict with status and optional error_message.
@@ -115,7 +116,7 @@ class NotificationService:
         subject: str,
         body: str,
         incident_id: uuid.UUID | None = None,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Send a notification and record it in the internal log.
 
         Args:

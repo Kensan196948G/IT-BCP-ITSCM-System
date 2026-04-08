@@ -2,6 +2,7 @@
 
 import time
 from threading import Lock
+from typing import Any
 
 
 class MetricsCollector:
@@ -36,7 +37,7 @@ class MetricsCollector:
             if status_code >= 400:
                 self.error_count += 1
 
-    def get_metrics(self) -> dict:
+    def get_metrics(self) -> dict[str, Any]:
         """Return current metrics as a dictionary."""
         with self._lock:
             avg_duration = self.request_duration_seconds / self.request_count if self.request_count > 0 else 0.0
@@ -51,7 +52,7 @@ class MetricsCollector:
                 "uptime_seconds": round(time.time() - self._start_time, 2),
             }
 
-    def get_health_details(self) -> dict:
+    def get_health_details(self) -> dict[str, Any]:
         """Return detailed health information including mock system metrics."""
         metrics = self.get_metrics()
         # Mock CPU/memory values for demonstration purposes
@@ -70,7 +71,7 @@ class MetricsCollector:
 class HealthChecker:
     """Performs health checks on application dependencies."""
 
-    async def check_database(self) -> dict:
+    async def check_database(self) -> dict[str, Any]:
         """Check database connectivity by issuing a lightweight SELECT 1."""
         start = time.perf_counter()
         try:
@@ -91,7 +92,7 @@ class HealthChecker:
                 "error": str(exc),
             }
 
-    async def check_redis(self) -> dict:
+    async def check_redis(self) -> dict[str, Any]:
         """Check Redis connectivity using the cache module's ping helper."""
         start = time.perf_counter()
         try:
@@ -113,7 +114,7 @@ class HealthChecker:
                 "error": str(exc),
             }
 
-    async def check_all(self) -> list[dict]:
+    async def check_all(self) -> list[dict[str, Any]]:
         """Check all components and return list of results."""
         import asyncio
 
@@ -123,7 +124,7 @@ class HealthChecker:
         )
         return [db_check, redis_check]
 
-    async def get_readiness(self) -> dict:
+    async def get_readiness(self) -> dict[str, Any]:
         """Readiness probe: returns ok only when all dependencies are healthy."""
         checks = await self.check_all()
         all_healthy = all(c["status"] == "healthy" for c in checks)
@@ -132,7 +133,7 @@ class HealthChecker:
             "checks": checks,
         }
 
-    def get_liveness(self) -> dict:
+    def get_liveness(self) -> dict[str, Any]:
         """Liveness probe: returns ok if the application process is alive."""
         return {
             "status": "alive",

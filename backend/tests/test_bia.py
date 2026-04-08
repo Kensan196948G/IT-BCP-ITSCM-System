@@ -2,6 +2,7 @@
 
 import uuid
 from datetime import date, datetime, timezone
+from typing import Any
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -51,7 +52,7 @@ class MockBIA:
             setattr(self, k, v)
 
 
-def _sample_payload() -> dict:
+def _sample_payload() -> dict[str, Any]:
     """Return a valid BIA assessment creation payload."""
     return {
         "assessment_id": "BIA-2026-001",

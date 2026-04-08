@@ -1,6 +1,7 @@
 """API routes for active incident management."""
 
 import uuid
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -43,7 +44,7 @@ async def list_incidents(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
     db: AsyncSession = Depends(get_db),
-) -> list:
+) -> list[Any]:
     """Get all active incident records with pagination."""
     return await crud.get_all_incidents(db, skip=skip, limit=limit)
 
@@ -86,7 +87,7 @@ async def update_incident(
 async def incident_rto_dashboard(
     incident_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-) -> list:
+) -> list[Any]:
     """Get RTO dashboard for a specific incident's affected systems."""
     incident = await crud.get_incident(db, incident_id)
     if incident is None:
@@ -97,7 +98,7 @@ async def incident_rto_dashboard(
         return []
 
     all_systems = await crud.get_all_systems(db)
-    results: list[dict] = []
+    results: list[dict[str, Any]] = []
     for system in all_systems:
         if system.system_name in affected_names:
             tracker = RTOTracker(
@@ -164,7 +165,7 @@ async def create_task(
 async def list_tasks(
     incident_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-) -> list:
+) -> list[Any]:
     """Get all tasks for an incident."""
     incident = await crud.get_incident(db, incident_id)
     if incident is None:
@@ -223,7 +224,7 @@ async def create_situation_report_endpoint(
 async def list_situation_reports(
     incident_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-) -> list:
+) -> list[Any]:
     """Get all situation reports for an incident."""
     incident = await crud.get_incident(db, incident_id)
     if incident is None:
@@ -253,7 +254,7 @@ async def auto_generate_situation_report(
 
 
 @router.get("/escalation/plan/{severity}", response_model=EscalationPlanResponse)
-async def get_escalation_plan(severity: str) -> dict:
+async def get_escalation_plan(severity: str) -> dict[str, Any]:
     """Get the escalation plan for a given severity (p1, p2, p3)."""
     plan = _escalation_engine.get_escalation_plan(severity)
     if not plan["levels"]:
@@ -262,7 +263,7 @@ async def get_escalation_plan(severity: str) -> dict:
 
 
 @router.post("/escalation/trigger", response_model=EscalationTriggerResponse, status_code=201)
-async def trigger_escalation(payload: EscalationTriggerRequest) -> dict:
+async def trigger_escalation(payload: EscalationTriggerRequest) -> dict[str, Any]:
     """Trigger an escalation for an incident (dry-run mode; no real notifications sent)."""
     contacts = [c.model_dump() for c in payload.contacts]
     result = _escalation_engine.trigger_escalation(
@@ -274,7 +275,7 @@ async def trigger_escalation(payload: EscalationTriggerRequest) -> dict:
 
 
 @router.get("/escalation/status/{incident_id}", response_model=EscalationStatusResponse)
-async def get_escalation_status(incident_id: uuid.UUID) -> dict:
+async def get_escalation_status(incident_id: uuid.UUID) -> dict[str, Any]:
     """Get the escalation notification status for an incident."""
     return _escalation_engine.get_escalation_status(incident_id)
 
@@ -285,7 +286,7 @@ async def get_escalation_status(incident_id: uuid.UUID) -> dict:
 
 
 @router.post("/notifications/send", response_model=NotificationLogResponse, status_code=201)
-async def send_notification(payload: NotificationSendRequest) -> dict:
+async def send_notification(payload: NotificationSendRequest) -> dict[str, Any]:
     """Send a manual notification (dry-run; logged but not actually delivered)."""
     svc = NotificationService()
     log_entry = svc.send_notification(

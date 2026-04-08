@@ -5,13 +5,14 @@ DR failover steps, and incident response playbooks.
 """
 
 from datetime import datetime, timezone
+from typing import Any
 
 
 class Runbook:
     """Operational runbook for IT-BCP-ITSCM-System."""
 
     @staticmethod
-    def get_deployment_checklist() -> dict:
+    def get_deployment_checklist() -> dict[str, Any]:
         """Return pre-deployment checklist with 12 verification items."""
         return {
             "title": "デプロイ前チェックリスト",
@@ -95,7 +96,7 @@ class Runbook:
         }
 
     @staticmethod
-    def get_rollback_procedure() -> dict:
+    def get_rollback_procedure() -> dict[str, Any]:
         """Return rollback procedure with 8 steps."""
         return {
             "title": "ロールバック手順",
@@ -164,7 +165,7 @@ class Runbook:
         }
 
     @staticmethod
-    def get_dr_failover_steps() -> dict:
+    def get_dr_failover_steps() -> dict[str, Any]:
         """Return DR failover procedure with 10 steps."""
         return {
             "title": "DRフェイルオーバー手順",
@@ -247,12 +248,12 @@ class Runbook:
         }
 
     @staticmethod
-    def get_incident_response_playbook(scenario_type: str) -> dict:
+    def get_incident_response_playbook(scenario_type: str) -> dict[str, Any]:
         """Return incident response playbook for a given scenario.
 
         Supported scenarios: earthquake, ransomware, dc_failure.
         """
-        playbooks: dict[str, dict] = {
+        playbooks: dict[str, dict[str, Any]] = {
             "earthquake": {
                 "title": "地震発生時インシデント対応プレイブック",
                 "scenario_type": "earthquake",

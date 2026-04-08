@@ -1,5 +1,7 @@
 """API routes for dashboard and readiness overview."""
 
+from typing import Any
+
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,7 +32,7 @@ _CACHE_RTO_OVERVIEW = "dashboard:rto-overview"
 @router.get("/readiness", response_model=DashboardResponse)
 async def get_readiness(
     db: AsyncSession = Depends(get_db),
-) -> dict:
+) -> dict[str, Any]:
     """Get BCP readiness score and overall dashboard."""
     cached = await get_cached(_CACHE_READINESS)
     if cached is not None:
@@ -59,7 +61,7 @@ async def get_readiness(
 @router.get("/rto-overview", response_model=list[RTOStatusResponse])
 async def get_rto_overview(
     db: AsyncSession = Depends(get_db),
-) -> list:
+) -> list[Any]:
     """Get RTO status overview for all systems."""
     cached = await get_cached(_CACHE_RTO_OVERVIEW)
     if cached is not None:
@@ -74,7 +76,7 @@ async def get_rto_overview(
         for sys_name in incident.affected_systems or []:
             system_incident_map[sys_name] = incident
 
-    results: list[dict] = []
+    results: list[dict[str, Any]] = []
     for system in all_systems:
         matched_inc: ActiveIncident | None = system_incident_map.get(system.system_name)
         if matched_inc:
@@ -98,7 +100,7 @@ async def get_rto_overview(
 @router.get("/statistics", response_model=BCPStatisticsResponse)
 async def get_bcp_statistics(
     db: AsyncSession = Depends(get_db),
-) -> dict:
+) -> dict[str, Any]:
     """Get aggregate BCP/ITSCM statistics: MTTR, RTO breach rate, system distribution."""
     return await crud.get_bcp_statistics(db)
 
@@ -163,7 +165,7 @@ async def _build_report_generator(db: AsyncSession) -> ReportGenerator:
 @router.get("/reports/readiness", response_model=ReadinessReportResponse)
 async def get_readiness_report(
     db: AsyncSession = Depends(get_db),
-) -> dict:
+) -> dict[str, Any]:
     """Generate BCP Readiness Report (RPT-001)."""
     gen = await _build_report_generator(db)
     return gen.generate_readiness_report()
@@ -172,7 +174,7 @@ async def get_readiness_report(
 @router.get("/reports/rto-compliance", response_model=RTOComplianceReportResponse)
 async def get_rto_compliance_report(
     db: AsyncSession = Depends(get_db),
-) -> dict:
+) -> dict[str, Any]:
     """Generate RTO/RPO Compliance Report (RPT-002)."""
     gen = await _build_report_generator(db)
     return gen.generate_rto_compliance_report()
@@ -181,7 +183,7 @@ async def get_rto_compliance_report(
 @router.get("/reports/exercise-trends", response_model=ExerciseTrendReportResponse)
 async def get_exercise_trend_report(
     db: AsyncSession = Depends(get_db),
-) -> dict:
+) -> dict[str, Any]:
     """Generate Exercise Trend Report (RPT-003)."""
     gen = await _build_report_generator(db)
     return gen.generate_exercise_trend_report()
@@ -190,7 +192,7 @@ async def get_exercise_trend_report(
 @router.get("/reports/iso20000", response_model=ISO20000ReportResponse)
 async def get_iso20000_report(
     db: AsyncSession = Depends(get_db),
-) -> dict:
+) -> dict[str, Any]:
     """Generate ISO20000 ITSCM Compliance Report (RPT-004)."""
     gen = await _build_report_generator(db)
     return gen.generate_iso20000_report()

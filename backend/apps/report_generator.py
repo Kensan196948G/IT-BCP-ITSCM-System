@@ -1,6 +1,7 @@
 """Report generation engine for BCP/ITSCM compliance and readiness reports."""
 
 from datetime import datetime, timezone
+from typing import Any
 
 
 class ReportGenerator:
@@ -8,15 +9,15 @@ class ReportGenerator:
 
     def __init__(
         self,
-        systems: list[dict],
-        exercises: list[dict],
-        incidents: list[dict],
+        systems: list[dict[str, Any]],
+        exercises: list[dict[str, Any]],
+        incidents: list[dict[str, Any]],
     ) -> None:
         self.systems = systems
         self.exercises = exercises
         self.incidents = incidents
 
-    def generate_readiness_report(self) -> dict:
+    def generate_readiness_report(self) -> dict[str, Any]:
         """Generate BCP Readiness Report (RPT-001).
 
         Returns a dict with:
@@ -30,7 +31,7 @@ class ReportGenerator:
         if total == 0:
             return self._empty_readiness()
 
-        system_readiness: list[dict] = []
+        system_readiness: list[dict[str, Any]] = []
         tested_count = 0
         rto_met_count = 0
         untested: list[str] = []
@@ -101,7 +102,7 @@ class ReportGenerator:
             "recommendations": recommendations,
         }
 
-    def _empty_readiness(self) -> dict:
+    def _empty_readiness(self) -> dict[str, Any]:
         return {
             "report_id": "RPT-001",
             "report_type": "BCP Readiness Report",
@@ -115,7 +116,7 @@ class ReportGenerator:
             "recommendations": ["システムが登録されていません。"],
         }
 
-    def generate_rto_compliance_report(self) -> dict:
+    def generate_rto_compliance_report(self) -> dict[str, Any]:
         """Generate RTO/RPO Compliance Report (RPT-002).
 
         Returns a dict with:
@@ -137,7 +138,7 @@ class ReportGenerator:
                 "overdue_systems": [],
             }
 
-        system_compliance: list[dict] = []
+        system_compliance: list[dict[str, Any]] = []
         compliant_count = 0
         overdue: list[str] = []
 
@@ -186,7 +187,7 @@ class ReportGenerator:
             "overdue_systems": overdue,
         }
 
-    def generate_exercise_trend_report(self) -> dict:
+    def generate_exercise_trend_report(self) -> dict[str, Any]:
         """Generate Exercise Trend Report (RPT-003).
 
         Returns a dict with:
@@ -195,7 +196,7 @@ class ReportGenerator:
         - common issue categories
         - improvement action completion rate
         """
-        yearly_stats: dict[int, dict] = {}
+        yearly_stats: dict[int, dict[str, Any]] = {}
         issue_categories: dict[str, int] = {}
         total_improvements = 0
         completed_improvements = 0
@@ -278,7 +279,7 @@ class ReportGenerator:
             "improvement_completion_rate": improvement_rate,
         }
 
-    def generate_iso20000_report(self) -> dict:
+    def generate_iso20000_report(self) -> dict[str, Any]:
         """Generate ISO20000 ITSCM Compliance Report (RPT-004).
 
         Returns a dict with:
@@ -340,7 +341,7 @@ class ReportGenerator:
         systems_with_fallback = sum(1 for s in self.systems if s.get("fallback_system"))
         systems_tested = sum(1 for s in self.systems if s.get("last_dr_test"))
 
-        results: list[dict] = []
+        results: list[dict[str, Any]] = []
         compliant_count = 0
 
         for item in checklist:

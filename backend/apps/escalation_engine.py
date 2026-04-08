@@ -2,6 +2,7 @@
 
 import logging
 import uuid
+from typing import Any
 
 from apps.notification_service import NotificationService
 
@@ -82,9 +83,9 @@ class EscalationEngine:
 
     def __init__(self, notification_service: NotificationService | None = None):
         self.notification_service = notification_service or NotificationService()
-        self._escalation_state: dict[str, list[dict]] = {}
+        self._escalation_state: dict[str, list[dict[str, Any]]] = {}
 
-    def get_escalation_plan(self, severity: str) -> dict:
+    def get_escalation_plan(self, severity: str) -> dict[str, Any]:
         """Get the escalation plan for a given severity level.
 
         Args:
@@ -112,8 +113,8 @@ class EscalationEngine:
         self,
         incident_id: uuid.UUID,
         severity: str,
-        contacts: list[dict] | None = None,
-    ) -> dict:
+        contacts: list[dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
         """Trigger an escalation for an incident.
 
         Args:
@@ -129,7 +130,7 @@ class EscalationEngine:
         contacts = contacts or []
 
         # Build a role->contact lookup
-        contact_by_role: dict[str, dict] = {}
+        contact_by_role: dict[str, dict[str, Any]] = {}
         for c in contacts:
             role = c.get("role", "")
             contact_by_role[role] = c
@@ -188,7 +189,7 @@ class EscalationEngine:
             "notifications": notifications,
         }
 
-    def get_escalation_status(self, incident_id: uuid.UUID) -> dict:
+    def get_escalation_status(self, incident_id: uuid.UUID) -> dict[str, Any]:
         """Get the escalation status for an incident.
 
         Args:

@@ -1,6 +1,7 @@
 """Tests for BCP scenario CRUD endpoints — error paths and edge cases."""
 
 import uuid
+from typing import Any
 from unittest.mock import AsyncMock, patch
 
 from fastapi.testclient import TestClient
@@ -34,7 +35,7 @@ class MockScenario:
         for k, v in defaults.items():
             setattr(self, k, v)
 
-    def model_dump(self) -> dict:
+    def model_dump(self) -> dict[str, Any]:
         return self.__dict__
 
 

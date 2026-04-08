@@ -10,6 +10,8 @@ Run against a live server:
 Mark: @pytest.mark.e2e — excluded from default CI unit test runs.
 """
 
+from typing import Any
+
 import pytest
 
 pytestmark = pytest.mark.e2e
@@ -48,7 +50,7 @@ class TestAuthE2E:
         resp = page.request.get(f"{base_url}/api/auth/me")
         assert resp.status == 401
 
-    def test_me_returns_user_info(self, page, base_url: str, auth_headers: dict):
+    def test_me_returns_user_info(self, page, base_url: str, auth_headers: dict[str, Any]):
         """GET /api/auth/me with valid token returns user info."""
         resp = page.request.get(
             f"{base_url}/api/auth/me",
@@ -60,7 +62,7 @@ class TestAuthE2E:
         assert "role" in body
         assert "permissions" in body
 
-    def test_refresh_returns_new_token(self, page, base_url: str, auth_headers: dict):
+    def test_refresh_returns_new_token(self, page, base_url: str, auth_headers: dict[str, Any]):
         """POST /api/auth/refresh returns a fresh token."""
         resp = page.request.post(
             f"{base_url}/api/auth/refresh",
@@ -131,7 +133,7 @@ class TestProtectedEndpointsE2E:
         assert resp.status == 401, f"Expected 401 for GET {path}, got {resp.status}"
 
     @pytest.mark.parametrize("path", PROTECTED_GET)
-    def test_returns_non_401_with_token(self, page, base_url: str, path: str, auth_headers: dict):
+    def test_returns_non_401_with_token(self, page, base_url: str, path: str, auth_headers: dict[str, Any]):
         """Each protected GET endpoint does NOT return 401 when authenticated."""
         resp = page.request.get(f"{base_url}{path}", headers=auth_headers)
         assert resp.status != 401, f"Expected auth to work for GET {path}, got {resp.status}"

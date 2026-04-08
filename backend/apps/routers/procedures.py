@@ -1,11 +1,13 @@
 """API routes for Recovery Procedure management."""
 
 import uuid
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps import crud
+from apps.models import RecoveryProcedure
 from apps.schemas import (
     RecoveryProcedureCreate,
     RecoveryProcedureResponse,
@@ -21,7 +23,7 @@ async def list_procedures(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
     db: AsyncSession = Depends(get_db),
-) -> list:
+) -> list[RecoveryProcedure]:
     """Get all recovery procedure records with pagination."""
     return await crud.get_all_procedures(db, skip=skip, limit=limit)
 

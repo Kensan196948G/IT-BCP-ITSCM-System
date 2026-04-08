@@ -2,6 +2,7 @@
 
 import uuid
 from datetime import date, datetime
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -87,7 +88,7 @@ class RecoveryProcedureCreate(BaseModel):
     version: str = Field("1.0", max_length=20)
     priority_order: int = Field(..., ge=1)
     pre_requisites: str | None = None
-    procedure_steps: list = Field(...)
+    procedure_steps: list[dict[str, Any]] = Field(...)
     estimated_time_hours: float | None = None
     responsible_team: str | None = Field(None, max_length=100)
     last_reviewed: date | None = None
@@ -111,7 +112,7 @@ class RecoveryProcedureUpdate(BaseModel):
     version: str | None = Field(None, max_length=20)
     priority_order: int | None = Field(None, ge=1)
     pre_requisites: str | None = None
-    procedure_steps: list | None = None
+    procedure_steps: list[dict[str, Any]] | None = None
     estimated_time_hours: float | None = None
     responsible_team: str | None = Field(None, max_length=100)
     last_reviewed: date | None = None
@@ -132,7 +133,7 @@ class RecoveryProcedureResponse(BaseModel):
     version: str
     priority_order: int
     pre_requisites: str | None = None
-    procedure_steps: list
+    procedure_steps: list[dict[str, Any]]
     estimated_time_hours: float | None = None
     responsible_team: str | None = None
     last_reviewed: date | None = None
@@ -290,8 +291,8 @@ class BCPExerciseCreate(BaseModel):
     facilitator: str | None = Field(None, max_length=100)
     status: str = Field("planned", pattern=r"^(planned|in_progress|completed|cancelled)$")
     overall_result: str | None = Field(None, pattern=r"^(pass|partial_pass|fail)$")
-    findings: dict | None = None
-    improvements: dict | None = None
+    findings: dict[str, Any] | None = None
+    improvements: dict[str, Any] | None = None
     lessons_learned: str | None = None
 
     @field_validator("exercise_type")
@@ -315,8 +316,8 @@ class BCPExerciseUpdate(BaseModel):
     facilitator: str | None = Field(None, max_length=100)
     status: str | None = Field(None, pattern=r"^(planned|in_progress|completed|cancelled)$")
     overall_result: str | None = Field(None, pattern=r"^(pass|partial_pass|fail)$")
-    findings: dict | None = None
-    improvements: dict | None = None
+    findings: dict[str, Any] | None = None
+    improvements: dict[str, Any] | None = None
     lessons_learned: str | None = None
 
 
@@ -336,8 +337,8 @@ class BCPExerciseResponse(BaseModel):
     facilitator: str | None = None
     status: str
     overall_result: str | None = None
-    findings: dict | None = None
-    improvements: dict | None = None
+    findings: dict[str, Any] | None = None
+    improvements: dict[str, Any] | None = None
     lessons_learned: str | None = None
     created_at: datetime
     updated_at: datetime
@@ -438,17 +439,17 @@ class BIAAssessmentCreate(BaseModel):
     system_name: str = Field(..., max_length=100)
     assessment_date: date
     assessor: str | None = Field(None, max_length=100)
-    business_processes: list = Field(...)
+    business_processes: list[dict[str, Any]] = Field(...)
     financial_impact_per_hour: float | None = None
     financial_impact_per_day: float | None = None
     max_tolerable_downtime_hours: float | None = None
-    regulatory_risks: list | None = None
+    regulatory_risks: list[str] | None = None
     reputation_impact: str | None = Field(None, pattern=IMPACT_LEVELS)
     operational_impact: str | None = Field(None, pattern=IMPACT_LEVELS)
     recommended_rto_hours: float | None = None
     recommended_rpo_hours: float | None = None
     risk_score: int | None = Field(None, ge=1, le=100)
-    mitigation_measures: list | None = None
+    mitigation_measures: list[str] | None = None
     status: str = Field("draft", pattern=BIA_STATUSES)
     notes: str | None = None
 
@@ -466,17 +467,17 @@ class BIAAssessmentUpdate(BaseModel):
     system_name: str | None = Field(None, max_length=100)
     assessment_date: date | None = None
     assessor: str | None = Field(None, max_length=100)
-    business_processes: list | None = None
+    business_processes: list[dict[str, Any]] | None = None
     financial_impact_per_hour: float | None = None
     financial_impact_per_day: float | None = None
     max_tolerable_downtime_hours: float | None = None
-    regulatory_risks: list | None = None
+    regulatory_risks: list[str] | None = None
     reputation_impact: str | None = Field(None, pattern=IMPACT_LEVELS)
     operational_impact: str | None = Field(None, pattern=IMPACT_LEVELS)
     recommended_rto_hours: float | None = None
     recommended_rpo_hours: float | None = None
     risk_score: int | None = Field(None, ge=1, le=100)
-    mitigation_measures: list | None = None
+    mitigation_measures: list[str] | None = None
     status: str | None = Field(None, pattern=BIA_STATUSES)
     notes: str | None = None
 
@@ -491,17 +492,17 @@ class BIAAssessmentResponse(BaseModel):
     system_name: str
     assessment_date: date
     assessor: str | None = None
-    business_processes: list
+    business_processes: list[dict[str, Any]]
     financial_impact_per_hour: float | None = None
     financial_impact_per_day: float | None = None
     max_tolerable_downtime_hours: float | None = None
-    regulatory_risks: list | None = None
+    regulatory_risks: list[str] | None = None
     reputation_impact: str | None = None
     operational_impact: str | None = None
     recommended_rto_hours: float | None = None
     recommended_rpo_hours: float | None = None
     risk_score: int | None = None
-    mitigation_measures: list | None = None
+    mitigation_measures: list[str] | None = None
     status: str
     notes: str | None = None
     created_at: datetime
@@ -515,9 +516,9 @@ class BIASummaryResponse(BaseModel):
     average_risk_score: float | None = None
     max_risk_score: int | None = None
     highest_risk_system: str | None = None
-    impact_distribution: dict = Field(default_factory=dict)
+    impact_distribution: dict[str, int] = Field(default_factory=dict)
     average_financial_impact_per_day: float | None = None
-    status_distribution: dict = Field(default_factory=dict)
+    status_distribution: dict[str, int] = Field(default_factory=dict)
 
 
 class RiskMatrixEntry(BaseModel):
@@ -581,7 +582,7 @@ class BCPScenarioCreate(BaseModel):
     )
     description: str
     initial_inject: str
-    injects: list = Field(...)
+    injects: list[dict[str, Any]] = Field(...)
     affected_systems: list[str] | None = None
     expected_duration_hours: float | None = None
     difficulty: str = Field("medium", pattern=DIFFICULTY_LEVELS)
@@ -602,7 +603,7 @@ class BCPScenarioUpdate(BaseModel):
     scenario_type: str | None = Field(None, pattern=SCENARIO_TYPES)
     description: str | None = None
     initial_inject: str | None = None
-    injects: list | None = None
+    injects: list[dict[str, Any]] | None = None
     affected_systems: list[str] | None = None
     expected_duration_hours: float | None = None
     difficulty: str | None = Field(None, pattern=DIFFICULTY_LEVELS)
@@ -620,7 +621,7 @@ class BCPScenarioResponse(BaseModel):
     scenario_type: str
     description: str
     initial_inject: str
-    injects: list
+    injects: list[dict[str, Any]]
     affected_systems: list[str] | None = None
     expected_duration_hours: float | None = None
     difficulty: str
@@ -756,9 +757,9 @@ class SituationReportCreate(BaseModel):
     report_time: datetime | None = None
     reporter: str | None = Field(None, max_length=100)
     summary: str
-    systems_status: dict | None = None
-    tasks_summary: dict | None = None
-    next_actions: list | None = None
+    systems_status: dict[str, Any] | None = None
+    tasks_summary: dict[str, Any] | None = None
+    next_actions: list[str] | None = None
     escalation_status: str | None = Field(None, max_length=50)
     audience: str = Field("internal", pattern=AUDIENCE_TYPES)
 
@@ -774,9 +775,9 @@ class SituationReportResponse(BaseModel):
     report_time: datetime
     reporter: str | None = None
     summary: str
-    systems_status: dict | None = None
-    tasks_summary: dict | None = None
-    next_actions: list | None = None
+    systems_status: dict[str, Any] | None = None
+    tasks_summary: dict[str, Any] | None = None
+    next_actions: list[str] | None = None
     escalation_status: str | None = None
     audience: str
     created_at: datetime
@@ -880,7 +881,7 @@ class ExerciseTrendReportResponse(BaseModel):
     generated_at: str
     total_exercises: int
     yearly_trends: list[YearlyTrendEntry]
-    common_issues: dict = Field(default_factory=dict)
+    common_issues: dict[str, Any] = Field(default_factory=dict)
     total_improvements: int
     completed_improvements: int
     improvement_completion_rate: float
@@ -913,7 +914,7 @@ class NotificationLogResponse(BaseModel):
     status: str
     sent_at: datetime | None = None
     error_message: str | None = None
-    metadata: dict | None = None
+    metadata: dict[str, Any] | None = None
     created_at: datetime
 
 
@@ -1021,7 +1022,7 @@ class AuditLogResponse(BaseModel):
     action: str
     resource_type: str
     resource_id: str | None = None
-    details: dict | None = None
+    details: dict[str, Any] | None = None
     ip_address: str | None = None
     user_agent: str | None = None
     status: str = "success"

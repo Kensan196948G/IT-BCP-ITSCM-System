@@ -1,6 +1,7 @@
 """CRUD operations for all models."""
 
 import uuid
+from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -25,7 +26,7 @@ from apps.models import (
 # ---- ITSystemBCP CRUD ----
 
 
-async def create_system(db: AsyncSession, data: dict) -> ITSystemBCP:
+async def create_system(db: AsyncSession, data: dict[str, Any]) -> ITSystemBCP:
     """Create a new IT system BCP record."""
     obj = ITSystemBCP(**data)
     db.add(obj)
@@ -46,7 +47,7 @@ async def get_all_systems(db: AsyncSession, skip: int = 0, limit: int = 100) -> 
     return list(result.scalars().all())
 
 
-async def update_system(db: AsyncSession, system_id: uuid.UUID, data: dict) -> ITSystemBCP | None:
+async def update_system(db: AsyncSession, system_id: uuid.UUID, data: dict[str, Any]) -> ITSystemBCP | None:
     """Update an IT system BCP record."""
     obj = await get_system(db, system_id)
     if obj is None:
@@ -72,7 +73,7 @@ async def delete_system(db: AsyncSession, system_id: uuid.UUID) -> bool:
 # ---- RecoveryProcedure CRUD ----
 
 
-async def create_procedure(db: AsyncSession, data: dict) -> RecoveryProcedure:
+async def create_procedure(db: AsyncSession, data: dict[str, Any]) -> RecoveryProcedure:
     """Create a new recovery procedure record."""
     obj = RecoveryProcedure(**data)
     db.add(obj)
@@ -93,7 +94,7 @@ async def get_all_procedures(db: AsyncSession, skip: int = 0, limit: int = 100) 
     return list(result.scalars().all())
 
 
-async def update_procedure(db: AsyncSession, procedure_id: uuid.UUID, data: dict) -> RecoveryProcedure | None:
+async def update_procedure(db: AsyncSession, procedure_id: uuid.UUID, data: dict[str, Any]) -> RecoveryProcedure | None:
     """Update a recovery procedure record."""
     obj = await get_procedure(db, procedure_id)
     if obj is None:
@@ -119,7 +120,7 @@ async def delete_procedure(db: AsyncSession, procedure_id: uuid.UUID) -> bool:
 # ---- EmergencyContact CRUD ----
 
 
-async def create_emergency_contact(db: AsyncSession, data: dict) -> EmergencyContact:
+async def create_emergency_contact(db: AsyncSession, data: dict[str, Any]) -> EmergencyContact:
     """Create a new emergency contact record."""
     obj = EmergencyContact(**data)
     db.add(obj)
@@ -140,7 +141,7 @@ async def get_all_emergency_contacts(db: AsyncSession, skip: int = 0, limit: int
     return list(result.scalars().all())
 
 
-async def update_emergency_contact(db: AsyncSession, contact_id: uuid.UUID, data: dict) -> EmergencyContact | None:
+async def update_emergency_contact(db: AsyncSession, contact_id: uuid.UUID, data: dict[str, Any]) -> EmergencyContact | None:
     """Update an emergency contact record."""
     obj = await get_emergency_contact(db, contact_id)
     if obj is None:
@@ -172,7 +173,7 @@ async def get_emergency_contacts_by_escalation_group(db: AsyncSession, group: st
 # ---- VendorContact CRUD ----
 
 
-async def create_vendor_contact(db: AsyncSession, data: dict) -> VendorContact:
+async def create_vendor_contact(db: AsyncSession, data: dict[str, Any]) -> VendorContact:
     """Create a new vendor contact record."""
     obj = VendorContact(**data)
     db.add(obj)
@@ -193,7 +194,7 @@ async def get_all_vendor_contacts(db: AsyncSession, skip: int = 0, limit: int = 
     return list(result.scalars().all())
 
 
-async def update_vendor_contact(db: AsyncSession, contact_id: uuid.UUID, data: dict) -> VendorContact | None:
+async def update_vendor_contact(db: AsyncSession, contact_id: uuid.UUID, data: dict[str, Any]) -> VendorContact | None:
     """Update a vendor contact record."""
     obj = await get_vendor_contact(db, contact_id)
     if obj is None:
@@ -219,7 +220,7 @@ async def delete_vendor_contact(db: AsyncSession, contact_id: uuid.UUID) -> bool
 # ---- BCPExercise CRUD ----
 
 
-async def create_exercise(db: AsyncSession, data: dict) -> BCPExercise:
+async def create_exercise(db: AsyncSession, data: dict[str, Any]) -> BCPExercise:
     """Create a new BCP exercise record."""
     obj = BCPExercise(**data)
     db.add(obj)
@@ -240,7 +241,7 @@ async def get_all_exercises(db: AsyncSession, skip: int = 0, limit: int = 100) -
     return list(result.scalars().all())
 
 
-async def update_exercise(db: AsyncSession, exercise_id: uuid.UUID, data: dict) -> BCPExercise | None:
+async def update_exercise(db: AsyncSession, exercise_id: uuid.UUID, data: dict[str, Any]) -> BCPExercise | None:
     """Update a BCP exercise record."""
     obj = await get_exercise(db, exercise_id)
     if obj is None:
@@ -256,7 +257,7 @@ async def update_exercise(db: AsyncSession, exercise_id: uuid.UUID, data: dict) 
 # ---- ActiveIncident CRUD ----
 
 
-async def create_incident(db: AsyncSession, data: dict) -> ActiveIncident:
+async def create_incident(db: AsyncSession, data: dict[str, Any]) -> ActiveIncident:
     """Create a new active incident record."""
     obj = ActiveIncident(**data)
     db.add(obj)
@@ -277,7 +278,7 @@ async def get_all_incidents(db: AsyncSession, skip: int = 0, limit: int = 100) -
     return list(result.scalars().all())
 
 
-async def update_incident(db: AsyncSession, incident_id: uuid.UUID, data: dict) -> ActiveIncident | None:
+async def update_incident(db: AsyncSession, incident_id: uuid.UUID, data: dict[str, Any]) -> ActiveIncident | None:
     """Update an active incident record."""
     obj = await get_incident(db, incident_id)
     if obj is None:
@@ -299,7 +300,7 @@ async def get_active_incidents(db: AsyncSession) -> list[ActiveIncident]:
 # ---- BIAAssessment CRUD ----
 
 
-async def create_bia_assessment(db: AsyncSession, data: dict) -> BIAAssessment:
+async def create_bia_assessment(db: AsyncSession, data: dict[str, Any]) -> BIAAssessment:
     """Create a new BIA assessment record."""
     obj = BIAAssessment(**data)
     db.add(obj)
@@ -320,7 +321,7 @@ async def get_all_bia_assessments(db: AsyncSession, skip: int = 0, limit: int = 
     return list(result.scalars().all())
 
 
-async def update_bia_assessment(db: AsyncSession, assessment_id: uuid.UUID, data: dict) -> BIAAssessment | None:
+async def update_bia_assessment(db: AsyncSession, assessment_id: uuid.UUID, data: dict[str, Any]) -> BIAAssessment | None:
     """Update a BIA assessment record."""
     obj = await get_bia_assessment(db, assessment_id)
     if obj is None:
@@ -346,7 +347,7 @@ async def delete_bia_assessment(db: AsyncSession, assessment_id: uuid.UUID) -> b
 # ---- BCPScenario CRUD ----
 
 
-async def create_scenario(db: AsyncSession, data: dict) -> BCPScenario:
+async def create_scenario(db: AsyncSession, data: dict[str, Any]) -> BCPScenario:
     """Create a new BCP scenario record."""
     obj = BCPScenario(**data)
     db.add(obj)
@@ -367,7 +368,7 @@ async def get_all_scenarios(db: AsyncSession, skip: int = 0, limit: int = 100) -
     return list(result.scalars().all())
 
 
-async def update_scenario(db: AsyncSession, scenario_id: uuid.UUID, data: dict) -> BCPScenario | None:
+async def update_scenario(db: AsyncSession, scenario_id: uuid.UUID, data: dict[str, Any]) -> BCPScenario | None:
     """Update a BCP scenario record."""
     obj = await get_scenario(db, scenario_id)
     if obj is None:
@@ -393,7 +394,7 @@ async def delete_scenario(db: AsyncSession, scenario_id: uuid.UUID) -> bool:
 # ---- ExerciseRTORecord CRUD ----
 
 
-async def create_rto_record(db: AsyncSession, data: dict) -> ExerciseRTORecord:
+async def create_rto_record(db: AsyncSession, data: dict[str, Any]) -> ExerciseRTORecord:
     """Create a new exercise RTO record."""
     obj = ExerciseRTORecord(**data)
     db.add(obj)
@@ -411,7 +412,7 @@ async def get_rto_records_by_exercise(db: AsyncSession, exercise_id: uuid.UUID) 
 # ---- IncidentTask CRUD ----
 
 
-async def create_incident_task(db: AsyncSession, data: dict) -> IncidentTask:
+async def create_incident_task(db: AsyncSession, data: dict[str, Any]) -> IncidentTask:
     """Create a new incident task record."""
     obj = IncidentTask(**data)
     db.add(obj)
@@ -434,7 +435,7 @@ async def get_incident_tasks_by_incident(db: AsyncSession, incident_id: uuid.UUI
     return list(result.scalars().all())
 
 
-async def update_incident_task(db: AsyncSession, task_id: uuid.UUID, data: dict) -> IncidentTask | None:
+async def update_incident_task(db: AsyncSession, task_id: uuid.UUID, data: dict[str, Any]) -> IncidentTask | None:
     """Update an incident task record."""
     obj = await get_incident_task(db, task_id)
     if obj is None:
@@ -460,7 +461,7 @@ async def delete_incident_task(db: AsyncSession, task_id: uuid.UUID) -> bool:
 # ---- SituationReport CRUD ----
 
 
-async def create_situation_report(db: AsyncSession, data: dict) -> SituationReport:
+async def create_situation_report(db: AsyncSession, data: dict[str, Any]) -> SituationReport:
     """Create a new situation report record."""
     obj = SituationReport(**data)
     db.add(obj)
@@ -495,7 +496,7 @@ async def create_audit_log(
     resource_id: str | None = None,
     user_id: str | None = None,
     user_role: str | None = None,
-    details: dict | None = None,
+    details: dict[str, Any] | None = None,
     ip_address: str | None = None,
     user_agent: str | None = None,
     status: str = "success",
@@ -554,7 +555,7 @@ async def get_audit_logs_by_incident(
     return list(result.scalars().all())
 
 
-async def get_bcp_statistics(db: AsyncSession) -> dict:
+async def get_bcp_statistics(db: AsyncSession) -> dict[str, Any]:
     """Compute aggregate BCP/ITSCM statistics for the dashboard."""
     systems = await get_all_systems(db, limit=10000)
     incidents = await get_all_incidents(db, limit=10000)

@@ -4,6 +4,7 @@ import csv
 import io
 import json
 import uuid
+from typing import Any
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from fastapi.responses import StreamingResponse
@@ -34,7 +35,7 @@ async def list_bia_assessments(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
     db: AsyncSession = Depends(get_db),
-) -> list:
+) -> list[Any]:
     """Get all BIA assessment records with pagination."""
     return await crud.get_all_bia_assessments(db, skip=skip, limit=limit)
 
@@ -51,7 +52,7 @@ async def create_bia_assessment(
 @router.get("/summary", response_model=BIASummaryResponse)
 async def bia_summary(
     db: AsyncSession = Depends(get_db),
-) -> dict:
+) -> dict[str, Any]:
     """Get aggregated BIA summary statistics."""
     cached = await get_cached(_CACHE_BIA_SUMMARY)
     if cached is not None:
@@ -66,7 +67,7 @@ async def bia_summary(
 @router.get("/risk-matrix", response_model=RiskMatrixResponse)
 async def bia_risk_matrix(
     db: AsyncSession = Depends(get_db),
-) -> dict:
+) -> dict[str, Any]:
     """Get risk matrix data for all assessments."""
     cached = await get_cached(_CACHE_BIA_RISK_MATRIX)
     if cached is not None:
@@ -174,9 +175,9 @@ _BIA_OPTIONAL_SCALAR = {
 }
 
 
-def _coerce_bia_row(row: dict) -> dict:
+def _coerce_bia_row(row: dict[str, Any]) -> dict[str, Any]:
     """Coerce CSV string values to correct Python types for BIAAssessmentCreate."""
-    result: dict = {}
+    result: dict[str, Any] = {}
     for field in _BIA_IMPORT_SCALAR_FIELDS:
         raw = row.get(field, "").strip() if row.get(field) is not None else ""
         if raw == "" and field in _BIA_OPTIONAL_SCALAR:
@@ -206,7 +207,7 @@ def _coerce_bia_row(row: dict) -> dict:
 async def import_bia_csv(
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
-) -> dict:
+) -> dict[str, Any]:
     """Bulk-import BIA assessment records from a CSV file.
 
     The CSV must include a header row with at minimum:
@@ -220,7 +221,7 @@ async def import_bia_csv(
 
     imported = 0
     skipped = 0
-    errors: list[dict] = []
+    errors: list[dict[str, Any]] = []
 
     for row_num, row in enumerate(reader, start=2):
         try:
