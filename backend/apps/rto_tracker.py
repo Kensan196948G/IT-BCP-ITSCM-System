@@ -99,7 +99,11 @@ class RTOTracker:
             }
 
     @staticmethod
-    def get_dashboard(systems: list[dict[str, Any]], incidents: list[dict[str, Any]], now: datetime | None = None) -> dict[str, Any]:
+    def get_dashboard(
+        systems: list[dict[str, Any]],
+        incidents: list[dict[str, Any]],
+        now: datetime | None = None,
+    ) -> dict[str, Any]:
         """Build a dashboard overview of all system RTO statuses.
 
         Args:
