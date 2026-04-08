@@ -12,8 +12,8 @@
   <a href="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml"><img src="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml/badge.svg" alt="CI"></a>
   <img src="https://img.shields.io/badge/tests-540_passed-brightgreen?style=flat-square" alt="Tests">
   <img src="https://img.shields.io/badge/coverage-100%25-brightgreen?style=flat-square" alt="Coverage">
-  <img src="https://img.shields.io/badge/PRs-122_merged-blue?style=flat-square" alt="PRs">
-  <img src="https://img.shields.io/badge/Open_PRs-0-brightgreen?style=flat-square" alt="Open PRs">
+  <img src="https://img.shields.io/badge/PRs-124_merged-blue?style=flat-square" alt="PRs">
+  <img src="https://img.shields.io/badge/Open_PRs-1-yellow?style=flat-square" alt="Open PRs">
   <img src="https://img.shields.io/badge/STABLE-✅-brightgreen?style=flat-square" alt="STABLE">
   <img src="https://img.shields.io/badge/security-0_CVE-brightgreen?style=flat-square&logo=shield" alt="Security">
 </p>
@@ -478,19 +478,20 @@ MIT License
 
 ---
 
-## 📊 最新 Monitor サマリー（2026-04-02 15:45 JST）
+## 📊 最新 Monitor サマリー（2026-04-08 JST）
 
 | 指標 | 値 | 状態 |
 |:-----|:---|:----:|
 | テスト数 | **540 passed** / 0 failed | ✅ |
 | E2Eテスト | 39 tests (Playwright、live server用) | ✅ |
 | カバレッジ | 100% (2535+ stmts) | ✅ |
-| Merged PRs | **122** (84 feature/fix + 38 dependabot) | ✅ |
-| Open PRs | 0 | ✅ |
-| GitHub Issues | 0 open (全件解消済み) | ✅ |
-| Project #13 | Phase 3 完了・Phase 4 準備中 | ✅ |
+| Merged PRs | **124** (86 feature/fix + 38 dependabot) | ✅ |
+| Open PRs | 1 (PR #125: mypy no-untyped-def解消) | 🔵 |
+| GitHub Issues | 1 open (#123: mypy対応中) | 🔵 |
+| Project #13 | Phase 4 完了・型安全性改善中 | ✅ |
 | セキュリティ | 0 CVE / JWT全ルーター + WebSocket保護済み | ✅ |
-| STABLE判定 | **✅ STABLE** (PR #122 全マージ済み) | ✅ |
+| mypy strict | `[type-arg]` 0件 ✅ / `[no-untyped-def]` 0件 ✅ | 🔵 |
+| STABLE判定 | **CI確認中** (PR #125 pending) | 🔵 |
 
 ### Phase 3 セキュリティ・キャッシュ・監査強化 進捗
 
@@ -514,6 +515,7 @@ MIT License
 | 📦 依存関係一括更新 | #109-#119 | ✅ Merged | FastAPI 0.135, Starlette 1.0, pytest 9.0, SQLAlchemy 2.0.49 等 |
 | 🔒 CVE-2026-24486 修正 | #120 | ✅ Closed | python-multipart Path Traversal (dependabot対応済み) |
 | 🔧 mypy strict type-arg 全解消 | #122 | ✅ Merged | 164件のtype-argエラーを31ファイルで解消、型安全性向上 |
+| 🔧 mypy strict no-untyped-def 全解消 | #125 | 🔵 CI中 | 22件のno-untyped-defエラーを3ファイルで解消（test_security/rate_limiter/exercises） |
 
 <p align="center">
   <sub>Built with ❤️ by ClaudeOS v7.1 Autonomous Evolution System</sub>
