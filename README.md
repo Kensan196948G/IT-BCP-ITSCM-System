@@ -12,7 +12,7 @@
   <a href="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml"><img src="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml/badge.svg" alt="CI"></a>
   <img src="https://img.shields.io/badge/tests-540_passed-brightgreen?style=flat-square" alt="Tests">
   <img src="https://img.shields.io/badge/coverage-100%25-brightgreen?style=flat-square" alt="Coverage">
-  <img src="https://img.shields.io/badge/PRs-108_merged-blue?style=flat-square" alt="PRs">
+  <img src="https://img.shields.io/badge/PRs-122_merged-blue?style=flat-square" alt="PRs">
   <img src="https://img.shields.io/badge/Open_PRs-0-brightgreen?style=flat-square" alt="Open PRs">
   <img src="https://img.shields.io/badge/STABLE-✅-brightgreen?style=flat-square" alt="STABLE">
   <img src="https://img.shields.io/badge/security-0_CVE-brightgreen?style=flat-square&logo=shield" alt="Security">
@@ -23,7 +23,7 @@
   <img src="https://img.shields.io/badge/ISO27001-A.5.29%2FA.5.30-green?style=flat-square" alt="ISO27001">
   <img src="https://img.shields.io/badge/NIST_CSF-RECOVER_RC-orange?style=flat-square" alt="NIST CSF">
   <img src="https://img.shields.io/badge/Next.js-16.2.2-black?style=flat-square&logo=next.js" alt="Next.js">
-  <img src="https://img.shields.io/badge/FastAPI-0.115-009688?style=flat-square&logo=fastapi" alt="FastAPI">
+  <img src="https://img.shields.io/badge/FastAPI-0.135-009688?style=flat-square&logo=fastapi" alt="FastAPI">
   <img src="https://img.shields.io/badge/PostgreSQL-16-336791?style=flat-square&logo=postgresql" alt="PostgreSQL">
   <img src="https://img.shields.io/badge/Azure-Container_Apps-0078D4?style=flat-square&logo=microsoftazure" alt="Azure">
   <img src="https://img.shields.io/badge/CI-GitHub_Actions-2088FF?style=flat-square&logo=github-actions" alt="CI">
@@ -39,7 +39,7 @@
 | 📦 **リポジトリ** | `Kensan196948G/IT-BCP-ITSCM-System` |
 | 📜 **準拠規格** | ISO20000 ITSCM / ISO27001 A.5.29・A.5.30 / NIST CSF 2.0 RECOVER RC |
 | 🟡 **優先度** | 中 |
-| 🤖 **開発方式** | ClaudeOS v4 Auto Development Pipeline |
+| 🤖 **開発方式** | ClaudeOS v7.1 Autonomous Evolution System |
 
 ---
 
@@ -485,12 +485,12 @@ MIT License
 | テスト数 | **540 passed** / 0 failed | ✅ |
 | E2Eテスト | 39 tests (Playwright、live server用) | ✅ |
 | カバレッジ | 100% (2535+ stmts) | ✅ |
-| Merged PRs | **108** | ✅ |
+| Merged PRs | **122** (84 feature/fix + 38 dependabot) | ✅ |
 | Open PRs | 0 | ✅ |
-| GitHub Issues | 1 open (#97 Phase3 BIA Cache) | 🔄 |
+| GitHub Issues | 0 open (全件解消済み) | ✅ |
 | Project #13 | Phase 3 完了・Phase 4 準備中 | ✅ |
 | セキュリティ | 0 CVE / JWT全ルーター + WebSocket保護済み | ✅ |
-| STABLE判定 | **✅ STABLE** (PR #107/#108 全マージ済み) | ✅ |
+| STABLE判定 | **✅ STABLE** (PR #122 全マージ済み) | ✅ |
 
 ### Phase 3 セキュリティ・キャッシュ・監査強化 進捗
 
@@ -511,7 +511,10 @@ MIT License
 | 📊 BCP/ITSCM統計分析API | #106 | ✅ Merged | MTTR・RTO違反率・システム重要度分布、540テスト |
 | 🔧 mypy型アノテーション修正(auth/ws) | #107 | ✅ Merged | no-any-return解消・dict[str,Any]型付け強化 |
 | 🔌 WebSocket RTO DBバックエンド化 | #108 | ✅ Merged | モックデータ廃止・crud+RTOTracker実クエリ接続 |
+| 📦 依存関係一括更新 | #109-#119 | ✅ Merged | FastAPI 0.135, Starlette 1.0, pytest 9.0, SQLAlchemy 2.0.49 等 |
+| 🔒 CVE-2026-24486 修正 | #120 | ✅ Closed | python-multipart Path Traversal (dependabot対応済み) |
+| 🔧 mypy strict type-arg 全解消 | #122 | ✅ Merged | 164件のtype-argエラーを31ファイルで解消、型安全性向上 |
 
 <p align="center">
-  <sub>Built with ❤️ by ClaudeOS v4 Auto Development Pipeline</sub>
+  <sub>Built with ❤️ by ClaudeOS v7.1 Autonomous Evolution System</sub>
 </p>
