@@ -2,6 +2,7 @@
 
 import uuid
 from datetime import datetime, timezone
+from collections.abc import AsyncGenerator, Callable, Generator
 from typing import Any
 from unittest.mock import AsyncMock
 
@@ -33,17 +34,17 @@ async def _mock_admin_user() -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
-def _fake_db_generator():
+def _fake_db_generator() -> Callable[[], AsyncGenerator[AsyncMock, None]]:
     """Return an async generator yielding a mock session."""
 
-    async def _gen():
+    async def _gen() -> AsyncGenerator[AsyncMock, None]:
         yield AsyncMock()
 
     return _gen
 
 
 @pytest.fixture(autouse=True)
-def _auto_auth():
+def _auto_auth() -> Generator[None, None, None]:
     """Automatically inject mock admin auth for every test.
 
     Tests that specifically verify 401 behaviour must use the
@@ -55,7 +56,7 @@ def _auto_auth():
 
 
 @pytest.fixture()
-def client():
+def client() -> Generator[TestClient, None, None]:
     """Provide a TestClient with the DB dependency and auth overridden."""
     from main import _rate_limiter
 
@@ -68,7 +69,7 @@ def client():
 
 
 @pytest.fixture()
-def unauthenticated_client():
+def unauthenticated_client() -> Generator[TestClient, None, None]:
     """Provide a TestClient with DB overridden but NO auth override.
 
     Use this for tests that specifically verify 401 / authentication behaviour.

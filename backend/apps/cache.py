@@ -7,6 +7,8 @@ Provides a thin async wrapper around redis.asyncio with:
 - TTL-based expiry with sensible defaults per data category
 """
 
+from __future__ import annotations
+
 import json
 import logging
 from typing import Any
@@ -26,10 +28,10 @@ TTL_BIA = 600  # BIA data: changes infrequently
 TTL_DEFAULT = 120  # fallback
 
 
-_pool: aioredis.Redis | None = None
+_pool: aioredis.Redis[bytes] | None = None
 
 
-def _get_client() -> aioredis.Redis | None:
+def _get_client() -> aioredis.Redis[bytes] | None:
     """Return a singleton Redis client, initialising on first call.
 
     Returns None if the connection cannot be established so callers

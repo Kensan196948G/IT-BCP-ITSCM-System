@@ -12,6 +12,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.responses import Response
 
 from apps.audit_service import audit_service
 from apps.auth import AuthService
@@ -150,7 +151,7 @@ app.add_middleware(
 @app.middleware("http")
 async def security_headers_middleware(request: Request, call_next: object) -> JSONResponse:
     """Attach security headers to every response."""
-    response = await call_next(request)  # type: ignore[operator]
+    response: JSONResponse = await call_next(request)  # type: ignore[operator]
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-XSS-Protection"] = "1; mode=block"
@@ -174,7 +175,7 @@ async def rate_limit_middleware(request: Request, call_next: object) -> JSONResp
 async def request_logging_middleware(request: Request, call_next: object) -> JSONResponse:
     """Log method, path, status code and processing time."""
     start = time.time()
-    response = await call_next(request)  # type: ignore[operator]
+    response: JSONResponse = await call_next(request)  # type: ignore[operator]
     duration_ms = (time.time() - start) * 1000
     logger.info(
         "%s %s -> %s (%.1fms)",
@@ -190,7 +191,7 @@ async def request_logging_middleware(request: Request, call_next: object) -> JSO
 async def metrics_middleware(request: Request, call_next: object) -> JSONResponse:
     """Record request metrics for monitoring."""
     start = time.time()
-    response = await call_next(request)  # type: ignore[operator]
+    response: JSONResponse = await call_next(request)  # type: ignore[operator]
     duration = time.time() - start
     metrics_collector.record_request(
         method=request.method,
@@ -209,7 +210,7 @@ _AUDIT_SKIP_PATHS = {"/api/auth/login", "/api/auth/me"}
 @app.middleware("http")
 async def audit_log_middleware(request: Request, call_next: object) -> JSONResponse:
     """Record mutation operations to the audit log for ISO27001 compliance."""
-    response = await call_next(request)  # type: ignore[operator]
+    response: JSONResponse = await call_next(request)  # type: ignore[operator]
     path = request.url.path
     method = request.method
     if method in _AUDIT_METHODS and path.startswith(_AUDIT_PATH_PREFIX) and path not in _AUDIT_SKIP_PATHS:

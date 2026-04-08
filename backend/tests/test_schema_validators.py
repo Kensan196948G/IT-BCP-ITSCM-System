@@ -26,8 +26,11 @@ def test_recovery_procedure_id_blank_raises() -> None:
             system_name="Core Banking",
             scenario_type="dc_failure",
             title="Test Procedure",
+            version="1.0",
             priority_order=1,
-            procedure_steps=["Step 1"],
+            procedure_steps=[{"step": "Step 1"}],
+            responsible_team="IT Ops",
+            status="active",
         )
 
 
@@ -37,6 +40,11 @@ def test_emergency_contact_name_blank_raises() -> None:
         EmergencyContactCreate(
             name="   ",
             role="IT部門長",
+            department="IT",
+            phone_primary="03-1234-5678",
+            phone_secondary="090-1234-5678",
+            email="admin@example.com",
+            teams_id="admin@example.com",
             escalation_level=1,
             escalation_group="P1_FULL_BCP",
         )
@@ -48,6 +56,11 @@ def test_vendor_contact_vendor_name_blank_raises() -> None:
         VendorContactCreate(
             vendor_name="   ",
             service_name="DB Support",
+            contract_id="C-001",
+            support_level="premier",
+            phone_primary="03-1234-5678",
+            phone_emergency="090-1234-5678",
+            email_support="support@example.com",
         )
 
 
@@ -81,4 +94,5 @@ def test_bcp_scenario_id_blank_raises() -> None:
             description="A test scenario",
             initial_inject="Initial situation",
             injects=["Inject 1"],
+            difficulty="medium",
         )

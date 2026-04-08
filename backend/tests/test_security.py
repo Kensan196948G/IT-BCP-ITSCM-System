@@ -1,5 +1,6 @@
 """Security middleware, headers, CORS and error handler tests."""
 
+from collections.abc import AsyncGenerator, Callable, Generator
 from unittest.mock import AsyncMock
 
 import pytest
@@ -9,15 +10,15 @@ from database import get_db
 from main import app
 
 
-def _fake_db_generator():
-    async def _gen():
+def _fake_db_generator() -> Callable[[], AsyncGenerator[AsyncMock, None]]:
+    async def _gen() -> AsyncGenerator[AsyncMock, None]:
         yield AsyncMock()
 
     return _gen
 
 
 @pytest.fixture()
-def client():
+def client() -> Generator[TestClient, None, None]:
     app.dependency_overrides[get_db] = _fake_db_generator()
     yield TestClient(app, raise_server_exceptions=False)
     app.dependency_overrides.clear()
@@ -29,27 +30,27 @@ def client():
 class TestSecurityHeaders:
     """Verify security headers are present on every response."""
 
-    def test_x_content_type_options(self, client: TestClient):
+    def test_x_content_type_options(self, client: TestClient) -> None:
         resp = client.get("/api/health")
         assert resp.headers.get("X-Content-Type-Options") == "nosniff"
 
-    def test_x_frame_options(self, client: TestClient):
+    def test_x_frame_options(self, client: TestClient) -> None:
         resp = client.get("/api/health")
         assert resp.headers.get("X-Frame-Options") == "DENY"
 
-    def test_x_xss_protection(self, client: TestClient):
+    def test_x_xss_protection(self, client: TestClient) -> None:
         resp = client.get("/api/health")
         assert resp.headers.get("X-XSS-Protection") == "1; mode=block"
 
-    def test_strict_transport_security(self, client: TestClient):
+    def test_strict_transport_security(self, client: TestClient) -> None:
         resp = client.get("/api/health")
         assert "max-age=31536000" in resp.headers.get("Strict-Transport-Security", "")
 
-    def test_cache_control(self, client: TestClient):
+    def test_cache_control(self, client: TestClient) -> None:
         resp = client.get("/api/health")
         assert resp.headers.get("Cache-Control") == "no-store"
 
-    def test_content_security_policy(self, client: TestClient):
+    def test_content_security_policy(self, client: TestClient) -> None:
         resp = client.get("/api/health")
         assert resp.headers.get("Content-Security-Policy") == "default-src 'self'"
 
@@ -60,7 +61,7 @@ class TestSecurityHeaders:
 class TestCORS:
     """Basic CORS behaviour."""
 
-    def test_cors_allowed_origin(self, client: TestClient):
+    def test_cors_allowed_origin(self, client: TestClient) -> None:
         resp = client.options(
             "/api/health",
             headers={
@@ -70,7 +71,7 @@ class TestCORS:
         )
         assert resp.headers.get("access-control-allow-origin") == "http://localhost:3000"
 
-    def test_cors_disallowed_origin(self, client: TestClient):
+    def test_cors_disallowed_origin(self, client: TestClient) -> None:
         resp = client.options(
             "/api/health",
             headers={
@@ -87,7 +88,7 @@ class TestCORS:
 class TestErrorHandlers:
     """Validate custom error handlers."""
 
-    def test_validation_error_422(self, client: TestClient):
+    def test_validation_error_422(self, client: TestClient) -> None:
         """POST with invalid body should return 422."""
         resp = client.post(
             "/api/systems",
@@ -97,7 +98,7 @@ class TestErrorHandlers:
         body = resp.json()
         assert "detail" in body
 
-    def test_not_found_404(self, client: TestClient):
+    def test_not_found_404(self, client: TestClient) -> None:
         """Non-existent route should return 404."""
         resp = client.get("/api/nonexistent")
         assert resp.status_code == 404
@@ -111,18 +112,18 @@ class TestErrorHandlers:
 class TestHealthCheck:
     """Health endpoint should return extended info."""
 
-    def test_health_contains_environment(self, client: TestClient):
+    def test_health_contains_environment(self, client: TestClient) -> None:
         resp = client.get("/api/health")
         body = resp.json()
         assert "environment" in body
 
-    def test_health_contains_version(self, client: TestClient):
+    def test_health_contains_version(self, client: TestClient) -> None:
         resp = client.get("/api/health")
         body = resp.json()
         assert "version" in body
         assert body["version"] == "0.1.0"
 
-    def test_health_contains_database_status(self, client: TestClient):
+    def test_health_contains_database_status(self, client: TestClient) -> None:
         resp = client.get("/api/health")
         body = resp.json()
         assert "database" in body

@@ -4,6 +4,9 @@ All tests mock the Redis client so no real Redis instance is required.
 This ensures the test suite passes in CI without infrastructure dependencies.
 """
 
+from __future__ import annotations
+
+from collections.abc import AsyncGenerator
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -23,7 +26,7 @@ from apps.cache import (
 # ---------------------------------------------------------------------------
 
 
-def _make_redis_mock(**method_overrides) -> AsyncMock:
+def _make_redis_mock(**method_overrides: object) -> AsyncMock:
     """Return an AsyncMock mimicking a redis.asyncio.Redis client."""
     mock = AsyncMock()
     for attr, value in method_overrides.items():
@@ -37,19 +40,19 @@ def _make_redis_mock(**method_overrides) -> AsyncMock:
 
 
 class TestGetClient:
-    def setup_method(self):
+    def setup_method(self) -> None:
         # Reset singleton between tests
         cache_module._pool = None
 
-    def teardown_method(self):
+    def teardown_method(self) -> None:
         cache_module._pool = None
 
-    def test_returns_none_on_connection_error(self):
+    def test_returns_none_on_connection_error(self) -> None:
         with patch("apps.cache.aioredis.from_url", side_effect=Exception("refused")):
             client = cache_module._get_client()
         assert client is None
 
-    def test_reuses_existing_pool(self):
+    def test_reuses_existing_pool(self) -> None:
         mock_redis = _make_redis_mock()
         cache_module._pool = mock_redis
         client = cache_module._get_client()
@@ -62,27 +65,27 @@ class TestGetClient:
 
 
 class TestGetCached:
-    def setup_method(self):
+    def setup_method(self) -> None:
         cache_module._pool = None
 
-    def teardown_method(self):
+    def teardown_method(self) -> None:
         cache_module._pool = None
 
     @pytest.mark.asyncio
-    async def test_returns_none_when_client_unavailable(self):
+    async def test_returns_none_when_client_unavailable(self) -> None:
         with patch("apps.cache._get_client", return_value=None):
             result = await get_cached("some_key")
         assert result is None
 
     @pytest.mark.asyncio
-    async def test_returns_none_on_cache_miss(self):
+    async def test_returns_none_on_cache_miss(self) -> None:
         mock_client = _make_redis_mock(get=AsyncMock(return_value=None))
         with patch("apps.cache._get_client", return_value=mock_client):
             result = await get_cached("missing_key")
         assert result is None
 
     @pytest.mark.asyncio
-    async def test_returns_deserialized_value(self):
+    async def test_returns_deserialized_value(self) -> None:
         import json
 
         payload = {"status": "healthy", "score": 95}
@@ -92,7 +95,7 @@ class TestGetCached:
         assert result == payload
 
     @pytest.mark.asyncio
-    async def test_returns_none_on_redis_error(self):
+    async def test_returns_none_on_redis_error(self) -> None:
         mock_client = _make_redis_mock(get=AsyncMock(side_effect=Exception("timeout")))
         with patch("apps.cache._get_client", return_value=mock_client):
             result = await get_cached("error_key")
@@ -105,27 +108,27 @@ class TestGetCached:
 
 
 class TestSetCached:
-    def setup_method(self):
+    def setup_method(self) -> None:
         cache_module._pool = None
 
-    def teardown_method(self):
+    def teardown_method(self) -> None:
         cache_module._pool = None
 
     @pytest.mark.asyncio
-    async def test_returns_false_when_client_unavailable(self):
+    async def test_returns_false_when_client_unavailable(self) -> None:
         with patch("apps.cache._get_client", return_value=None):
             result = await set_cached("key", {"data": 1})
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_returns_true_on_success(self):
+    async def test_returns_true_on_success(self) -> None:
         mock_client = _make_redis_mock(setex=AsyncMock(return_value=True))
         with patch("apps.cache._get_client", return_value=mock_client):
             result = await set_cached("key", {"data": 1})
         assert result is True
 
     @pytest.mark.asyncio
-    async def test_uses_default_ttl(self):
+    async def test_uses_default_ttl(self) -> None:
         mock_client = _make_redis_mock(setex=AsyncMock(return_value=True))
         with patch("apps.cache._get_client", return_value=mock_client):
             await set_cached("key", "value")
@@ -133,7 +136,7 @@ class TestSetCached:
         assert call_args[0][1] == TTL_DEFAULT
 
     @pytest.mark.asyncio
-    async def test_uses_custom_ttl(self):
+    async def test_uses_custom_ttl(self) -> None:
         mock_client = _make_redis_mock(setex=AsyncMock(return_value=True))
         with patch("apps.cache._get_client", return_value=mock_client):
             await set_cached("key", "value", ttl=999)
@@ -141,7 +144,7 @@ class TestSetCached:
         assert call_args[0][1] == 999
 
     @pytest.mark.asyncio
-    async def test_returns_false_on_redis_error(self):
+    async def test_returns_false_on_redis_error(self) -> None:
         mock_client = _make_redis_mock(setex=AsyncMock(side_effect=Exception("OOM")))
         with patch("apps.cache._get_client", return_value=mock_client):
             result = await set_cached("key", {"data": 1})
@@ -154,32 +157,32 @@ class TestSetCached:
 
 
 class TestInvalidateCache:
-    def setup_method(self):
+    def setup_method(self) -> None:
         cache_module._pool = None
 
-    def teardown_method(self):
+    def teardown_method(self) -> None:
         cache_module._pool = None
 
     @pytest.mark.asyncio
-    async def test_returns_zero_for_empty_keys(self):
+    async def test_returns_zero_for_empty_keys(self) -> None:
         result = await invalidate_cache()
         assert result == 0
 
     @pytest.mark.asyncio
-    async def test_returns_zero_when_client_unavailable(self):
+    async def test_returns_zero_when_client_unavailable(self) -> None:
         with patch("apps.cache._get_client", return_value=None):
             result = await invalidate_cache("k1", "k2")
         assert result == 0
 
     @pytest.mark.asyncio
-    async def test_returns_deleted_count(self):
+    async def test_returns_deleted_count(self) -> None:
         mock_client = _make_redis_mock(delete=AsyncMock(return_value=2))
         with patch("apps.cache._get_client", return_value=mock_client):
             result = await invalidate_cache("k1", "k2")
         assert result == 2
 
     @pytest.mark.asyncio
-    async def test_returns_zero_on_error(self):
+    async def test_returns_zero_on_error(self) -> None:
         mock_client = _make_redis_mock(delete=AsyncMock(side_effect=Exception("err")))
         with patch("apps.cache._get_client", return_value=mock_client):
             result = await invalidate_cache("k1")
@@ -192,21 +195,21 @@ class TestInvalidateCache:
 
 
 class TestInvalidatePattern:
-    def setup_method(self):
+    def setup_method(self) -> None:
         cache_module._pool = None
 
-    def teardown_method(self):
+    def teardown_method(self) -> None:
         cache_module._pool = None
 
     @pytest.mark.asyncio
-    async def test_returns_zero_when_client_unavailable(self):
+    async def test_returns_zero_when_client_unavailable(self) -> None:
         with patch("apps.cache._get_client", return_value=None):
             result = await invalidate_pattern("dashboard:*")
         assert result == 0
 
     @pytest.mark.asyncio
-    async def test_deletes_matched_keys(self):
-        async def _scan_iter(**kwargs):
+    async def test_deletes_matched_keys(self) -> None:
+        async def _scan_iter(**kwargs: str) -> AsyncGenerator[str, None]:
             for k in ["dashboard:readiness", "dashboard:rto"]:
                 yield k
 
@@ -219,7 +222,7 @@ class TestInvalidatePattern:
         assert result == 2
 
     @pytest.mark.asyncio
-    async def test_returns_zero_on_error(self):
+    async def test_returns_zero_on_error(self) -> None:
         mock_client = MagicMock()
         mock_client.scan_iter = MagicMock(side_effect=Exception("scan err"))
 
@@ -234,27 +237,27 @@ class TestInvalidatePattern:
 
 
 class TestPing:
-    def setup_method(self):
+    def setup_method(self) -> None:
         cache_module._pool = None
 
-    def teardown_method(self):
+    def teardown_method(self) -> None:
         cache_module._pool = None
 
     @pytest.mark.asyncio
-    async def test_returns_false_when_client_unavailable(self):
+    async def test_returns_false_when_client_unavailable(self) -> None:
         with patch("apps.cache._get_client", return_value=None):
             result = await ping()
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_returns_true_on_success(self):
+    async def test_returns_true_on_success(self) -> None:
         mock_client = _make_redis_mock(ping=AsyncMock(return_value=True))
         with patch("apps.cache._get_client", return_value=mock_client):
             result = await ping()
         assert result is True
 
     @pytest.mark.asyncio
-    async def test_returns_false_on_error(self):
+    async def test_returns_false_on_error(self) -> None:
         mock_client = _make_redis_mock(ping=AsyncMock(side_effect=Exception("refused")))
         with patch("apps.cache._get_client", return_value=mock_client):
             result = await ping()

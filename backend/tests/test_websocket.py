@@ -1,6 +1,7 @@
 """Tests for WebSocket RTO dashboard endpoint and ConnectionManager."""
 
 import json
+from collections.abc import Generator
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -39,13 +40,13 @@ _MOCK_SNAPSHOT = {
 
 
 @pytest.fixture()
-def ws_client():
+def ws_client() -> Generator[TestClient, None, None]:
     """Provide a TestClient for WebSocket testing."""
     yield TestClient(app)
 
 
 @pytest.fixture()
-def mock_snapshot():
+def mock_snapshot() -> Generator[None, None, None]:
     """Patch _get_rto_snapshot to return deterministic test data."""
     with patch("apps.routers.ws._get_rto_snapshot", new_callable=AsyncMock, return_value=_MOCK_SNAPSHOT.copy()):
         yield
@@ -54,7 +55,7 @@ def mock_snapshot():
 class TestWebSocketRTODashboard:
     """Tests for the /ws/rto-dashboard WebSocket endpoint."""
 
-    def test_websocket_connect_and_receive_snapshot(self, ws_client, mock_snapshot):
+    def test_websocket_connect_and_receive_snapshot(self, ws_client: TestClient, mock_snapshot: None) -> None:
         """Test that connecting receives an initial RTO snapshot."""
         with ws_client.websocket_connect(_WS_URL) as ws:
             data = ws.receive_text()
@@ -64,7 +65,7 @@ class TestWebSocketRTODashboard:
             assert "summary" in msg
             assert "timestamp" in msg
 
-    def test_websocket_snapshot_has_systems(self, ws_client, mock_snapshot):
+    def test_websocket_snapshot_has_systems(self, ws_client: TestClient, mock_snapshot: None) -> None:
         """Test that the snapshot contains system data."""
         with ws_client.websocket_connect(_WS_URL) as ws:
             data = ws.receive_text()
@@ -75,7 +76,7 @@ class TestWebSocketRTODashboard:
             assert "rto_target_hours" in system
             assert "status" in system
 
-    def test_websocket_snapshot_summary(self, ws_client, mock_snapshot):
+    def test_websocket_snapshot_summary(self, ws_client: TestClient, mock_snapshot: None) -> None:
         """Test that the snapshot summary has correct structure."""
         with ws_client.websocket_connect(_WS_URL) as ws:
             data = ws.receive_text()
@@ -87,7 +88,7 @@ class TestWebSocketRTODashboard:
             assert "overdue" in summary
             assert summary["total"] == len(msg["systems"])
 
-    def test_websocket_ping_pong(self, ws_client, mock_snapshot):
+    def test_websocket_ping_pong(self, ws_client: TestClient, mock_snapshot: None) -> None:
         """Test that sending a ping receives a pong."""
         with ws_client.websocket_connect(_WS_URL) as ws:
             # Consume initial snapshot
@@ -99,7 +100,7 @@ class TestWebSocketRTODashboard:
             assert msg["type"] == "pong"
             assert "timestamp" in msg
 
-    def test_websocket_handles_invalid_json(self, ws_client, mock_snapshot):
+    def test_websocket_handles_invalid_json(self, ws_client: TestClient, mock_snapshot: None) -> None:
         """Test that invalid JSON does not crash the connection."""
         with ws_client.websocket_connect(_WS_URL) as ws:
             # Consume initial snapshot
@@ -112,7 +113,7 @@ class TestWebSocketRTODashboard:
             msg = json.loads(data)
             assert msg["type"] == "pong"
 
-    def test_websocket_receives_background_update(self, ws_client, mock_snapshot):
+    def test_websocket_receives_background_update(self, ws_client: TestClient, mock_snapshot: None) -> None:
         """Background task sends rto_update messages (covers send_updates task)."""
         with patch("asyncio.sleep", new_callable=AsyncMock, return_value=None):
             with ws_client.websocket_connect(_WS_URL) as ws:
@@ -126,7 +127,7 @@ class TestWebSocketRTODashboard:
                 assert "summary" in update
 
     @pytest.mark.asyncio
-    async def test_websocket_generic_exception_disconnects(self):
+    async def test_websocket_generic_exception_disconnects(self) -> None:
         """Generic exceptions (not WebSocketDisconnect) call manager.disconnect."""
         from apps.routers.ws import rto_dashboard_ws
         from apps.websocket_manager import manager
@@ -143,13 +144,13 @@ class TestWebSocketRTODashboard:
 
         mock_disconnect.assert_called_once_with(ws)
 
-    def test_websocket_rejects_without_token(self, ws_client):
+    def test_websocket_rejects_without_token(self, ws_client: TestClient) -> None:
         """Connecting without a token closes with 1008."""
         with pytest.raises(Exception):
             with ws_client.websocket_connect("/ws/rto-dashboard"):
                 pass
 
-    def test_websocket_rejects_invalid_token(self, ws_client):
+    def test_websocket_rejects_invalid_token(self, ws_client: TestClient) -> None:
         """Connecting with an invalid token closes with 1008."""
         with pytest.raises(Exception):
             with ws_client.websocket_connect("/ws/rto-dashboard?token=invalid.token.here"):
@@ -165,7 +166,7 @@ class TestConnectionManager:
     """Unit tests for ConnectionManager.broadcast() and send_rto_update()."""
 
     @pytest.mark.asyncio
-    async def test_broadcast_sends_to_all_connections(self):
+    async def test_broadcast_sends_to_all_connections(self) -> None:
         """broadcast() sends JSON message to every active connection."""
         manager = ConnectionManager()
         ws1 = AsyncMock()
@@ -179,7 +180,7 @@ class TestConnectionManager:
         ws2.send_text.assert_awaited_once_with(expected)
 
     @pytest.mark.asyncio
-    async def test_broadcast_removes_failed_connections(self):
+    async def test_broadcast_removes_failed_connections(self) -> None:
         """broadcast() cleans up connections that raise on send_text."""
         manager = ConnectionManager()
         healthy = AsyncMock()
@@ -194,7 +195,7 @@ class TestConnectionManager:
         assert healthy in manager.active_connections
 
     @pytest.mark.asyncio
-    async def test_broadcast_empty_connections(self):
+    async def test_broadcast_empty_connections(self) -> None:
         """broadcast() works with no active connections (no error)."""
         manager = ConnectionManager()
         manager.active_connections = []
@@ -202,7 +203,7 @@ class TestConnectionManager:
         await manager.broadcast({"event": "empty"})
 
     @pytest.mark.asyncio
-    async def test_send_rto_update_broadcasts_correct_payload(self):
+    async def test_send_rto_update_broadcasts_correct_payload(self) -> None:
         """send_rto_update() wraps data in rto_update payload and broadcasts."""
         manager = ConnectionManager()
         ws = AsyncMock()

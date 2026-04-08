@@ -1,6 +1,7 @@
 """Integration tests: cross-router workflows and monitoring endpoints."""
 
 import uuid
+from collections.abc import AsyncGenerator, Callable, Generator
 from datetime import date, datetime, timezone
 from unittest.mock import AsyncMock, patch
 
@@ -171,15 +172,15 @@ class _MockBIA:
             setattr(self, k, v)
 
 
-def _fake_db():
-    async def _gen():
+def _fake_db() -> Callable[[], AsyncGenerator[AsyncMock, None]]:
+    async def _gen() -> AsyncGenerator[AsyncMock, None]:
         yield AsyncMock()
 
     return _gen
 
 
 @pytest.fixture()
-def client():
+def client() -> Generator[TestClient, None, None]:
     app.dependency_overrides[get_db] = _fake_db()
     yield TestClient(app)
     app.dependency_overrides.clear()
@@ -190,7 +191,7 @@ def client():
 # ---------------------------------------------------------------------------
 
 
-def test_metrics_endpoint_returns_prometheus_format(client):
+def test_metrics_endpoint_returns_prometheus_format(client: TestClient) -> None:
     """GET /api/metrics returns Prometheus exposition format text."""
     resp = client.get("/api/metrics")
     assert resp.status_code == 200
@@ -201,7 +202,7 @@ def test_metrics_endpoint_returns_prometheus_format(client):
     assert "itbcp_uptime_seconds" in body
 
 
-def test_metrics_contains_all_metric_types(client):
+def test_metrics_contains_all_metric_types(client: TestClient) -> None:
     """Metrics output includes all required metric names."""
     resp = client.get("/api/metrics")
     required = [
@@ -232,7 +233,7 @@ def test_metrics_contains_all_metric_types(client):
     new_callable=AsyncMock,
     return_value={"name": "redis", "status": "healthy", "latency_ms": 0.5},
 )
-def test_readiness_probe(_mock_redis, _mock_db, client):
+def test_readiness_probe(_mock_redis: AsyncMock, _mock_db: AsyncMock, client: TestClient) -> None:
     """GET /api/health/ready returns readiness status (mocked deps for test isolation)."""
     resp = client.get("/api/health/ready")
     assert resp.status_code == 200
@@ -242,14 +243,14 @@ def test_readiness_probe(_mock_redis, _mock_db, client):
     assert len(data["checks"]) >= 2
 
 
-def test_liveness_probe(client):
+def test_liveness_probe(client: TestClient) -> None:
     """GET /api/health/live returns liveness status."""
     resp = client.get("/api/health/live")
     assert resp.status_code == 200
     assert resp.json()["status"] == "alive"
 
 
-def test_detailed_health(client):
+def test_detailed_health(client: TestClient) -> None:
     """GET /api/health/detailed returns full health details."""
     resp = client.get("/api/health/detailed")
     assert resp.status_code == 200
@@ -269,7 +270,7 @@ def test_detailed_health(client):
 
 @patch("apps.crud.create_system", new_callable=AsyncMock)
 @patch("apps.crud.get_all_systems", new_callable=AsyncMock)
-def test_systems_list_then_create(mock_list, mock_create, client):
+def test_systems_list_then_create(mock_list: AsyncMock, mock_create: AsyncMock, client: TestClient) -> None:
     """GET /api/systems then POST /api/systems workflow."""
     mock_list.return_value = []
     resp = client.get("/api/systems")
@@ -291,7 +292,7 @@ def test_systems_list_then_create(mock_list, mock_create, client):
 
 @patch("apps.crud.create_exercise", new_callable=AsyncMock)
 @patch("apps.crud.get_all_exercises", new_callable=AsyncMock)
-def test_exercises_list_then_create(mock_list, mock_create, client):
+def test_exercises_list_then_create(mock_list: AsyncMock, mock_create: AsyncMock, client: TestClient) -> None:
     """GET /api/exercises then POST /api/exercises workflow."""
     mock_list.return_value = []
     resp = client.get("/api/exercises")
@@ -311,7 +312,7 @@ def test_exercises_list_then_create(mock_list, mock_create, client):
 
 @patch("apps.crud.create_incident", new_callable=AsyncMock)
 @patch("apps.crud.get_all_incidents", new_callable=AsyncMock)
-def test_incidents_list_then_create(mock_list, mock_create, client):
+def test_incidents_list_then_create(mock_list: AsyncMock, mock_create: AsyncMock, client: TestClient) -> None:
     """GET /api/incidents then POST /api/incidents workflow."""
     mock_list.return_value = []
     resp = client.get("/api/incidents")
@@ -339,7 +340,7 @@ def test_incidents_list_then_create(mock_list, mock_create, client):
 
 @patch("apps.crud.create_incident_task", new_callable=AsyncMock)
 @patch("apps.crud.get_incident", new_callable=AsyncMock)
-def test_incident_task_creation(mock_get, mock_create_task, client):
+def test_incident_task_creation(mock_get: AsyncMock, mock_create_task: AsyncMock, client: TestClient) -> None:
     """POST /api/incidents/{id}/tasks creates a task for an incident."""
     mock_get.return_value = _MockIncident()
     mock_create_task.return_value = _MockTask()
@@ -355,7 +356,7 @@ def test_incident_task_creation(mock_get, mock_create_task, client):
 
 @patch("apps.crud.create_situation_report", new_callable=AsyncMock)
 @patch("apps.crud.get_incident", new_callable=AsyncMock)
-def test_situation_report_creation(mock_get, mock_create_sr, client):
+def test_situation_report_creation(mock_get: AsyncMock, mock_create_sr: AsyncMock, client: TestClient) -> None:
     """POST /api/incidents/{id}/situation-reports creates a report."""
     mock_get.return_value = _MockIncident()
     mock_create_sr.return_value = _MockSitReport()
@@ -380,7 +381,7 @@ def test_situation_report_creation(mock_get, mock_create_sr, client):
 @patch("apps.routers.bia.get_cached", new_callable=AsyncMock, return_value=None)
 @patch("apps.routers.bia.set_cached", new_callable=AsyncMock)
 @patch("apps.crud.get_all_bia_assessments", new_callable=AsyncMock)
-def test_bia_summary_integration(mock_list, _sc, _gc, client):
+def test_bia_summary_integration(mock_list: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client: TestClient) -> None:
     """GET /api/bia/summary returns aggregated BIA statistics."""
     mock_list.return_value = [_MockBIA()]
     resp = client.get("/api/bia/summary")
@@ -393,7 +394,7 @@ def test_bia_summary_integration(mock_list, _sc, _gc, client):
 @patch("apps.routers.bia.get_cached", new_callable=AsyncMock, return_value=None)
 @patch("apps.routers.bia.set_cached", new_callable=AsyncMock)
 @patch("apps.crud.get_all_bia_assessments", new_callable=AsyncMock)
-def test_bia_risk_matrix_integration(mock_list, _sc, _gc, client):
+def test_bia_risk_matrix_integration(mock_list: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client: TestClient) -> None:
     """GET /api/bia/risk-matrix returns risk matrix data."""
     mock_list.return_value = [_MockBIA()]
     resp = client.get("/api/bia/risk-matrix")
@@ -408,7 +409,7 @@ def test_bia_risk_matrix_integration(mock_list, _sc, _gc, client):
 # ---------------------------------------------------------------------------
 
 
-def test_escalation_trigger_and_notification_logs(client):
+def test_escalation_trigger_and_notification_logs(client: TestClient) -> None:
     """POST escalation then GET notification logs."""
     esc_payload = {
         "incident_id": str(FIXED_UUID),
@@ -439,7 +440,7 @@ def test_escalation_trigger_and_notification_logs(client):
 @patch("apps.routers.dashboard.set_cached", new_callable=AsyncMock)
 @patch("apps.crud.get_active_incidents", new_callable=AsyncMock)
 @patch("apps.crud.get_all_systems", new_callable=AsyncMock)
-def test_dashboard_readiness(mock_systems, mock_incidents, _sc, _gc, client):
+def test_dashboard_readiness(mock_systems: AsyncMock, mock_incidents: AsyncMock, _sc: AsyncMock, _gc: AsyncMock, client: TestClient) -> None:
     """GET /api/dashboard/readiness returns readiness dashboard."""
     mock_systems.return_value = [_MockSystem()]
     mock_incidents.return_value = []

@@ -38,10 +38,10 @@ async def list_exercises(
     cache_key = f"{_CACHE_NS}:{skip}:{limit}"
     cached = await get_cached(cache_key)
     if cached is not None:
-        return cached
+        return list(cached)
     result = await crud.get_all_exercises(db, skip=skip, limit=limit)
     await set_cached(cache_key, result, TTL_EXERCISE_LIST)
-    return result
+    return list(result)
 
 
 @router.post("", response_model=BCPExerciseResponse, status_code=201)
