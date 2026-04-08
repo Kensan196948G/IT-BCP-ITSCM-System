@@ -28,10 +28,10 @@ TTL_BIA = 600  # BIA data: changes infrequently
 TTL_DEFAULT = 120  # fallback
 
 
-_pool: aioredis.Redis[bytes] | None = None
+_pool: aioredis.Redis[str] | None = None
 
 
-def _get_client() -> aioredis.Redis[bytes] | None:
+def _get_client() -> aioredis.Redis[str] | None:
     """Return a singleton Redis client, initialising on first call.
 
     Returns None if the connection cannot be established so callers
