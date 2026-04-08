@@ -36,7 +36,7 @@ async def get_readiness(
     """Get BCP readiness score and overall dashboard."""
     cached = await get_cached(_CACHE_READINESS)
     if cached is not None:
-        return cached  # type: ignore[no-any-return]
+        return dict(cached)
 
     all_systems = await crud.get_all_systems(db)
     active_incidents = await crud.get_active_incidents(db)
@@ -65,7 +65,7 @@ async def get_rto_overview(
     """Get RTO status overview for all systems."""
     cached = await get_cached(_CACHE_RTO_OVERVIEW)
     if cached is not None:
-        return cached  # type: ignore[no-any-return]
+        return list(cached)
 
     all_systems = await crud.get_all_systems(db)
     active_incidents = await crud.get_active_incidents(db)

@@ -30,7 +30,7 @@ async def list_systems(
     cache_key = f"{_CACHE_NS}:{skip}:{limit}"
     cached = await get_cached(cache_key)
     if cached is not None:
-        return cached  # type: ignore[no-any-return]
+        return list(cached)
     result = await crud.get_all_systems(db, skip=skip, limit=limit)
     await set_cached(cache_key, result, TTL_SYSTEM_LIST)
     return result
