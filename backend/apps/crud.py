@@ -142,7 +142,9 @@ async def get_all_emergency_contacts(db: AsyncSession, skip: int = 0, limit: int
 
 
 async def update_emergency_contact(
-    db: AsyncSession, contact_id: uuid.UUID, data: dict[str, Any],
+    db: AsyncSession,
+    contact_id: uuid.UUID,
+    data: dict[str, Any],
 ) -> EmergencyContact | None:
     """Update an emergency contact record."""
     obj = await get_emergency_contact(db, contact_id)
@@ -324,7 +326,9 @@ async def get_all_bia_assessments(db: AsyncSession, skip: int = 0, limit: int = 
 
 
 async def update_bia_assessment(
-    db: AsyncSession, assessment_id: uuid.UUID, data: dict[str, Any],
+    db: AsyncSession,
+    assessment_id: uuid.UUID,
+    data: dict[str, Any],
 ) -> BIAAssessment | None:
     """Update a BIA assessment record."""
     obj = await get_bia_assessment(db, assessment_id)
