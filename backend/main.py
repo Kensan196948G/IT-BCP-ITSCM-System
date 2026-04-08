@@ -157,7 +157,7 @@ async def security_headers_middleware(request: Request, call_next: object) -> JS
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     response.headers["Cache-Control"] = "no-store"
     response.headers["Content-Security-Policy"] = "default-src 'self'"
-    return response
+    return response  # type: ignore[no-any-return]
 
 
 # Rate limiting middleware (after security headers)
@@ -183,7 +183,7 @@ async def request_logging_middleware(request: Request, call_next: object) -> JSO
         response.status_code,
         duration_ms,
     )
-    return response
+    return response  # type: ignore[no-any-return]
 
 
 @app.middleware("http")
@@ -198,7 +198,7 @@ async def metrics_middleware(request: Request, call_next: object) -> JSONRespons
         status_code=response.status_code,
         duration=duration,
     )
-    return response
+    return response  # type: ignore[no-any-return]
 
 
 _AUDIT_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
@@ -234,7 +234,7 @@ async def audit_log_middleware(request: Request, call_next: object) -> JSONRespo
             user_agent=request.headers.get("user-agent"),
             status="success" if response.status_code < 400 else "failure",
         )
-    return response
+    return response  # type: ignore[no-any-return]
 
 
 # ---------------------------------------------------------------------------

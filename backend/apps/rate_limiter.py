@@ -47,7 +47,7 @@ class RateLimiter:
         """ASGI middleware entry point."""
         # Skip rate limiting for whitelisted paths
         if request.url.path in self.WHITELIST_PATHS:
-            return await call_next(request)  # type: ignore[operator]
+            return await call_next(request)  # type: ignore[operator,no-any-return]
 
         client_ip = request.client.host if request.client else "unknown"
 
@@ -62,4 +62,4 @@ class RateLimiter:
                 },
             )
 
-        return await call_next(request)  # type: ignore[operator]
+        return await call_next(request)  # type: ignore[operator,no-any-return]

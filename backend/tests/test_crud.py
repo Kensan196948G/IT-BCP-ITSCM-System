@@ -35,7 +35,7 @@ from apps.models import (
 SAMPLE_UUID = uuid.UUID("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")
 
 
-def _mock_db_execute_scalar(return_val):
+def _mock_db_execute_scalar(return_val: object) -> AsyncMock:
     """Return an AsyncMock db whose execute().scalar_one_or_none() returns return_val."""
     result = MagicMock()
     result.scalar_one_or_none.return_value = return_val
@@ -44,7 +44,7 @@ def _mock_db_execute_scalar(return_val):
     return db
 
 
-def _mock_db_execute_scalars(items: list[Any]):
+def _mock_db_execute_scalars(items: list[Any]) -> AsyncMock:
     """Return an AsyncMock db whose execute().scalars().all() returns items."""
     scalars_mock = MagicMock()
     scalars_mock.all.return_value = items
@@ -62,7 +62,7 @@ def _mock_db_execute_scalars(items: list[Any]):
 
 class TestITSystemBCPCRUD:
     @pytest.mark.asyncio
-    async def test_create_system(self):
+    async def test_create_system(self) -> None:
         db = AsyncMock()
         await crud.create_system(
             db,
@@ -80,27 +80,27 @@ class TestITSystemBCPCRUD:
         assert db.flush.called
 
     @pytest.mark.asyncio
-    async def test_get_system_found(self):
+    async def test_get_system_found(self) -> None:
         obj = ITSystemBCP()
         db = _mock_db_execute_scalar(obj)
         result = await crud.get_system(db, SAMPLE_UUID)
         assert result is obj
 
     @pytest.mark.asyncio
-    async def test_get_system_not_found(self):
+    async def test_get_system_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         result = await crud.get_system(db, SAMPLE_UUID)
         assert result is None
 
     @pytest.mark.asyncio
-    async def test_get_all_systems(self):
+    async def test_get_all_systems(self) -> None:
         items = [ITSystemBCP(), ITSystemBCP()]
         db = _mock_db_execute_scalars(items)
         result = await crud.get_all_systems(db)
         assert result == items
 
     @pytest.mark.asyncio
-    async def test_update_system_found(self):
+    async def test_update_system_found(self) -> None:
         obj = ITSystemBCP(system_name="Old")
         db = _mock_db_execute_scalar(obj)
         result = await crud.update_system(db, SAMPLE_UUID, {"system_name": "New"})
@@ -108,13 +108,13 @@ class TestITSystemBCPCRUD:
         assert obj.system_name == "New"
 
     @pytest.mark.asyncio
-    async def test_update_system_not_found(self):
+    async def test_update_system_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         result = await crud.update_system(db, SAMPLE_UUID, {"system_name": "New"})
         assert result is None
 
     @pytest.mark.asyncio
-    async def test_delete_system_found(self):
+    async def test_delete_system_found(self) -> None:
         obj = ITSystemBCP()
         db = _mock_db_execute_scalar(obj)
         result = await crud.delete_system(db, SAMPLE_UUID)
@@ -122,7 +122,7 @@ class TestITSystemBCPCRUD:
         db.delete.assert_called_once_with(obj)
 
     @pytest.mark.asyncio
-    async def test_delete_system_not_found(self):
+    async def test_delete_system_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         result = await crud.delete_system(db, SAMPLE_UUID)
         assert result is False
@@ -135,7 +135,7 @@ class TestITSystemBCPCRUD:
 
 class TestRecoveryProcedureCRUD:
     @pytest.mark.asyncio
-    async def test_create_procedure(self):
+    async def test_create_procedure(self) -> None:
         db = AsyncMock()
         await crud.create_procedure(
             db,
@@ -151,24 +151,24 @@ class TestRecoveryProcedureCRUD:
         assert db.add.called
 
     @pytest.mark.asyncio
-    async def test_get_procedure_found(self):
+    async def test_get_procedure_found(self) -> None:
         obj = RecoveryProcedure()
         db = _mock_db_execute_scalar(obj)
         assert await crud.get_procedure(db, SAMPLE_UUID) is obj
 
     @pytest.mark.asyncio
-    async def test_get_procedure_not_found(self):
+    async def test_get_procedure_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         assert await crud.get_procedure(db, SAMPLE_UUID) is None
 
     @pytest.mark.asyncio
-    async def test_get_all_procedures(self):
+    async def test_get_all_procedures(self) -> None:
         items = [RecoveryProcedure()]
         db = _mock_db_execute_scalars(items)
         assert await crud.get_all_procedures(db) == items
 
     @pytest.mark.asyncio
-    async def test_update_procedure_found(self):
+    async def test_update_procedure_found(self) -> None:
         obj = RecoveryProcedure()
         obj.action_description = "Old"
         db = _mock_db_execute_scalar(obj)
@@ -177,18 +177,18 @@ class TestRecoveryProcedureCRUD:
         assert obj.action_description == "New"
 
     @pytest.mark.asyncio
-    async def test_update_procedure_not_found(self):
+    async def test_update_procedure_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         assert await crud.update_procedure(db, SAMPLE_UUID, {}) is None
 
     @pytest.mark.asyncio
-    async def test_delete_procedure_found(self):
+    async def test_delete_procedure_found(self) -> None:
         obj = RecoveryProcedure()
         db = _mock_db_execute_scalar(obj)
         assert await crud.delete_procedure(db, SAMPLE_UUID) is True
 
     @pytest.mark.asyncio
-    async def test_delete_procedure_not_found(self):
+    async def test_delete_procedure_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         assert await crud.delete_procedure(db, SAMPLE_UUID) is False
 
@@ -200,7 +200,7 @@ class TestRecoveryProcedureCRUD:
 
 class TestEmergencyContactCRUD:
     @pytest.mark.asyncio
-    async def test_create_emergency_contact(self):
+    async def test_create_emergency_contact(self) -> None:
         db = AsyncMock()
         await crud.create_emergency_contact(
             db,
@@ -214,24 +214,24 @@ class TestEmergencyContactCRUD:
         assert db.add.called
 
     @pytest.mark.asyncio
-    async def test_get_emergency_contact_found(self):
+    async def test_get_emergency_contact_found(self) -> None:
         obj = EmergencyContact()
         db = _mock_db_execute_scalar(obj)
         assert await crud.get_emergency_contact(db, SAMPLE_UUID) is obj
 
     @pytest.mark.asyncio
-    async def test_get_emergency_contact_not_found(self):
+    async def test_get_emergency_contact_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         assert await crud.get_emergency_contact(db, SAMPLE_UUID) is None
 
     @pytest.mark.asyncio
-    async def test_get_all_emergency_contacts(self):
+    async def test_get_all_emergency_contacts(self) -> None:
         items = [EmergencyContact(), EmergencyContact()]
         db = _mock_db_execute_scalars(items)
         assert await crud.get_all_emergency_contacts(db) == items
 
     @pytest.mark.asyncio
-    async def test_update_emergency_contact_found(self):
+    async def test_update_emergency_contact_found(self) -> None:
         obj = EmergencyContact()
         obj.name = "Old"
         db = _mock_db_execute_scalar(obj)
@@ -240,23 +240,23 @@ class TestEmergencyContactCRUD:
         assert obj.name == "New"
 
     @pytest.mark.asyncio
-    async def test_update_emergency_contact_not_found(self):
+    async def test_update_emergency_contact_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         assert await crud.update_emergency_contact(db, SAMPLE_UUID, {}) is None
 
     @pytest.mark.asyncio
-    async def test_delete_emergency_contact_found(self):
+    async def test_delete_emergency_contact_found(self) -> None:
         obj = EmergencyContact()
         db = _mock_db_execute_scalar(obj)
         assert await crud.delete_emergency_contact(db, SAMPLE_UUID) is True
 
     @pytest.mark.asyncio
-    async def test_delete_emergency_contact_not_found(self):
+    async def test_delete_emergency_contact_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         assert await crud.delete_emergency_contact(db, SAMPLE_UUID) is False
 
     @pytest.mark.asyncio
-    async def test_get_emergency_contacts_by_escalation_group(self):
+    async def test_get_emergency_contacts_by_escalation_group(self) -> None:
         items = [EmergencyContact()]
         db = _mock_db_execute_scalars(items)
         result = await crud.get_emergency_contacts_by_escalation_group(db, "L1")
@@ -270,7 +270,7 @@ class TestEmergencyContactCRUD:
 
 class TestVendorContactCRUD:
     @pytest.mark.asyncio
-    async def test_create_vendor_contact(self):
+    async def test_create_vendor_contact(self) -> None:
         db = AsyncMock()
         await crud.create_vendor_contact(
             db,
@@ -282,24 +282,24 @@ class TestVendorContactCRUD:
         assert db.add.called
 
     @pytest.mark.asyncio
-    async def test_get_vendor_contact_found(self):
+    async def test_get_vendor_contact_found(self) -> None:
         obj = VendorContact()
         db = _mock_db_execute_scalar(obj)
         assert await crud.get_vendor_contact(db, SAMPLE_UUID) is obj
 
     @pytest.mark.asyncio
-    async def test_get_vendor_contact_not_found(self):
+    async def test_get_vendor_contact_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         assert await crud.get_vendor_contact(db, SAMPLE_UUID) is None
 
     @pytest.mark.asyncio
-    async def test_get_all_vendor_contacts(self):
+    async def test_get_all_vendor_contacts(self) -> None:
         items = [VendorContact()]
         db = _mock_db_execute_scalars(items)
         assert await crud.get_all_vendor_contacts(db) == items
 
     @pytest.mark.asyncio
-    async def test_update_vendor_contact_found(self):
+    async def test_update_vendor_contact_found(self) -> None:
         obj = VendorContact()
         obj.contact_name = "Old"
         db = _mock_db_execute_scalar(obj)
@@ -308,18 +308,18 @@ class TestVendorContactCRUD:
         assert obj.contact_name == "New"
 
     @pytest.mark.asyncio
-    async def test_update_vendor_contact_not_found(self):
+    async def test_update_vendor_contact_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         assert await crud.update_vendor_contact(db, SAMPLE_UUID, {}) is None
 
     @pytest.mark.asyncio
-    async def test_delete_vendor_contact_found(self):
+    async def test_delete_vendor_contact_found(self) -> None:
         obj = VendorContact()
         db = _mock_db_execute_scalar(obj)
         assert await crud.delete_vendor_contact(db, SAMPLE_UUID) is True
 
     @pytest.mark.asyncio
-    async def test_delete_vendor_contact_not_found(self):
+    async def test_delete_vendor_contact_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         assert await crud.delete_vendor_contact(db, SAMPLE_UUID) is False
 
@@ -331,7 +331,7 @@ class TestVendorContactCRUD:
 
 class TestBCPExerciseCRUD:
     @pytest.mark.asyncio
-    async def test_create_exercise(self):
+    async def test_create_exercise(self) -> None:
         db = AsyncMock()
         await crud.create_exercise(
             db,
@@ -346,24 +346,24 @@ class TestBCPExerciseCRUD:
         assert db.add.called
 
     @pytest.mark.asyncio
-    async def test_get_exercise_found(self):
+    async def test_get_exercise_found(self) -> None:
         obj = BCPExercise()
         db = _mock_db_execute_scalar(obj)
         assert await crud.get_exercise(db, SAMPLE_UUID) is obj
 
     @pytest.mark.asyncio
-    async def test_get_exercise_not_found(self):
+    async def test_get_exercise_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         assert await crud.get_exercise(db, SAMPLE_UUID) is None
 
     @pytest.mark.asyncio
-    async def test_get_all_exercises(self):
+    async def test_get_all_exercises(self) -> None:
         items = [BCPExercise(), BCPExercise()]
         db = _mock_db_execute_scalars(items)
         assert await crud.get_all_exercises(db) == items
 
     @pytest.mark.asyncio
-    async def test_update_exercise_found(self):
+    async def test_update_exercise_found(self) -> None:
         obj = BCPExercise()
         obj.title = "Old"
         db = _mock_db_execute_scalar(obj)
@@ -372,7 +372,7 @@ class TestBCPExerciseCRUD:
         assert obj.title == "New"
 
     @pytest.mark.asyncio
-    async def test_update_exercise_not_found(self):
+    async def test_update_exercise_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         assert await crud.update_exercise(db, SAMPLE_UUID, {}) is None
 
@@ -384,7 +384,7 @@ class TestBCPExerciseCRUD:
 
 class TestActiveIncidentCRUD:
     @pytest.mark.asyncio
-    async def test_create_incident(self):
+    async def test_create_incident(self) -> None:
         db = AsyncMock()
         await crud.create_incident(
             db,
@@ -403,24 +403,24 @@ class TestActiveIncidentCRUD:
         assert db.add.called
 
     @pytest.mark.asyncio
-    async def test_get_incident_found(self):
+    async def test_get_incident_found(self) -> None:
         obj = ActiveIncident()
         db = _mock_db_execute_scalar(obj)
         assert await crud.get_incident(db, SAMPLE_UUID) is obj
 
     @pytest.mark.asyncio
-    async def test_get_incident_not_found(self):
+    async def test_get_incident_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         assert await crud.get_incident(db, SAMPLE_UUID) is None
 
     @pytest.mark.asyncio
-    async def test_get_all_incidents(self):
+    async def test_get_all_incidents(self) -> None:
         items = [ActiveIncident()]
         db = _mock_db_execute_scalars(items)
         assert await crud.get_all_incidents(db) == items
 
     @pytest.mark.asyncio
-    async def test_update_incident_found(self):
+    async def test_update_incident_found(self) -> None:
         obj = ActiveIncident()
         obj.status = "active"
         db = _mock_db_execute_scalar(obj)
@@ -429,12 +429,12 @@ class TestActiveIncidentCRUD:
         assert obj.status == "resolved"
 
     @pytest.mark.asyncio
-    async def test_update_incident_not_found(self):
+    async def test_update_incident_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         assert await crud.update_incident(db, SAMPLE_UUID, {}) is None
 
     @pytest.mark.asyncio
-    async def test_get_active_incidents(self):
+    async def test_get_active_incidents(self) -> None:
         items = [ActiveIncident(), ActiveIncident()]
         db = _mock_db_execute_scalars(items)
         result = await crud.get_active_incidents(db)
@@ -448,7 +448,7 @@ class TestActiveIncidentCRUD:
 
 class TestBIAAssessmentCRUD:
     @pytest.mark.asyncio
-    async def test_create_bia_assessment(self):
+    async def test_create_bia_assessment(self) -> None:
         db = AsyncMock()
         await crud.create_bia_assessment(
             db,
@@ -462,24 +462,24 @@ class TestBIAAssessmentCRUD:
         assert db.add.called
 
     @pytest.mark.asyncio
-    async def test_get_bia_assessment_found(self):
+    async def test_get_bia_assessment_found(self) -> None:
         obj = BIAAssessment()
         db = _mock_db_execute_scalar(obj)
         assert await crud.get_bia_assessment(db, SAMPLE_UUID) is obj
 
     @pytest.mark.asyncio
-    async def test_get_bia_assessment_not_found(self):
+    async def test_get_bia_assessment_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         assert await crud.get_bia_assessment(db, SAMPLE_UUID) is None
 
     @pytest.mark.asyncio
-    async def test_get_all_bia_assessments(self):
+    async def test_get_all_bia_assessments(self) -> None:
         items = [BIAAssessment()]
         db = _mock_db_execute_scalars(items)
         assert await crud.get_all_bia_assessments(db) == items
 
     @pytest.mark.asyncio
-    async def test_update_bia_assessment_found(self):
+    async def test_update_bia_assessment_found(self) -> None:
         obj = BIAAssessment()
         obj.business_impact = "Medium"
         db = _mock_db_execute_scalar(obj)
@@ -488,18 +488,18 @@ class TestBIAAssessmentCRUD:
         assert obj.business_impact == "High"
 
     @pytest.mark.asyncio
-    async def test_update_bia_assessment_not_found(self):
+    async def test_update_bia_assessment_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         assert await crud.update_bia_assessment(db, SAMPLE_UUID, {}) is None
 
     @pytest.mark.asyncio
-    async def test_delete_bia_assessment_found(self):
+    async def test_delete_bia_assessment_found(self) -> None:
         obj = BIAAssessment()
         db = _mock_db_execute_scalar(obj)
         assert await crud.delete_bia_assessment(db, SAMPLE_UUID) is True
 
     @pytest.mark.asyncio
-    async def test_delete_bia_assessment_not_found(self):
+    async def test_delete_bia_assessment_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         assert await crud.delete_bia_assessment(db, SAMPLE_UUID) is False
 
@@ -511,7 +511,7 @@ class TestBIAAssessmentCRUD:
 
 class TestBCPScenarioCRUD:
     @pytest.mark.asyncio
-    async def test_create_scenario(self):
+    async def test_create_scenario(self) -> None:
         db = AsyncMock()
         await crud.create_scenario(
             db,
@@ -527,24 +527,24 @@ class TestBCPScenarioCRUD:
         assert db.add.called
 
     @pytest.mark.asyncio
-    async def test_get_scenario_found(self):
+    async def test_get_scenario_found(self) -> None:
         obj = BCPScenario()
         db = _mock_db_execute_scalar(obj)
         assert await crud.get_scenario(db, SAMPLE_UUID) is obj
 
     @pytest.mark.asyncio
-    async def test_get_scenario_not_found(self):
+    async def test_get_scenario_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         assert await crud.get_scenario(db, SAMPLE_UUID) is None
 
     @pytest.mark.asyncio
-    async def test_get_all_scenarios(self):
+    async def test_get_all_scenarios(self) -> None:
         items = [BCPScenario(), BCPScenario()]
         db = _mock_db_execute_scalars(items)
         assert await crud.get_all_scenarios(db) == items
 
     @pytest.mark.asyncio
-    async def test_update_scenario_found(self):
+    async def test_update_scenario_found(self) -> None:
         obj = BCPScenario()
         obj.scenario_name = "Old"
         db = _mock_db_execute_scalar(obj)
@@ -553,18 +553,18 @@ class TestBCPScenarioCRUD:
         assert obj.scenario_name == "New"
 
     @pytest.mark.asyncio
-    async def test_update_scenario_not_found(self):
+    async def test_update_scenario_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         assert await crud.update_scenario(db, SAMPLE_UUID, {}) is None
 
     @pytest.mark.asyncio
-    async def test_delete_scenario_found(self):
+    async def test_delete_scenario_found(self) -> None:
         obj = BCPScenario()
         db = _mock_db_execute_scalar(obj)
         assert await crud.delete_scenario(db, SAMPLE_UUID) is True
 
     @pytest.mark.asyncio
-    async def test_delete_scenario_not_found(self):
+    async def test_delete_scenario_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         assert await crud.delete_scenario(db, SAMPLE_UUID) is False
 
@@ -576,7 +576,7 @@ class TestBCPScenarioCRUD:
 
 class TestExerciseRTORecordCRUD:
     @pytest.mark.asyncio
-    async def test_create_rto_record(self):
+    async def test_create_rto_record(self) -> None:
         db = AsyncMock()
         await crud.create_rto_record(
             db,
@@ -589,14 +589,14 @@ class TestExerciseRTORecordCRUD:
         assert db.add.called
 
     @pytest.mark.asyncio
-    async def test_get_rto_records_by_exercise(self):
+    async def test_get_rto_records_by_exercise(self) -> None:
         items = [ExerciseRTORecord(), ExerciseRTORecord()]
         db = _mock_db_execute_scalars(items)
         result = await crud.get_rto_records_by_exercise(db, SAMPLE_UUID)
         assert result == items
 
     @pytest.mark.asyncio
-    async def test_get_rto_records_empty(self):
+    async def test_get_rto_records_empty(self) -> None:
         db = _mock_db_execute_scalars([])
         result = await crud.get_rto_records_by_exercise(db, SAMPLE_UUID)
         assert result == []
@@ -609,7 +609,7 @@ class TestExerciseRTORecordCRUD:
 
 class TestIncidentTaskCRUD:
     @pytest.mark.asyncio
-    async def test_create_incident_task(self):
+    async def test_create_incident_task(self) -> None:
         db = AsyncMock()
         await crud.create_incident_task(
             db,
@@ -623,25 +623,25 @@ class TestIncidentTaskCRUD:
         assert db.add.called
 
     @pytest.mark.asyncio
-    async def test_get_incident_task_found(self):
+    async def test_get_incident_task_found(self) -> None:
         obj = IncidentTask()
         db = _mock_db_execute_scalar(obj)
         assert await crud.get_incident_task(db, SAMPLE_UUID) is obj
 
     @pytest.mark.asyncio
-    async def test_get_incident_task_not_found(self):
+    async def test_get_incident_task_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         assert await crud.get_incident_task(db, SAMPLE_UUID) is None
 
     @pytest.mark.asyncio
-    async def test_get_incident_tasks_by_incident(self):
+    async def test_get_incident_tasks_by_incident(self) -> None:
         items = [IncidentTask(), IncidentTask()]
         db = _mock_db_execute_scalars(items)
         result = await crud.get_incident_tasks_by_incident(db, SAMPLE_UUID)
         assert result == items
 
     @pytest.mark.asyncio
-    async def test_update_incident_task_found(self):
+    async def test_update_incident_task_found(self) -> None:
         obj = IncidentTask()
         obj.status = "pending"
         db = _mock_db_execute_scalar(obj)
@@ -650,18 +650,18 @@ class TestIncidentTaskCRUD:
         assert obj.status == "completed"
 
     @pytest.mark.asyncio
-    async def test_update_incident_task_not_found(self):
+    async def test_update_incident_task_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         assert await crud.update_incident_task(db, SAMPLE_UUID, {}) is None
 
     @pytest.mark.asyncio
-    async def test_delete_incident_task_found(self):
+    async def test_delete_incident_task_found(self) -> None:
         obj = IncidentTask()
         db = _mock_db_execute_scalar(obj)
         assert await crud.delete_incident_task(db, SAMPLE_UUID) is True
 
     @pytest.mark.asyncio
-    async def test_delete_incident_task_not_found(self):
+    async def test_delete_incident_task_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         assert await crud.delete_incident_task(db, SAMPLE_UUID) is False
 
@@ -673,7 +673,7 @@ class TestIncidentTaskCRUD:
 
 class TestSituationReportCRUD:
     @pytest.mark.asyncio
-    async def test_create_situation_report(self):
+    async def test_create_situation_report(self) -> None:
         db = AsyncMock()
         await crud.create_situation_report(
             db,
@@ -687,25 +687,25 @@ class TestSituationReportCRUD:
         assert db.add.called
 
     @pytest.mark.asyncio
-    async def test_get_situation_report_found(self):
+    async def test_get_situation_report_found(self) -> None:
         obj = SituationReport()
         db = _mock_db_execute_scalar(obj)
         assert await crud.get_situation_report(db, SAMPLE_UUID) is obj
 
     @pytest.mark.asyncio
-    async def test_get_situation_report_not_found(self):
+    async def test_get_situation_report_not_found(self) -> None:
         db = _mock_db_execute_scalar(None)
         assert await crud.get_situation_report(db, SAMPLE_UUID) is None
 
     @pytest.mark.asyncio
-    async def test_get_situation_reports_by_incident(self):
+    async def test_get_situation_reports_by_incident(self) -> None:
         items = [SituationReport()]
         db = _mock_db_execute_scalars(items)
         result = await crud.get_situation_reports_by_incident(db, SAMPLE_UUID)
         assert result == items
 
     @pytest.mark.asyncio
-    async def test_get_situation_reports_empty(self):
+    async def test_get_situation_reports_empty(self) -> None:
         db = _mock_db_execute_scalars([])
         result = await crud.get_situation_reports_by_incident(db, SAMPLE_UUID)
         assert result == []

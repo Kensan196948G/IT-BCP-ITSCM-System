@@ -16,7 +16,7 @@ from apps.notification_service import NotificationService
 class TestNotificationService:
     """Tests for the NotificationService class."""
 
-    def test_send_notification_teams_dry_run(self):
+    def test_send_notification_teams_dry_run(self) -> None:
         """Test sending a Teams notification in dry_run mode."""
         svc = NotificationService(dry_run=True)
         log = svc.send_notification(
@@ -31,7 +31,7 @@ class TestNotificationService:
         assert log["sent_at"] is not None
         assert log["error_message"] is None
 
-    def test_send_notification_email_dry_run(self):
+    def test_send_notification_email_dry_run(self) -> None:
         """Test sending an email notification in dry_run mode."""
         svc = NotificationService(dry_run=True)
         log = svc.send_notification(
@@ -44,7 +44,7 @@ class TestNotificationService:
         assert log["notification_type"] == "email"
         assert log["recipient"] == "admin@example.com"
 
-    def test_send_notification_sms_dry_run(self):
+    def test_send_notification_sms_dry_run(self) -> None:
         """Test sending an SMS notification in dry_run mode."""
         svc = NotificationService(dry_run=True)
         log = svc.send_notification(
@@ -55,7 +55,7 @@ class TestNotificationService:
         )
         assert log["status"] == "sent"
 
-    def test_send_notification_unknown_type(self):
+    def test_send_notification_unknown_type(self) -> None:
         """Test sending a notification with unknown type."""
         svc = NotificationService(dry_run=True)
         log = svc.send_notification(
@@ -67,7 +67,7 @@ class TestNotificationService:
         assert log["status"] == "failed"
         assert "Unknown type" in log["error_message"]
 
-    def test_logs_accumulate(self):
+    def test_logs_accumulate(self) -> None:
         """Test that notification logs accumulate correctly."""
         svc = NotificationService(dry_run=True)
         svc.send_notification("teams", "url", "Sub1", "Body1")
@@ -77,7 +77,7 @@ class TestNotificationService:
         assert svc.logs[0]["subject"] == "Sub1"
         assert svc.logs[2]["subject"] == "Sub3"
 
-    def test_send_notification_with_incident_id(self):
+    def test_send_notification_with_incident_id(self) -> None:
         """Test that incident_id is stored in the log."""
         svc = NotificationService(dry_run=True)
         iid = uuid.uuid4()
@@ -90,7 +90,7 @@ class TestNotificationService:
         )
         assert log["incident_id"] == iid
 
-    def test_send_teams_webhook_success(self):
+    def test_send_teams_webhook_success(self) -> None:
         """Test Teams webhook send (non-dry-run) succeeds."""
         svc = NotificationService(dry_run=False)
         mock_response = MagicMock()
@@ -101,7 +101,7 @@ class TestNotificationService:
         assert result["status"] == "sent"
         assert result["error_message"] is None
 
-    def test_send_teams_webhook_failure(self):
+    def test_send_teams_webhook_failure(self) -> None:
         """Test Teams webhook send (non-dry-run) fails gracefully."""
         svc = NotificationService(dry_run=False)
         with patch("apps.notification_service.httpx.post", side_effect=Exception("Connection refused")):
@@ -109,7 +109,7 @@ class TestNotificationService:
         assert result["status"] == "failed"
         assert "Connection refused" in result["error_message"]
 
-    def test_send_email_success(self):
+    def test_send_email_success(self) -> None:
         """Test email send (non-dry-run) succeeds."""
         svc = NotificationService(dry_run=False)
         mock_smtp_instance = MagicMock()
@@ -120,7 +120,7 @@ class TestNotificationService:
         assert result["status"] == "sent"
         assert result["error_message"] is None
 
-    def test_send_email_failure(self):
+    def test_send_email_failure(self) -> None:
         """Test email send (non-dry-run) fails gracefully."""
         svc = NotificationService(dry_run=False)
         with patch("smtplib.SMTP", side_effect=Exception("SMTP connection failed")):
@@ -128,7 +128,7 @@ class TestNotificationService:
         assert result["status"] == "failed"
         assert "SMTP connection failed" in result["error_message"]
 
-    def test_send_notification_sms_not_dry_run(self):
+    def test_send_notification_sms_not_dry_run(self) -> None:
         """Test that SMS non-dry-run returns failed status (SMS not configured)."""
         svc = NotificationService(dry_run=False)
         log = svc.send_notification(
@@ -149,7 +149,7 @@ class TestNotificationService:
 class TestEscalationEngine:
     """Tests for the EscalationEngine class."""
 
-    def test_get_escalation_plan_p1(self):
+    def test_get_escalation_plan_p1(self) -> None:
         """Test getting the P1 escalation plan."""
         engine = EscalationEngine()
         plan = engine.get_escalation_plan("p1")
@@ -161,28 +161,28 @@ class TestEscalationEngine:
         assert plan["levels"][3]["level"] == 4
         assert plan["levels"][3]["delay_minutes"] == 30
 
-    def test_get_escalation_plan_p2(self):
+    def test_get_escalation_plan_p2(self) -> None:
         """Test getting the P2 escalation plan."""
         engine = EscalationEngine()
         plan = engine.get_escalation_plan("p2")
         assert plan["plan_name"] == "P2 Partial BCP Activation"
         assert len(plan["levels"]) == 2
 
-    def test_get_escalation_plan_p3(self):
+    def test_get_escalation_plan_p3(self) -> None:
         """Test getting the P3 escalation plan."""
         engine = EscalationEngine()
         plan = engine.get_escalation_plan("p3")
         assert plan["plan_name"] == "P3 Monitoring"
         assert len(plan["levels"]) == 1
 
-    def test_get_escalation_plan_unknown(self):
+    def test_get_escalation_plan_unknown(self) -> None:
         """Test getting an escalation plan for unknown severity."""
         engine = EscalationEngine()
         plan = engine.get_escalation_plan("p99")
         assert plan["plan_name"] == "Unknown"
         assert plan["levels"] == []
 
-    def test_trigger_escalation_p1(self):
+    def test_trigger_escalation_p1(self) -> None:
         """Test triggering a P1 escalation."""
         svc = NotificationService(dry_run=True)
         engine = EscalationEngine(notification_service=svc)
@@ -204,7 +204,7 @@ class TestEscalationEngine:
         for n in result["notifications"]:
             assert n["status"] == "sent"
 
-    def test_trigger_escalation_p2(self):
+    def test_trigger_escalation_p2(self) -> None:
         """Test triggering a P2 escalation."""
         svc = NotificationService(dry_run=True)
         engine = EscalationEngine(notification_service=svc)
@@ -213,7 +213,7 @@ class TestEscalationEngine:
         # P2: L1=1ch, L2=2ch => 3 notifications
         assert result["notifications_queued"] == 3
 
-    def test_get_escalation_status(self):
+    def test_get_escalation_status(self) -> None:
         """Test getting escalation status after trigger."""
         svc = NotificationService(dry_run=True)
         engine = EscalationEngine(notification_service=svc)
@@ -226,13 +226,13 @@ class TestEscalationEngine:
         assert status["pending"] == 0
         assert status["failed"] == 0
 
-    def test_get_escalation_status_no_escalation(self):
+    def test_get_escalation_status_no_escalation(self) -> None:
         """Test getting escalation status when none triggered."""
         engine = EscalationEngine()
         status = engine.get_escalation_status(uuid.uuid4())
         assert status["total_notifications"] == 0
 
-    def test_trigger_escalation_else_channel(self):
+    def test_trigger_escalation_else_channel(self) -> None:
         """Test else-branch (line 164) when channel is neither 'teams' nor 'email'."""
         svc = NotificationService(dry_run=True)
         engine = EscalationEngine(notification_service=svc)
@@ -260,7 +260,7 @@ class TestEscalationEngine:
         # recipient should be email fallback (contact.get("email") or role)
         assert result["notifications"][0]["recipient"] == "user@test.local"
 
-    def test_send_email_with_smtp_auth(self):
+    def test_send_email_with_smtp_auth(self) -> None:
         """Test email send uses starttls/login when SMTP_USER is configured (lines 102-103)."""
         svc = NotificationService(dry_run=False)
         mock_smtp_instance = MagicMock()
@@ -287,7 +287,7 @@ class TestNotificationAPI:
     """Tests for the notification API endpoints."""
 
     @pytest.fixture(autouse=True)
-    def _setup(self, client):
+    def _setup(self, client: object) -> None:
         """Store client and reset module-level services."""
         self.client = client
         # Reset the module-level services before each test
@@ -296,7 +296,7 @@ class TestNotificationAPI:
         notif_mod._notification_service = NotificationService(dry_run=True)
         notif_mod._escalation_engine = EscalationEngine(notification_service=notif_mod._notification_service)
 
-    def test_send_notification_api(self):
+    def test_send_notification_api(self) -> None:
         """Test POST /api/notifications/send."""
         resp = self.client.post(
             "/api/notifications/send",
@@ -313,7 +313,7 @@ class TestNotificationAPI:
         assert data["subject"] == "API Test"
         assert data["notification_type"] == "teams"
 
-    def test_list_notification_logs(self):
+    def test_list_notification_logs(self) -> None:
         """Test GET /api/notifications/logs."""
         # Send a couple of notifications first
         self.client.post(
@@ -341,7 +341,7 @@ class TestNotificationAPI:
         # Most recent first
         assert data[0]["subject"] == "Log2"
 
-    def test_get_logs_by_incident(self):
+    def test_get_logs_by_incident(self) -> None:
         """Test GET /api/notifications/logs/{incident_id}."""
         iid = str(uuid.uuid4())
         self.client.post(
@@ -369,7 +369,7 @@ class TestNotificationAPI:
         assert len(data) == 1
         assert data[0]["subject"] == "Linked"
 
-    def test_get_escalation_plan_api(self):
+    def test_get_escalation_plan_api(self) -> None:
         """Test GET /api/escalation/plan/{severity}."""
         resp = self.client.get("/api/escalation/plan/p1")
         assert resp.status_code == 200
@@ -378,7 +378,7 @@ class TestNotificationAPI:
         assert data["plan_name"] == "P1 Full BCP Activation"
         assert len(data["levels"]) == 4
 
-    def test_trigger_escalation_api(self):
+    def test_trigger_escalation_api(self) -> None:
         """Test POST /api/escalation/trigger."""
         iid = str(uuid.uuid4())
         resp = self.client.post(
@@ -396,7 +396,7 @@ class TestNotificationAPI:
         assert data["plan_name"] == "P2 Partial BCP Activation"
         assert data["notifications_queued"] == 3
 
-    def test_get_escalation_status_api(self):
+    def test_get_escalation_status_api(self) -> None:
         """Test GET /api/escalation/status/{incident_id}."""
         iid = str(uuid.uuid4())
         # Trigger first

@@ -93,7 +93,8 @@ async def invalidate_cache(*keys: str) -> int:
     if client is None:
         return 0
     try:
-        return await client.delete(*keys)
+        result: int = await client.delete(*keys)
+        return result
     except Exception as exc:
         logger.debug("Cache DELETE failed for %s: %s", keys, exc)
         return 0
@@ -124,6 +125,7 @@ async def ping() -> bool:
     if client is None:
         return False
     try:
-        return await client.ping()
+        result: bool = bool(await client.ping())  # type: ignore[misc]
+        return result
     except Exception:
         return False

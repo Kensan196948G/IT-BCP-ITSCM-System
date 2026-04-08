@@ -1,7 +1,9 @@
 """Tests for Recovery Procedure CRUD API endpoints (mocked DB)."""
 
 import uuid
+from collections.abc import AsyncGenerator
 from datetime import datetime, timezone
+from typing import Any
 from unittest.mock import AsyncMock, patch
 
 from fastapi.testclient import TestClient
@@ -53,8 +55,8 @@ class MockProcedure:
         self.updated_at = kwargs.get("updated_at", FIXED_NOW)
 
 
-def _mock_db_override():  # type: ignore[no-untyped-def]
-    async def _fake_db():  # type: ignore[no-untyped-def]
+def _mock_db_override() -> Any:
+    async def _fake_db() -> AsyncGenerator[AsyncMock, None]:
         yield AsyncMock()
 
     return _fake_db

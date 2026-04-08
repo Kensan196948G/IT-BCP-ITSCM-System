@@ -13,6 +13,7 @@ Mark: @pytest.mark.e2e — excluded from default CI unit test runs.
 from typing import Any
 
 import pytest
+from playwright.sync_api import Page
 
 pytestmark = pytest.mark.e2e
 
@@ -25,7 +26,7 @@ pytestmark = pytest.mark.e2e
 class TestAuthE2E:
     """Verify the full JWT auth lifecycle against a live server."""
 
-    def test_login_returns_token(self, page, base_url: str):
+    def test_login_returns_token(self, page: Page, base_url: str) -> None:
         """POST /api/auth/login with valid credentials returns a JWT."""
         resp = page.request.post(
             f"{base_url}/api/auth/login",
@@ -37,7 +38,7 @@ class TestAuthE2E:
         assert body["token_type"] == "bearer"
         assert len(body["access_token"]) > 20
 
-    def test_login_invalid_role_returns_422(self, page, base_url: str):
+    def test_login_invalid_role_returns_422(self, page: Page, base_url: str) -> None:
         """POST /api/auth/login with invalid role returns 422."""
         resp = page.request.post(
             f"{base_url}/api/auth/login",
@@ -45,12 +46,12 @@ class TestAuthE2E:
         )
         assert resp.status == 422
 
-    def test_me_requires_auth(self, page, base_url: str):
+    def test_me_requires_auth(self, page: Page, base_url: str) -> None:
         """GET /api/auth/me without token returns 401."""
         resp = page.request.get(f"{base_url}/api/auth/me")
         assert resp.status == 401
 
-    def test_me_returns_user_info(self, page, base_url: str, auth_headers: dict[str, Any]):
+    def test_me_returns_user_info(self, page: Page, base_url: str, auth_headers: dict[str, Any]) -> None:
         """GET /api/auth/me with valid token returns user info."""
         resp = page.request.get(
             f"{base_url}/api/auth/me",
@@ -62,7 +63,7 @@ class TestAuthE2E:
         assert "role" in body
         assert "permissions" in body
 
-    def test_refresh_returns_new_token(self, page, base_url: str, auth_headers: dict[str, Any]):
+    def test_refresh_returns_new_token(self, page: Page, base_url: str, auth_headers: dict[str, Any]) -> None:
         """POST /api/auth/refresh returns a fresh token."""
         resp = page.request.post(
             f"{base_url}/api/auth/refresh",
@@ -81,19 +82,19 @@ class TestAuthE2E:
 class TestHealthE2E:
     """Kubernetes-style health probes should be reachable without auth."""
 
-    def test_health_returns_200(self, page, base_url: str):
+    def test_health_returns_200(self, page: Page, base_url: str) -> None:
         resp = page.request.get(f"{base_url}/api/health")
         assert resp.status == 200
         body = resp.json()
         assert "status" in body
         assert "version" in body
 
-    def test_liveness_probe(self, page, base_url: str):
+    def test_liveness_probe(self, page: Page, base_url: str) -> None:
         resp = page.request.get(f"{base_url}/api/health/live")
         assert resp.status == 200
         assert resp.json()["status"] == "alive"
 
-    def test_readiness_probe(self, page, base_url: str):
+    def test_readiness_probe(self, page: Page, base_url: str) -> None:
         resp = page.request.get(f"{base_url}/api/health/ready")
         # 200 (DB up) or 503 (DB down) — both are valid server responses
         assert resp.status in (200, 503)
@@ -127,13 +128,13 @@ class TestProtectedEndpointsE2E:
     ]
 
     @pytest.mark.parametrize("path", PROTECTED_GET)
-    def test_returns_401_without_token(self, page, base_url: str, path: str):
+    def test_returns_401_without_token(self, page: Page, base_url: str, path: str) -> None:
         """Each protected GET endpoint returns 401 with no token."""
         resp = page.request.get(f"{base_url}{path}")
         assert resp.status == 401, f"Expected 401 for GET {path}, got {resp.status}"
 
     @pytest.mark.parametrize("path", PROTECTED_GET)
-    def test_returns_non_401_with_token(self, page, base_url: str, path: str, auth_headers: dict[str, Any]):
+    def test_returns_non_401_with_token(self, page: Page, base_url: str, path: str, auth_headers: dict[str, Any]) -> None:
         """Each protected GET endpoint does NOT return 401 when authenticated."""
         resp = page.request.get(f"{base_url}{path}", headers=auth_headers)
         assert resp.status != 401, f"Expected auth to work for GET {path}, got {resp.status}"
@@ -153,7 +154,7 @@ class TestSecurityHeadersE2E:
         "cache-control": "no-store",
     }
 
-    def test_health_response_has_security_headers(self, page, base_url: str):
+    def test_health_response_has_security_headers(self, page: Page, base_url: str) -> None:
         """Security headers are present on a simple health check response."""
         resp = page.request.get(f"{base_url}/api/health")
         for header, expected_value in self.EXPECTED_HEADERS.items():

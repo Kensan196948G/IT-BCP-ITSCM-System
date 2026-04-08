@@ -20,7 +20,7 @@ DEFAULT_BASE_URL = "http://localhost:8000"
 
 
 @pytest.fixture(scope="session")
-def base_url(request) -> str:
+def base_url(request: pytest.FixtureRequest) -> str:
     """Resolve the API base URL for E2E tests.
 
     Priority: --base-url CLI option > PYTEST_BASE_URL env var > DEFAULT_BASE_URL

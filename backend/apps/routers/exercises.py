@@ -38,7 +38,7 @@ async def list_exercises(
     cache_key = f"{_CACHE_NS}:{skip}:{limit}"
     cached = await get_cached(cache_key)
     if cached is not None:
-        return cached
+        return cached  # type: ignore[no-any-return]
     result = await crud.get_all_exercises(db, skip=skip, limit=limit)
     await set_cached(cache_key, result, TTL_EXERCISE_LIST)
     return result

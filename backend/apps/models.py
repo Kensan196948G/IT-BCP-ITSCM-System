@@ -3,6 +3,7 @@
 import uuid
 from datetime import date as date_type
 from datetime import datetime
+from typing import Any
 
 from sqlalchemy import (
     Boolean,
@@ -59,7 +60,7 @@ class RecoveryProcedure(Base):
     version: Mapped[str] = mapped_column(String(20), default="1.0")
     priority_order: Mapped[int] = mapped_column(Integer, nullable=False)
     pre_requisites: Mapped[str | None] = mapped_column(Text, nullable=True)
-    procedure_steps: Mapped[list] = mapped_column(JSON, nullable=False)
+    procedure_steps: Mapped[list[Any]] = mapped_column(JSON, nullable=False)
     estimated_time_hours: Mapped[float | None] = mapped_column(Float, nullable=True)
     responsible_team: Mapped[str | None] = mapped_column(String(100), nullable=True)
     last_reviewed: Mapped[date_type | None] = mapped_column(Date, nullable=True)
@@ -86,7 +87,7 @@ class EmergencyContact(Base):
     teams_id: Mapped[str | None] = mapped_column(String(200), nullable=True)
     escalation_level: Mapped[int] = mapped_column(Integer, nullable=False)
     escalation_group: Mapped[str] = mapped_column(String(50), nullable=False)
-    notification_channels: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    notification_channels: Mapped[list[Any] | None] = mapped_column(JSON, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
@@ -135,8 +136,8 @@ class BCPExercise(Base):
     facilitator: Mapped[str | None] = mapped_column(String(100), nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="planned")  # planned/in_progress/completed/cancelled
     overall_result: Mapped[str | None] = mapped_column(String(20), nullable=True)  # pass/partial_pass/fail
-    findings: Mapped[dict | None] = mapped_column(JSON, nullable=True)
-    improvements: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    findings: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    improvements: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
     lessons_learned: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
@@ -154,17 +155,17 @@ class BIAAssessment(Base):
     system_name: Mapped[str] = mapped_column(String(100), nullable=False)
     assessment_date: Mapped[date_type] = mapped_column(Date, nullable=False)
     assessor: Mapped[str | None] = mapped_column(String(100), nullable=True)
-    business_processes: Mapped[list] = mapped_column(JSON, nullable=False)
+    business_processes: Mapped[list[Any]] = mapped_column(JSON, nullable=False)
     financial_impact_per_hour: Mapped[float | None] = mapped_column(Float, nullable=True)
     financial_impact_per_day: Mapped[float | None] = mapped_column(Float, nullable=True)
     max_tolerable_downtime_hours: Mapped[float | None] = mapped_column(Float, nullable=True)
-    regulatory_risks: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    regulatory_risks: Mapped[list[Any] | None] = mapped_column(JSON, nullable=True)
     reputation_impact: Mapped[str | None] = mapped_column(String(20), nullable=True)
     operational_impact: Mapped[str | None] = mapped_column(String(20), nullable=True)
     recommended_rto_hours: Mapped[float | None] = mapped_column(Float, nullable=True)
     recommended_rpo_hours: Mapped[float | None] = mapped_column(Float, nullable=True)
     risk_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    mitigation_measures: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    mitigation_measures: Mapped[list[Any] | None] = mapped_column(JSON, nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="draft")
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     scenario_ref_id: Mapped[uuid.UUID | None] = mapped_column(
@@ -187,8 +188,8 @@ class BCPScenario(Base):
     scenario_type: Mapped[str] = mapped_column(String(50), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
     initial_inject: Mapped[str] = mapped_column(Text, nullable=False)
-    injects: Mapped[list] = mapped_column(JSON, nullable=False)
-    affected_systems: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    injects: Mapped[list[Any]] = mapped_column(JSON, nullable=False)
+    affected_systems: Mapped[list[Any] | None] = mapped_column(JSON, nullable=True)
     expected_duration_hours: Mapped[float | None] = mapped_column(Float, nullable=True)
     difficulty: Mapped[str] = mapped_column(String(20), default="medium")
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
@@ -232,7 +233,7 @@ class ActiveIncident(Base):
     incident_commander: Mapped[str | None] = mapped_column(String(100), nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="active")  # active/recovering/resolved/closed
     situation_report: Mapped[str | None] = mapped_column(Text, nullable=True)
-    affected_systems: Mapped[list | None] = mapped_column(JSON, nullable=True)  # list of system names
+    affected_systems: Mapped[list[Any] | None] = mapped_column(JSON, nullable=True)  # list of system names
     affected_users: Mapped[int | None] = mapped_column(Integer, nullable=True)
     estimated_impact: Mapped[str | None] = mapped_column(Text, nullable=True)
     resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -282,7 +283,7 @@ class NotificationLog(Base):
     status: Mapped[str] = mapped_column(String(20), default="pending")  # pending/sent/failed
     sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
-    extra_data: Mapped[dict | None] = mapped_column("metadata", JSON, nullable=True)
+    extra_data: Mapped[dict[str, Any] | None] = mapped_column("metadata", JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
@@ -298,7 +299,7 @@ class AuditLog(Base):
     action: Mapped[str] = mapped_column(String(50), nullable=False)
     resource_type: Mapped[str] = mapped_column(String(100), nullable=False)
     resource_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
-    details: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    details: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
     ip_address: Mapped[str | None] = mapped_column(String(50), nullable=True)
     user_agent: Mapped[str | None] = mapped_column(String(500), nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="success")
@@ -316,9 +317,9 @@ class SituationReport(Base):
     report_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     reporter: Mapped[str | None] = mapped_column(String(100), nullable=True)
     summary: Mapped[str] = mapped_column(Text, nullable=False)
-    systems_status: Mapped[dict | None] = mapped_column(JSON, nullable=True)
-    tasks_summary: Mapped[dict | None] = mapped_column(JSON, nullable=True)
-    next_actions: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    systems_status: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    tasks_summary: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    next_actions: Mapped[list[Any] | None] = mapped_column(JSON, nullable=True)
     escalation_status: Mapped[str | None] = mapped_column(String(50), nullable=True)
     audience: Mapped[str] = mapped_column(String(50), default="internal")  # internal/management/executive/external
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

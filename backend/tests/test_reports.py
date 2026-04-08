@@ -1,8 +1,10 @@
 """Tests for report generation endpoints and ReportGenerator class."""
 
+from collections.abc import Generator
 from unittest.mock import AsyncMock, patch
 
 import pytest
+from fastapi.testclient import TestClient
 
 from apps.report_generator import ReportGenerator
 from tests.conftest import MockExercise, MockSystem
@@ -15,14 +17,14 @@ from tests.conftest import MockExercise, MockSystem
 class TestReportGeneratorReadiness:
     """Tests for generate_readiness_report."""
 
-    def test_empty_systems(self):
+    def test_empty_systems(self) -> None:
         gen = ReportGenerator(systems=[], exercises=[], incidents=[])
         report = gen.generate_readiness_report()
         assert report["report_id"] == "RPT-001"
         assert report["overall_score"] == 0.0
         assert report["total_systems"] == 0
 
-    def test_with_tested_systems(self):
+    def test_with_tested_systems(self) -> None:
         systems = [
             {
                 "system_name": "System A",
@@ -50,7 +52,7 @@ class TestReportGeneratorReadiness:
         assert report["overall_score"] > 0
         assert len(report["system_readiness"]) == 2
 
-    def test_recommendations_generated(self):
+    def test_recommendations_generated(self) -> None:
         systems = [
             {
                 "system_name": "Sys",
@@ -65,7 +67,7 @@ class TestReportGeneratorReadiness:
         report = gen.generate_readiness_report()
         assert len(report["recommendations"]) > 0
 
-    def test_rto_not_met_recommendation(self):
+    def test_rto_not_met_recommendation(self) -> None:
         # rto_met_count < tested_count triggers RTO recommendation (line 87)
         systems = [
             {
@@ -87,13 +89,13 @@ class TestReportGeneratorReadiness:
 class TestReportGeneratorRTOCompliance:
     """Tests for generate_rto_compliance_report."""
 
-    def test_empty_systems(self):
+    def test_empty_systems(self) -> None:
         gen = ReportGenerator(systems=[], exercises=[], incidents=[])
         report = gen.generate_rto_compliance_report()
         assert report["report_id"] == "RPT-002"
         assert report["compliance_rate"] == 0.0
 
-    def test_compliance_calculation(self):
+    def test_compliance_calculation(self) -> None:
         systems = [
             {
                 "system_name": "Compliant",
@@ -112,7 +114,7 @@ class TestReportGeneratorRTOCompliance:
         assert report["compliant_systems"] == 1
         assert "Non-compliant" in report["overdue_systems"]
 
-    def test_missing_rto_data_goes_to_overdue(self):
+    def test_missing_rto_data_goes_to_overdue(self) -> None:
         # last_test_rto=None → else branch (line 163) adds to overdue_systems
         systems = [
             {
@@ -130,14 +132,14 @@ class TestReportGeneratorRTOCompliance:
 class TestReportGeneratorExerciseTrend:
     """Tests for generate_exercise_trend_report."""
 
-    def test_empty_exercises(self):
+    def test_empty_exercises(self) -> None:
         gen = ReportGenerator(systems=[], exercises=[], incidents=[])
         report = gen.generate_exercise_trend_report()
         assert report["report_id"] == "RPT-003"
         assert report["total_exercises"] == 0
         assert report["yearly_trends"] == []
 
-    def test_with_exercises(self):
+    def test_with_exercises(self) -> None:
         exercises = [
             {
                 "scheduled_date": "2026-03-01T00:00:00Z",
@@ -161,7 +163,7 @@ class TestReportGeneratorExerciseTrend:
         assert report["yearly_trends"][0]["year"] == 2026
         assert report["yearly_trends"][0]["achievement_rate"] == 50.0
 
-    def test_invalid_date_string_skipped(self):
+    def test_invalid_date_string_skipped(self) -> None:
         # Malformed date string → ValueError caught (lines 212-213), year=None → skipped (line 216)
         exercises = [
             {
@@ -192,7 +194,7 @@ class TestReportGeneratorExerciseTrend:
         assert len(report["yearly_trends"]) == 1
         assert report["yearly_trends"][0]["year"] == 2026
 
-    def test_findings_as_dict_with_categories(self):
+    def test_findings_as_dict_with_categories(self) -> None:
         # findings dict with categories list → lines 239-240
         exercises = [
             {
@@ -208,7 +210,7 @@ class TestReportGeneratorExerciseTrend:
         assert report["total_exercises"] == 1
         assert "common_issues" in report
 
-    def test_findings_as_list(self):
+    def test_findings_as_list(self) -> None:
         # findings as list of strings → lines 242-244
         exercises = [
             {
@@ -227,7 +229,7 @@ class TestReportGeneratorExerciseTrend:
         assert categories.get("auth_failure", 0) == 1
         assert categories.get("general", 0) == 1  # non-string → "general"
 
-    def test_improvements_as_dict(self):
+    def test_improvements_as_dict(self) -> None:
         # improvements as dict with items list → lines 249-251
         exercises = [
             {
@@ -248,7 +250,7 @@ class TestReportGeneratorExerciseTrend:
         assert report["total_improvements"] == 2
         assert report["completed_improvements"] == 1
 
-    def test_improvements_as_list(self):
+    def test_improvements_as_list(self) -> None:
         # improvements as list → lines 255-256
         exercises = [
             {
@@ -272,14 +274,14 @@ class TestReportGeneratorExerciseTrend:
 class TestReportGeneratorISO20000:
     """Tests for generate_iso20000_report."""
 
-    def test_empty_data(self):
+    def test_empty_data(self) -> None:
         gen = ReportGenerator(systems=[], exercises=[], incidents=[])
         report = gen.generate_iso20000_report()
         assert report["report_id"] == "RPT-004"
         assert report["compliance_rate"] == 0.0
         assert len(report["non_compliant_items"]) == 8
 
-    def test_partial_compliance(self):
+    def test_partial_compliance(self) -> None:
         systems = [
             {
                 "system_name": "Sys",
@@ -309,7 +311,7 @@ class TestReportGeneratorISO20000:
 
 
 @pytest.fixture()
-def _mock_crud():
+def _mock_crud() -> Generator[None, None, None]:
     """Mock all crud functions used by report endpoints."""
     with (
         patch("apps.routers.dashboard.crud.get_all_systems", new_callable=AsyncMock) as mock_sys,
@@ -335,28 +337,28 @@ def _mock_crud():
 class TestReportEndpoints:
     """Tests for the report API endpoints."""
 
-    def test_readiness_report(self, client):
+    def test_readiness_report(self, client: TestClient) -> None:
         resp = client.get("/api/dashboard/reports/readiness")
         assert resp.status_code == 200
         data = resp.json()
         assert data["report_id"] == "RPT-001"
         assert "overall_score" in data
 
-    def test_rto_compliance_report(self, client):
+    def test_rto_compliance_report(self, client: TestClient) -> None:
         resp = client.get("/api/dashboard/reports/rto-compliance")
         assert resp.status_code == 200
         data = resp.json()
         assert data["report_id"] == "RPT-002"
         assert "compliance_rate" in data
 
-    def test_exercise_trend_report(self, client):
+    def test_exercise_trend_report(self, client: TestClient) -> None:
         resp = client.get("/api/dashboard/reports/exercise-trends")
         assert resp.status_code == 200
         data = resp.json()
         assert data["report_id"] == "RPT-003"
         assert "yearly_trends" in data
 
-    def test_iso20000_report(self, client):
+    def test_iso20000_report(self, client: TestClient) -> None:
         resp = client.get("/api/dashboard/reports/iso20000")
         assert resp.status_code == 200
         data = resp.json()

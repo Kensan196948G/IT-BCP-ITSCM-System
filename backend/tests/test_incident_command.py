@@ -3,6 +3,8 @@
 import uuid
 from unittest.mock import AsyncMock, patch
 
+from fastapi.testclient import TestClient
+
 from tests.conftest import FIXED_NOW, FIXED_UUID, MockIncident, MockSystem
 
 # ---------------------------------------------------------------------------
@@ -69,7 +71,7 @@ class MockSituationReport:
 
 @patch("apps.crud.create_incident_task", new_callable=AsyncMock)
 @patch("apps.crud.get_incident", new_callable=AsyncMock)
-def test_create_task(mock_get_inc: AsyncMock, mock_create: AsyncMock, client) -> None:
+def test_create_task(mock_get_inc: AsyncMock, mock_create: AsyncMock, client: TestClient) -> None:
     """POST /api/incidents/{id}/tasks should create a new task."""
     mock_get_inc.return_value = MockIncident()
     mock_create.return_value = MockIncidentTask()
@@ -86,7 +88,7 @@ def test_create_task(mock_get_inc: AsyncMock, mock_create: AsyncMock, client) ->
 
 
 @patch("apps.crud.get_incident", new_callable=AsyncMock)
-def test_create_task_incident_not_found(mock_get: AsyncMock, client) -> None:
+def test_create_task_incident_not_found(mock_get: AsyncMock, client: TestClient) -> None:
     """POST /api/incidents/{id}/tasks should return 404 if incident missing."""
     mock_get.return_value = None
     payload = {"task_title": "Some task"}
@@ -101,7 +103,7 @@ def test_create_task_incident_not_found(mock_get: AsyncMock, client) -> None:
 
 @patch("apps.crud.get_incident_tasks_by_incident", new_callable=AsyncMock)
 @patch("apps.crud.get_incident", new_callable=AsyncMock)
-def test_list_tasks(mock_get_inc: AsyncMock, mock_list: AsyncMock, client) -> None:
+def test_list_tasks(mock_get_inc: AsyncMock, mock_list: AsyncMock, client: TestClient) -> None:
     """GET /api/incidents/{id}/tasks should return task list."""
     mock_get_inc.return_value = MockIncident()
     mock_list.return_value = [MockIncidentTask(), MockIncidentTask(status="completed")]
@@ -113,7 +115,7 @@ def test_list_tasks(mock_get_inc: AsyncMock, mock_list: AsyncMock, client) -> No
 
 
 @patch("apps.crud.get_incident", new_callable=AsyncMock)
-def test_list_tasks_incident_not_found(mock_get: AsyncMock, client) -> None:
+def test_list_tasks_incident_not_found(mock_get: AsyncMock, client: TestClient) -> None:
     """GET /api/incidents/{id}/tasks should return 404 if incident missing."""
     mock_get.return_value = None
     response = client.get(f"/api/incidents/{uuid.uuid4()}/tasks")
@@ -127,7 +129,7 @@ def test_list_tasks_incident_not_found(mock_get: AsyncMock, client) -> None:
 
 @patch("apps.crud.update_incident_task", new_callable=AsyncMock)
 @patch("apps.crud.get_incident", new_callable=AsyncMock)
-def test_update_task(mock_get_inc: AsyncMock, mock_update: AsyncMock, client) -> None:
+def test_update_task(mock_get_inc: AsyncMock, mock_update: AsyncMock, client: TestClient) -> None:
     """PUT /api/incidents/{id}/tasks/{task_id} should update the task."""
     mock_get_inc.return_value = MockIncident()
     mock_update.return_value = MockIncidentTask(status="in_progress")
@@ -141,7 +143,7 @@ def test_update_task(mock_get_inc: AsyncMock, mock_update: AsyncMock, client) ->
 
 @patch("apps.crud.update_incident_task", new_callable=AsyncMock)
 @patch("apps.crud.get_incident", new_callable=AsyncMock)
-def test_update_task_not_found(mock_get_inc: AsyncMock, mock_update: AsyncMock, client) -> None:
+def test_update_task_not_found(mock_get_inc: AsyncMock, mock_update: AsyncMock, client: TestClient) -> None:
     """PUT should return 404 when task does not exist."""
     mock_get_inc.return_value = MockIncident()
     mock_update.return_value = None
@@ -159,7 +161,7 @@ def test_update_task_not_found(mock_get_inc: AsyncMock, mock_update: AsyncMock, 
 
 @patch("apps.crud.create_situation_report", new_callable=AsyncMock)
 @patch("apps.crud.get_incident", new_callable=AsyncMock)
-def test_create_situation_report(mock_get_inc: AsyncMock, mock_create: AsyncMock, client) -> None:
+def test_create_situation_report(mock_get_inc: AsyncMock, mock_create: AsyncMock, client: TestClient) -> None:
     """POST /api/incidents/{id}/situation-reports should create a report."""
     mock_get_inc.return_value = MockIncident()
     mock_create.return_value = MockSituationReport()
@@ -182,7 +184,7 @@ def test_create_situation_report(mock_get_inc: AsyncMock, mock_create: AsyncMock
 
 @patch("apps.crud.get_situation_reports_by_incident", new_callable=AsyncMock)
 @patch("apps.crud.get_incident", new_callable=AsyncMock)
-def test_list_situation_reports(mock_get_inc: AsyncMock, mock_list: AsyncMock, client) -> None:
+def test_list_situation_reports(mock_get_inc: AsyncMock, mock_list: AsyncMock, client: TestClient) -> None:
     """GET /api/incidents/{id}/situation-reports should return list."""
     mock_get_inc.return_value = MockIncident()
     mock_list.return_value = [MockSituationReport()]
@@ -209,7 +211,7 @@ def test_auto_generate_situation_report(
     mock_systems: AsyncMock,
     mock_reports: AsyncMock,
     mock_create: AsyncMock,
-    client,
+    client: TestClient,
 ) -> None:
     """POST auto-generate should create a situation report automatically."""
     mock_get_inc.return_value = MockIncident()
@@ -228,7 +230,7 @@ def test_auto_generate_situation_report(
 
 
 @patch("apps.crud.get_incident", new_callable=AsyncMock)
-def test_auto_generate_incident_not_found(mock_get: AsyncMock, client) -> None:
+def test_auto_generate_incident_not_found(mock_get: AsyncMock, client: TestClient) -> None:
     """POST auto-generate should return 404 for missing incident."""
     mock_get.return_value = None
     response = client.post(f"/api/incidents/{uuid.uuid4()}/situation-reports/auto-generate")
@@ -249,7 +251,7 @@ def test_command_dashboard(
     mock_tasks: AsyncMock,
     mock_reports: AsyncMock,
     mock_systems: AsyncMock,
-    client,
+    client: TestClient,
 ) -> None:
     """GET /api/incidents/{id}/command-dashboard should return dashboard data."""
     mock_get_inc.return_value = MockIncident()
@@ -271,7 +273,7 @@ def test_command_dashboard(
 
 
 @patch("apps.crud.get_incident", new_callable=AsyncMock)
-def test_command_dashboard_not_found(mock_get: AsyncMock, client) -> None:
+def test_command_dashboard_not_found(mock_get: AsyncMock, client: TestClient) -> None:
     """GET command-dashboard should return 404 for missing incident."""
     mock_get.return_value = None
     response = client.get(f"/api/incidents/{uuid.uuid4()}/command-dashboard")
@@ -287,7 +289,7 @@ def test_command_dashboard_no_tasks(
     mock_tasks: AsyncMock,
     mock_reports: AsyncMock,
     mock_systems: AsyncMock,
-    client,
+    client: TestClient,
 ) -> None:
     """GET /api/incidents/{id}/command-dashboard should return zero-stat TaskStatistics when no tasks exist."""
     mock_get_inc.return_value = MockIncident()
@@ -303,7 +305,7 @@ def test_command_dashboard_no_tasks(
     assert data["task_statistics"]["completion_rate"] == 0.0
 
 
-def test_create_task_invalid_priority(client) -> None:
+def test_create_task_invalid_priority(client: TestClient) -> None:
     """POST task with invalid priority should return 422."""
     payload = {
         "task_title": "Test task",
@@ -329,7 +331,7 @@ def test_auto_generate_with_empty_tasks(
     mock_systems: AsyncMock,
     mock_reports: AsyncMock,
     mock_create: AsyncMock,
-    client,
+    client: TestClient,
 ) -> None:
     """Auto-generate with zero tasks hits TaskStatistics() early return (line 26)."""
     mock_get_inc.return_value = MockIncident()
@@ -355,7 +357,7 @@ def test_auto_generate_no_affected_systems(
     mock_systems: AsyncMock,
     mock_reports: AsyncMock,
     mock_create: AsyncMock,
-    client,
+    client: TestClient,
 ) -> None:
     """Auto-generate with empty affected_systems hits early [] return (line 48)."""
     incident = MockIncident(affected_systems=[])  # empty → _get_rto_statuses returns []
@@ -380,7 +382,7 @@ def test_auto_generate_with_blocked_task(
     mock_systems: AsyncMock,
     mock_reports: AsyncMock,
     mock_create: AsyncMock,
-    client,
+    client: TestClient,
 ) -> None:
     """Auto-generate with blocked task triggers 'Resolve blocked task(s)' next action (line 131)."""
     mock_get_inc.return_value = MockIncident()
@@ -407,7 +409,7 @@ def test_auto_generate_continue_monitoring_fallback(
     mock_systems: AsyncMock,
     mock_reports: AsyncMock,
     mock_create: AsyncMock,
-    client,
+    client: TestClient,
 ) -> None:
     """All tasks completed + no overdue systems → 'Continue monitoring' fallback (line 140)."""
     mock_get_inc.return_value = MockIncident()
