@@ -5,6 +5,8 @@ from collections import defaultdict
 
 from fastapi import Request
 from fastapi.responses import JSONResponse
+from starlette.middleware.base import RequestResponseEndpoint
+from starlette.responses import Response
 
 from config import settings
 
@@ -43,11 +45,11 @@ class RateLimiter:
         self._history[ip].append(now)
         return True
 
-    async def __call__(self, request: Request, call_next: object) -> JSONResponse:
+    async def __call__(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         """ASGI middleware entry point."""
         # Skip rate limiting for whitelisted paths
         if request.url.path in self.WHITELIST_PATHS:
-            return await call_next(request)  # type: ignore[operator,no-any-return]
+            return await call_next(request)
 
         client_ip = request.client.host if request.client else "unknown"
 
@@ -62,4 +64,4 @@ class RateLimiter:
                 },
             )
 
-        return await call_next(request)  # type: ignore[operator,no-any-return]
+        return await call_next(request)

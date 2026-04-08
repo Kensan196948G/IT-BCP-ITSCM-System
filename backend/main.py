@@ -12,6 +12,8 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.base import RequestResponseEndpoint
+from starlette.responses import Response
 
 from apps.audit_service import audit_service
 from apps.auth import AuthService
@@ -148,16 +150,16 @@ app.add_middleware(
 
 
 @app.middleware("http")
-async def security_headers_middleware(request: Request, call_next: object) -> JSONResponse:
+async def security_headers_middleware(request: Request, call_next: RequestResponseEndpoint) -> Response:
     """Attach security headers to every response."""
-    response = await call_next(request)  # type: ignore[operator]
+    response = await call_next(request)
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     response.headers["Cache-Control"] = "no-store"
     response.headers["Content-Security-Policy"] = "default-src 'self'"
-    return response  # type: ignore[no-any-return]
+    return response
 
 
 # Rate limiting middleware (after security headers)
@@ -165,16 +167,16 @@ _rate_limiter = RateLimiter()
 
 
 @app.middleware("http")
-async def rate_limit_middleware(request: Request, call_next: object) -> JSONResponse:
+async def rate_limit_middleware(request: Request, call_next: RequestResponseEndpoint) -> Response:
     """Enforce per-IP rate limiting."""
     return await _rate_limiter(request, call_next)
 
 
 @app.middleware("http")
-async def request_logging_middleware(request: Request, call_next: object) -> JSONResponse:
+async def request_logging_middleware(request: Request, call_next: RequestResponseEndpoint) -> Response:
     """Log method, path, status code and processing time."""
     start = time.time()
-    response = await call_next(request)  # type: ignore[operator]
+    response = await call_next(request)
     duration_ms = (time.time() - start) * 1000
     logger.info(
         "%s %s -> %s (%.1fms)",
@@ -183,14 +185,14 @@ async def request_logging_middleware(request: Request, call_next: object) -> JSO
         response.status_code,
         duration_ms,
     )
-    return response  # type: ignore[no-any-return]
+    return response
 
 
 @app.middleware("http")
-async def metrics_middleware(request: Request, call_next: object) -> JSONResponse:
+async def metrics_middleware(request: Request, call_next: RequestResponseEndpoint) -> Response:
     """Record request metrics for monitoring."""
     start = time.time()
-    response = await call_next(request)  # type: ignore[operator]
+    response = await call_next(request)
     duration = time.time() - start
     metrics_collector.record_request(
         method=request.method,
@@ -198,7 +200,7 @@ async def metrics_middleware(request: Request, call_next: object) -> JSONRespons
         status_code=response.status_code,
         duration=duration,
     )
-    return response  # type: ignore[no-any-return]
+    return response
 
 
 _AUDIT_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
@@ -207,9 +209,9 @@ _AUDIT_SKIP_PATHS = {"/api/auth/login", "/api/auth/me"}
 
 
 @app.middleware("http")
-async def audit_log_middleware(request: Request, call_next: object) -> JSONResponse:
+async def audit_log_middleware(request: Request, call_next: RequestResponseEndpoint) -> Response:
     """Record mutation operations to the audit log for ISO27001 compliance."""
-    response = await call_next(request)  # type: ignore[operator]
+    response = await call_next(request)
     path = request.url.path
     method = request.method
     if method in _AUDIT_METHODS and path.startswith(_AUDIT_PATH_PREFIX) and path not in _AUDIT_SKIP_PATHS:
@@ -234,7 +236,7 @@ async def audit_log_middleware(request: Request, call_next: object) -> JSONRespo
             user_agent=request.headers.get("user-agent"),
             status="success" if response.status_code < 400 else "failure",
         )
-    return response  # type: ignore[no-any-return]
+    return response
 
 
 # ---------------------------------------------------------------------------
