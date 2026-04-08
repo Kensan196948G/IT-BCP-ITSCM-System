@@ -439,7 +439,7 @@ class BIAAssessmentCreate(BaseModel):
     system_name: str = Field(..., max_length=100)
     assessment_date: date
     assessor: str | None = Field(None, max_length=100)
-    business_processes: list[dict[str, Any]] = Field(...)
+    business_processes: list[str] = Field(...)
     financial_impact_per_hour: float | None = None
     financial_impact_per_day: float | None = None
     max_tolerable_downtime_hours: float | None = None
@@ -467,7 +467,7 @@ class BIAAssessmentUpdate(BaseModel):
     system_name: str | None = Field(None, max_length=100)
     assessment_date: date | None = None
     assessor: str | None = Field(None, max_length=100)
-    business_processes: list[dict[str, Any]] | None = None
+    business_processes: list[str] | None = None
     financial_impact_per_hour: float | None = None
     financial_impact_per_day: float | None = None
     max_tolerable_downtime_hours: float | None = None
@@ -492,7 +492,7 @@ class BIAAssessmentResponse(BaseModel):
     system_name: str
     assessment_date: date
     assessor: str | None = None
-    business_processes: list[dict[str, Any]]
+    business_processes: list[str]
     financial_impact_per_hour: float | None = None
     financial_impact_per_day: float | None = None
     max_tolerable_downtime_hours: float | None = None
@@ -582,7 +582,7 @@ class BCPScenarioCreate(BaseModel):
     )
     description: str
     initial_inject: str
-    injects: list[dict[str, Any]] = Field(...)
+    injects: list[Any] = Field(...)
     affected_systems: list[str] | None = None
     expected_duration_hours: float | None = None
     difficulty: str = Field("medium", pattern=DIFFICULTY_LEVELS)
@@ -603,7 +603,7 @@ class BCPScenarioUpdate(BaseModel):
     scenario_type: str | None = Field(None, pattern=SCENARIO_TYPES)
     description: str | None = None
     initial_inject: str | None = None
-    injects: list[dict[str, Any]] | None = None
+    injects: list[Any] | None = None
     affected_systems: list[str] | None = None
     expected_duration_hours: float | None = None
     difficulty: str | None = Field(None, pattern=DIFFICULTY_LEVELS)
@@ -621,7 +621,7 @@ class BCPScenarioResponse(BaseModel):
     scenario_type: str
     description: str
     initial_inject: str
-    injects: list[dict[str, Any]]
+    injects: list[Any]
     affected_systems: list[str] | None = None
     expected_duration_hours: float | None = None
     difficulty: str
