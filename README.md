@@ -10,9 +10,9 @@
 
 <p align="center">
   <a href="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml"><img src="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml/badge.svg" alt="CI"></a>
-  <img src="https://img.shields.io/badge/tests-517_passed-brightgreen?style=flat-square" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-540_passed-brightgreen?style=flat-square" alt="Tests">
   <img src="https://img.shields.io/badge/coverage-80%25%2B-brightgreen?style=flat-square" alt="Coverage">
-  <img src="https://img.shields.io/badge/PRs-132_merged-blue?style=flat-square" alt="PRs">
+  <img src="https://img.shields.io/badge/PRs-135_merged-blue?style=flat-square" alt="PRs">
   <img src="https://img.shields.io/badge/Open_PRs-0-brightgreen?style=flat-square" alt="Open PRs">
   <img src="https://img.shields.io/badge/STABLE-✅-brightgreen?style=flat-square" alt="STABLE">
   <img src="https://img.shields.io/badge/security-0_CVE-brightgreen?style=flat-square&logo=shield" alt="Security">
@@ -432,8 +432,8 @@ graph LR
 
 | 改善項目 | PR/Issue | 状態 | 詳細 |
 |:---------|:--------:|:----:|:-----|
-| 🟢 CI品質ゲート強化 | Issue #134 | **🔨 開発中** | mypy を CI パイプラインに追加（claudeos-ci.yml更新） |
-| 🟡 pydantic互換性 | Issue #133 | **📋 追跡中** | requirements.txt: pydantic==2.12.5指定済み（CI側解決済み）|
+| 🟢 CI品質ゲート強化 | **PR #135** | **✅ Merged** | mypy strict type check を CI パイプラインに追加・tests/e2e除外・redis型互換対応 |
+| 🟢 pydantic互換性 | Issue #133 | **✅ 解消** | PR #135 で e2e除外・redis overrides追加、requirements.txt: pydantic==2.12.5固定済み |
 | 🟢 cache型安全性 | **PR #132** | **✅ Merged** | routers内の`type:ignore`をexplicitコンストラクタで除去 |
 | 🟢 型精度改善 | **PR #129** | **✅ Merged** | middleware: `RequestResponseEndpoint` + `Response` 導入 |
 | 🟢 ブランチクリーンアップ | — | **✅ 完了** | 44本のstaleブランチ削除 → main のみのクリーン状態 |
@@ -443,23 +443,24 @@ graph LR
 
 | 確認項目 | 状態 | 詳細 |
 |:---------|:----:|:-----|
-| 🟢 CI (main) | **✅ 全成功** | PR #132 Lint/Test/Build 全パス → main マージ完了 |
-| 🟢 テスト | **✅ 517件 全通過** | 0失敗、0エラー（e2e除外） |
+| 🟢 CI (main) | **✅ 全成功** | PR #135 Lint/Test/Build 全パス → main マージ完了 |
+| 🟢 テスト | **✅ 540件 全通過** | 0失敗、0エラー（e2e 39件除外） |
 | 🟢 カバレッジ | **✅ 80%+** | CI fail-under=80% 準拠 |
-| 🟢 オープンPR | **0件** | PR #132 マージ済み |
-| 🟡 オープンIssue | **2件** | #133（pydantic互換性）、#134（mypy CI追加）|
+| 🟢 オープンPR | **0件** | PR #135 マージ済み |
+| 🟢 オープンIssue | **0件** | #133・#134 いずれも解消クローズ |
 | 🟢 セキュリティ | **✅ CVE 0件** | JWT全ルーター + WebSocket保護済み |
-| 🟢 mypy strict | **✅ 0エラー** | 81ファイル完全準拠（全バックエンド） |
-| 🟡 GitHub Projects | **開発中** | Issue #134 開発ブランチ作業中 |
-| 🟢 ブランチ | **fix/134-mypy-ci-gate** | Issue #134対応ブランチ |
-| 🟢 STABLE判定 | **✅ STABLE** | CI 成功・全テスト通過・CVEゼロ |
+| 🟢 mypy strict CI | **✅ CI組み込み完了** | Lint Checkに mypy実行ステップ追加（PR #135） |
+| 🟢 mypy strict | **✅ 0エラー** | 81ファイル完全準拠（tests/e2e除外、redis overrides追加） |
+| 🟢 GitHub Projects | **✅ 安定** | 全Issue解消、main ブランチのみ |
+| 🟢 ブランチ | **main** | クリーン状態 |
+| 🟢 STABLE判定 | **✅ STABLE** | CI 成功・全テスト通過・CVEゼロ・Issue 0件 |
 
 ### 📌 技術負債トラッキング
 
 | Issue | タイトル | 重要度 | 方針 |
 |:-----:|:---------|:------:|:-----|
-| [#134](https://github.com/Kensan196948G/IT-BCP-ITSCM-System/issues/134) | mypy 型チェックを CI 品質ゲートに追加 | 🟡 P2 | 🔨 **開発中**（claudeos-ci.yml 更新） |
-| [#133](https://github.com/Kensan196948G/IT-BCP-ITSCM-System/issues/133) | pydantic 2.9.2 + mypy 非互換解消 | 🟡 P2 | 📋 **追跡中**（requirements.txt: 2.12.5 指定済み） |
+| ~~[#134](https://github.com/Kensan196948G/IT-BCP-ITSCM-System/issues/134)~~ | ~~mypy 型チェックを CI 品質ゲートに追加~~ | ~~🟡 P2~~ | ✅ **PR #135で解消済み** |
+| ~~[#133](https://github.com/Kensan196948G/IT-BCP-ITSCM-System/issues/133)~~ | ~~pydantic 2.9.2 + mypy 非互換解消~~ | ~~🟡 P2~~ | ✅ **PR #135で解消済み**（redis overrides, e2e除外） |
 | ~~[#72](https://github.com/Kensan196948G/IT-BCP-ITSCM-System/issues/72)~~ | ~~Next.js 16 フルエコシステム移行~~ | ~~🟠 High~~ | ✅ **PR#86で解消済み**（Next.js 16.2.2 + React 19.2.4） |
 | ~~[#73](https://github.com/Kensan196948G/IT-BCP-ITSCM-System/issues/73)~~ | ~~FastAPI/starlette CVE-2025-54121~~ | ~~🟠 High~~ | ✅ **PR#85で解消済み**（FastAPI 0.120.4 + starlette 0.49.3） |
 
@@ -506,18 +507,18 @@ graph LR
 
 | 指標 | 値 | 状態 |
 |:-----|:---|:----:|
-| テスト数 | **517 passed** / 0 failed (e2e除外) | ✅ |
-| E2Eテスト | 39 tests (Playwright、live server用) | ✅ |
+| テスト数 | **540 passed** / 0 failed (e2e除外) | ✅ |
+| E2Eテスト | 39 tests (Playwright、live server用、mypy除外設定済) | ✅ |
 | カバレッジ | 80%+ (CI fail-under=80% 準拠) | ✅ |
-| Merged PRs | **132** (feature/fix + dependabot) | ✅ |
+| Merged PRs | **135** (feature/fix + dependabot) | ✅ |
 | Open PRs | **0** | ✅ |
-| GitHub Issues | **2** open（#133, #134 — 対応中） | 🔨 |
-| Project #13 | Phase 4 完了・**mypy CI統合作業中** | 🔨 |
+| GitHub Issues | **0** open（全Issue解消） | ✅ |
+| CI 品質ゲート | **mypy strict** CI組み込み完了（PR #135）| ✅ |
 | セキュリティ | 0 CVE / JWT全ルーター + WebSocket保護済み | ✅ |
 | mypy strict | **0エラー** / 81ファイル (全バックエンド) | ✅ |
 | TODO/FIXME | **0件** — コードベース完全クリーン | ✅ |
-| ブランチ | **fix/134-mypy-ci-gate** 作業中 | 🔨 |
-| STABLE判定 | **✅ STABLE** (CI 全 success) | ✅ |
+| ブランチ | **main** のみ（クリーン状態） | ✅ |
+| STABLE判定 | **✅ STABLE** (CI 全 success・Issue 0件) | ✅ |
 
 ### Phase 3 セキュリティ・キャッシュ・監査強化 進捗
 

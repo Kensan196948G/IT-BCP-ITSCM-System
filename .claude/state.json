@@ -1,0 +1,81 @@
+{
+  "project": {
+    "name": "IT-BCP-ITSCM-System",
+    "mode": "autonomous"
+  },
+  "goal": {
+    "title": "自律開発最適化",
+    "description": "品質と安定性を維持しながら継続的に改善する"
+  },
+  "kpi": {
+    "success_rate_target": 0.9,
+    "test_pass_rate_target": 0.95,
+    "review_blocker_target": 0,
+    "security_blocker_target": 0,
+    "ci_stability_target": 0.95
+  },
+  "execution": {
+    "max_duration_minutes": 300,
+    "cooldown_minutes_min": 5,
+    "cooldown_minutes_max": 15,
+    "retry_limit_ci": 15,
+    "same_root_cause_limit": 3
+  },
+  "automation": {
+    "auto_issue_generation": true,
+    "auto_project_sync": true,
+    "self_evolution": true,
+    "auto_priority_scoring": true,
+    "auto_repair": true
+  },
+  "priority": {
+    "weights": {
+      "security": 100,
+      "ci_failure": 90,
+      "data_risk": 85,
+      "test_failure": 75,
+      "review_findings": 70,
+      "kpi_gap": 65,
+      "technical_debt": 40,
+      "minor_ux": 20
+    },
+    "current_top_reason": "stable"
+  },
+  "learning": {
+    "failure_patterns": [
+      "pydantic 2.9.2 + mypy 1.11.2 plugin incompatible (ExpandTypeVisitor ImportError) → upgrade pydantic to 2.10+",
+      "mypy version mismatch (local 1.11.2 vs CI 1.20.0) → use warn_unused_ignores=false per-module override for version-specific type: ignore"
+    ],
+    "success_patterns": [
+      "CI: all passing as of 2026-04-09",
+      "517 tests PASS (e2e excluded) as of 2026-04-09",
+      "mypy strict CI gate added in PR #135 (2026-04-09) - Lint/Test/Build all SUCCESS",
+      "redis.asyncio type-arg suppression via pyproject.toml module overrides"
+    ],
+    "blocked_patterns": [],
+    "preferred_fix_order": [
+      "security",
+      "ci",
+      "test",
+      "review",
+      "refactor"
+    ]
+  },
+  "github": {
+    "default_branch": "main",
+    "require_pr": true,
+    "require_codex_review": true,
+    "require_actions_success": true,
+    "project_sync_enabled": true
+  },
+  "status": {
+    "stable": true,
+    "blocked": false,
+    "current_phase": "improve",
+    "open_issues": [],
+    "last_updated": "2026-04-09T09:07:00Z",
+    "pr_history": ["#129", "#130", "#132", "#135"],
+    "last_merged_pr": "#135",
+    "ci_status": "success"
+  }
+}
