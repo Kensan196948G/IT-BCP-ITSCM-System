@@ -10,10 +10,10 @@
 
 <p align="center">
   <a href="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml"><img src="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml/badge.svg" alt="CI"></a>
-  <img src="https://img.shields.io/badge/tests-623_passed-brightgreen?style=flat-square" alt="Tests">
-  <img src="https://img.shields.io/badge/frontend_tests-23-brightgreen?style=flat-square" alt="Frontend Tests">
+  <img src="https://img.shields.io/badge/tests-654_passed-brightgreen?style=flat-square" alt="Tests">
+  <img src="https://img.shields.io/badge/frontend_tests-54-brightgreen?style=flat-square" alt="Frontend Tests">
   <img src="https://img.shields.io/badge/coverage-80%25%2B-brightgreen?style=flat-square" alt="Coverage">
-  <img src="https://img.shields.io/badge/PRs-144_merged-blue?style=flat-square" alt="PRs">
+  <img src="https://img.shields.io/badge/PRs-148_merged-blue?style=flat-square" alt="PRs">
   <img src="https://img.shields.io/badge/Open_PRs-0-brightgreen?style=flat-square" alt="Open PRs">
   <img src="https://img.shields.io/badge/STABLE-✅-brightgreen?style=flat-square" alt="STABLE">
   <img src="https://img.shields.io/badge/security-0_CVE-brightgreen?style=flat-square&logo=shield" alt="Security">
@@ -433,6 +433,8 @@ graph LR
 
 | 改善項目 | PR/Issue | 状態 | 詳細 |
 |:---------|:--------:|:----:|:-----|
+| 🟢 AuthContext テスト | **PR #148** | **✅ Merged** | AuthProvider/useAuth 10テスト追加（localStorage 復元・login/logout・Provider 外） |
+| 🟢 API レイヤーテスト | **PR #146** | **✅ Merged** | api.ts 21テスト追加（ApiError・fetchAPI・rtoOverview hours→min 変換） |
 | 🟢 フロントエンドhooksテスト | **PR #144** | **✅ Merged** | useApi フック 6テスト追加（loading/success/error/refetch カバレッジ） |
 | 🟢 フロントエンドユニットテスト基盤 | **PR #143** | **✅ Merged** | Jest環境構築 + IDB 9テスト + useOfflineSync 8テスト（計17テスト、fake-indexeddb） |
 | 🟢 フロントエンドmock削除 | **PR #141** | **✅ Merged** | reports/page.tsx: usingMock→fetchError、タブ別エラーUI、エラーフォールバック実装 |
@@ -449,10 +451,10 @@ graph LR
 
 | 確認項目 | 状態 | 詳細 |
 |:---------|:----:|:-----|
-| 🟢 CI (main) | **✅ 全成功** | PR #144 Lint/Test/Build 全パス → main マージ完了 |
-| 🟢 テスト | **✅ 623件 全通過** | バックエンド 600件 + フロントエンド 23件（0失敗、0エラー） |
+| 🟢 CI (main) | **✅ 全成功** | PR #148 Lint/Test/Build 全パス → main マージ完了 |
+| 🟢 テスト | **✅ 654件 全通過** | バックエンド 600件 + フロントエンド 54件（0失敗、0エラー） |
 | 🟢 カバレッジ | **✅ 80%+** | CI fail-under=80% 準拠 |
-| 🟢 オープンPR | **0件** | PR #143・#144 マージ済み |
+| 🟢 オープンPR | **0件** | PR #146・#148 マージ済み |
 | 🟢 オープンIssue | **0件** | 全Issue解消済み |
 | 🟢 セキュリティ | **✅ CVE 0件** | JWT全ルーター + WebSocket保護済み |
 | 🟢 mypy strict CI | **✅ CI組み込み完了** | Lint Checkに mypy実行ステップ追加（PR #135） |
@@ -467,6 +469,8 @@ graph LR
 |:-----:|:---------|:------:|:-----|
 | ~~[#134](https://github.com/Kensan196948G/IT-BCP-ITSCM-System/issues/134)~~ | ~~mypy 型チェックを CI 品質ゲートに追加~~ | ~~🟡 P2~~ | ✅ **PR #135で解消済み** |
 | ~~[#133](https://github.com/Kensan196948G/IT-BCP-ITSCM-System/issues/133)~~ | ~~pydantic 2.9.2 + mypy 非互換解消~~ | ~~🟡 P2~~ | ✅ **PR #135で解消済み**（redis overrides, e2e除外） |
+| ~~[#147](https://github.com/Kensan196948G/IT-BCP-ITSCM-System/issues/147)~~ | ~~AuthContext/useAuth テスト追加~~ | ~~🟡 P2~~ | ✅ **PR #148で解消済み**（10テスト追加） |
+| ~~[#145](https://github.com/Kensan196948G/IT-BCP-ITSCM-System/issues/145)~~ | ~~api.ts ユニットテスト追加~~ | ~~🟡 P3~~ | ✅ **PR #146で解消済み**（21テスト追加） |
 | ~~[#142](https://github.com/Kensan196948G/IT-BCP-ITSCM-System/issues/142)~~ | ~~フロントエンドユニットテスト追加~~ | ~~🟡 P2~~ | ✅ **PR #143/#144で解消済み**（Jest環境構築・23テスト追加） |
 | ~~[#138](https://github.com/Kensan196948G/IT-BCP-ITSCM-System/issues/138)~~ | ~~フロントエンドmockデータ削除~~ | ~~🟢 P3~~ | ✅ **PR #141で解消済み**（fetchError/エラーUI実装） |
 | ~~[#72](https://github.com/Kensan196948G/IT-BCP-ITSCM-System/issues/72)~~ | ~~Next.js 16 フルエコシステム移行~~ | ~~🟠 High~~ | ✅ **PR#86で解消済み**（Next.js 16.2.2 + React 19.2.4） |
