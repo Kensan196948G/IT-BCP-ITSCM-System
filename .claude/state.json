@@ -46,14 +46,16 @@
       "pydantic 2.9.2 + mypy 1.11.2 plugin incompatible (ExpandTypeVisitor ImportError) → upgrade pydantic to 2.10+",
       "mypy version mismatch (local 1.11.2 vs CI 1.20.0) → use warn_unused_ignores=false per-module override for version-specific type: ignore",
       "jest.config.ts requires ts-node in Jest 30 → use jest.config.js (CommonJS) instead",
-      "fake-indexeddb v6 requires structuredClone global → polyfill in jest.setup.ts for older Node environments"
+      "fake-indexeddb v6 requires structuredClone global → polyfill in jest.setup.ts for older Node environments",
+      "pip-audit without -r flag scans system environment (94 CVEs) not project deps → always use pip-audit -r requirements.txt"
     ],
     "success_patterns": [
       "CI: all passing as of 2026-04-09",
       "600 backend tests PASS (e2e excluded) as of 2026-04-09 (+60: PDF 29 + Escalation 31)",
       "mypy strict CI gate added in PR #135 (2026-04-09) - Lint/Test/Build all SUCCESS",
       "redis.asyncio type-arg suppression via pyproject.toml module overrides",
-      "23 frontend tests PASS as of 2026-04-09 (PR #143 #144: Jest env + IDB tests + hooks tests)"
+      "54 frontend tests PASS as of 2026-04-09 (PR #146 #148: api.ts 21 tests + auth-context 10 tests; lib/ all files covered)",
+      "pip-audit -r requirements.txt → No known vulnerabilities in project deps (2026-04-09)"
     ],
     "blocked_patterns": [],
     "preferred_fix_order": [
@@ -74,9 +76,9 @@
   "status": {
     "stable": true,
     "blocked": false,
-    "current_phase": "monitor",
+    "current_phase": "development",
     "open_issues": [],
-    "last_updated": "2026-04-09T13:00:00Z",
+    "last_updated": "2026-04-09T14:00:00Z",
     "pr_history": ["#129", "#130", "#132", "#135", "#139", "#140", "#141", "#143", "#144", "#146", "#148"],
     "last_merged_pr": "#148",
     "ci_status": "success",
