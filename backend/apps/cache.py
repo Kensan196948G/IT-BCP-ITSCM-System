@@ -28,10 +28,10 @@ TTL_BIA = 600  # BIA data: changes infrequently
 TTL_DEFAULT = 120  # fallback
 
 
-_pool: aioredis.Redis[str] | None = None
+_pool: aioredis.Redis[str] | None = None  # type: ignore[type-arg]
 
 
-def _get_client() -> aioredis.Redis[str] | None:
+def _get_client() -> "aioredis.Redis[str] | None":  # type: ignore[type-arg]
     """Return a singleton Redis client, initialising on first call.
 
     Returns None if the connection cannot be established so callers
@@ -127,7 +127,7 @@ async def ping() -> bool:
     if client is None:
         return False
     try:
-        result: bool = bool(await client.ping())
+        result: bool = bool(await client.ping())  # type: ignore[misc]
         return result
     except Exception:
         return False

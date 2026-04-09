@@ -10,6 +10,16 @@ line_length = 120
 python_version = "3.12"
 strict = true
 plugins = ["pydantic.mypy"]
+exclude = ["tests/e2e"]
+
+[[tool.mypy.overrides]]
+module = ["redis.*", "redis.asyncio.*"]
+ignore_missing_imports = true
+no_implicit_reexport = false
+
+[[tool.mypy.overrides]]
+module = ["apps.cache"]
+warn_unused_ignores = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
