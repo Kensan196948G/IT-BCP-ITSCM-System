@@ -34,9 +34,7 @@ jobs:
 
     - name: Install Backend Dependencies
       working-directory: backend
-      run: |
-        pip install -r requirements.txt
-        pip install flake8 black isort mypy
+      run: pip install -r requirements.txt
 
     - name: Backend Lint (flake8)
       working-directory: backend
@@ -45,6 +43,10 @@ jobs:
     - name: Backend Format Check (black)
       working-directory: backend
       run: black --check .
+
+    - name: Backend Type Check (mypy)
+      working-directory: backend
+      run: mypy . --show-error-codes --no-error-summary
 
   test:
     name: Test
