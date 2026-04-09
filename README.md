@@ -10,11 +10,11 @@
 
 <p align="center">
   <a href="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml"><img src="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml/badge.svg" alt="CI"></a>
-  <img src="https://img.shields.io/badge/tests-699_passed-brightgreen?style=flat-square" alt="Tests">
-  <img src="https://img.shields.io/badge/frontend_tests-99-brightgreen?style=flat-square" alt="Frontend Tests">
+  <img src="https://img.shields.io/badge/tests-808_passed-brightgreen?style=flat-square" alt="Tests">
+  <img src="https://img.shields.io/badge/frontend_tests-208-brightgreen?style=flat-square" alt="Frontend Tests">
   <img src="https://img.shields.io/badge/coverage-80%25%2B-brightgreen?style=flat-square" alt="Coverage">
-  <img src="https://img.shields.io/badge/PRs-155_merged-blue?style=flat-square" alt="PRs">
-  <img src="https://img.shields.io/badge/Open_PRs-1-yellow?style=flat-square" alt="Open PRs">
+  <img src="https://img.shields.io/badge/PRs-160_merged-blue?style=flat-square" alt="PRs">
+  <img src="https://img.shields.io/badge/Open_PRs-0-brightgreen?style=flat-square" alt="Open PRs">
   <img src="https://img.shields.io/badge/STABLE-✅-brightgreen?style=flat-square" alt="STABLE">
   <img src="https://img.shields.io/badge/security-0_CVE-brightgreen?style=flat-square&logo=shield" alt="Security">
 </p>
@@ -522,12 +522,12 @@ graph LR
 
 | 指標 | 値 | 状態 |
 |:-----|:---|:----:|
-| テスト数 | **699 passed** / 0 failed（backend 600 + frontend 99） | ✅ |
+| テスト数 | **808 passed** / 0 failed（backend 600 + frontend 208） | ✅ |
 | E2Eテスト | 39 tests (Playwright、live server用、mypy除外設定済) | ✅ |
 | カバレッジ | 80%+ (CI fail-under=80% 準拠) | ✅ |
-| Merged PRs | **155** (feature/fix + dependabot) | ✅ |
-| Open PRs | **1** (#157 IncidentsPage tests) | 🔄 |
-| GitHub Issues | **1** open (#156 — PR #157で対応中) | 🔄 |
+| Merged PRs | **160** (feature/fix + dependabot) | ✅ |
+| Open PRs | **0** | ✅ |
+| GitHub Issues | **0** open（全Issue解消） | ✅ |
 | CI 品質ゲート | **mypy strict + security scan** CI組み込み完了（PR #135 #149）| ✅ |
 | セキュリティ | 0 CVE / pip-audit クリーン + JWT全ルーター + WebSocket保護済み | ✅ |
 | mypy strict | **0エラー** / 81ファイル (全バックエンド) | ✅ |
@@ -570,6 +570,9 @@ graph LR
 | 📝 CLAUDE.md v7.1 + state/README 更新 | #151 | ✅ Merged | Autonomous Operations Edition化 |
 | 🧪 Frontend: Sidebar テスト | #153 | ✅ Merged | 21テスト、navigation/mobile/logout/AppShell |
 | 🧪 Frontend: DashboardPage テスト | #155 | ✅ Merged | 15テスト、loading/error/success/badge色/incidents |
+| 🧪 Frontend: IncidentsPage テスト | #157 | ✅ Merged | 24テスト、elapsedTime・severity・status・offlineラベル |
+| 📝 state/README更新 (PR#155対応) | #158 | ✅ Merged | バッジ・改善ログ・Monitorサマリー更新 |
+| 🧪 Frontend: 5ページテスト一括追加 | #160 | ✅ Merged | 86テスト、RtoMonitor+Exercises+SystemStatus+Plans+Procedures |
 
 <p align="center">
   <sub>Built with ❤️ by ClaudeOS v7.1 Autonomous Evolution System</sub>
