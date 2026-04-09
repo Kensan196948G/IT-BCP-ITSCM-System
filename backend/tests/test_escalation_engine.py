@@ -15,7 +15,6 @@ from apps.escalation_engine import (
 )
 from apps.notification_service import NotificationService
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
