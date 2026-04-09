@@ -54,7 +54,7 @@
       "600 backend tests PASS (e2e excluded) as of 2026-04-09 (+60: PDF 29 + Escalation 31)",
       "mypy strict CI gate added in PR #135 (2026-04-09) - Lint/Test/Build all SUCCESS",
       "redis.asyncio type-arg suppression via pyproject.toml module overrides",
-      "208 frontend tests PASS as of 2026-04-09 (PR #146-#160: 14 suites — lib/ + 9 app/ pages covered)",
+      "412 frontend tests PASS as of 2026-04-09 (PR #146-#173: 23 suites — lib/ + ALL 19 app/ pages 100% covered)",
       "pip-audit -r requirements.txt → No known vulnerabilities in project deps (2026-04-09)",
       "CI security gate added in PR #149: pip-audit + npm audit run on every PR (Lint→[Test,Security]→Build DAG)"
     ],
@@ -79,13 +79,13 @@
     "blocked": false,
     "current_phase": "improvement",
     "open_issues": [],
-    "last_updated": "2026-04-09T21:30:00Z",
-    "pr_history": ["#129", "#130", "#132", "#135", "#139", "#140", "#141", "#143", "#144", "#146", "#148", "#149", "#150", "#151", "#153", "#155", "#157", "#158", "#160"],
-    "last_merged_pr": "#160",
+    "last_updated": "2026-04-09T22:30:00Z",
+    "pr_history": ["#129", "#130", "#132", "#135", "#139", "#140", "#141", "#143", "#144", "#146", "#148", "#149", "#150", "#151", "#153", "#155", "#157", "#158", "#160", "#165", "#173"],
+    "last_merged_pr": "#173",
     "ci_status": "success",
     "test_counts": {
       "backend": 600,
-      "frontend": 208
+      "frontend": 412
     }
   }
 }
