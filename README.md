@@ -10,10 +10,10 @@
 
 <p align="center">
   <a href="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml"><img src="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml/badge.svg" alt="CI"></a>
-  <img src="https://img.shields.io/badge/tests-654_passed-brightgreen?style=flat-square" alt="Tests">
-  <img src="https://img.shields.io/badge/frontend_tests-54-brightgreen?style=flat-square" alt="Frontend Tests">
+  <img src="https://img.shields.io/badge/tests-663_passed-brightgreen?style=flat-square" alt="Tests">
+  <img src="https://img.shields.io/badge/frontend_tests-63-brightgreen?style=flat-square" alt="Frontend Tests">
   <img src="https://img.shields.io/badge/coverage-80%25%2B-brightgreen?style=flat-square" alt="Coverage">
-  <img src="https://img.shields.io/badge/PRs-148_merged-blue?style=flat-square" alt="PRs">
+  <img src="https://img.shields.io/badge/PRs-150_merged-blue?style=flat-square" alt="PRs">
   <img src="https://img.shields.io/badge/Open_PRs-0-brightgreen?style=flat-square" alt="Open PRs">
   <img src="https://img.shields.io/badge/STABLE-✅-brightgreen?style=flat-square" alt="STABLE">
   <img src="https://img.shields.io/badge/security-0_CVE-brightgreen?style=flat-square&logo=shield" alt="Security">
@@ -433,6 +433,8 @@ graph LR
 
 | 改善項目 | PR/Issue | 状態 | 詳細 |
 |:---------|:--------:|:----:|:-----|
+| 🟢 LoginPage コンポーネントテスト | **PR #150** | **✅ Merged** | login/page.tsx 9テスト追加（バリデーション・APIログイン・モックトークンフォールバック・ローディング） |
+| 🟢 CI セキュリティゲート追加 | **PR #149** | **✅ Merged** | pip-audit + npm audit を PR 毎に実行する security ジョブ追加（Lint→[Test,Security]→Build DAG） |
 | 🟢 AuthContext テスト | **PR #148** | **✅ Merged** | AuthProvider/useAuth 10テスト追加（localStorage 復元・login/logout・Provider 外） |
 | 🟢 API レイヤーテスト | **PR #146** | **✅ Merged** | api.ts 21テスト追加（ApiError・fetchAPI・rtoOverview hours→min 変換） |
 | 🟢 フロントエンドhooksテスト | **PR #144** | **✅ Merged** | useApi フック 6テスト追加（loading/success/error/refetch カバレッジ） |
@@ -451,12 +453,13 @@ graph LR
 
 | 確認項目 | 状態 | 詳細 |
 |:---------|:----:|:-----|
-| 🟢 CI (main) | **✅ 全成功** | PR #148 Lint/Test/Build 全パス → main マージ完了 |
-| 🟢 テスト | **✅ 654件 全通過** | バックエンド 600件 + フロントエンド 54件（0失敗、0エラー） |
+| 🟢 CI (main) | **✅ 全成功** | PR #150 Lint/Test/Security/Build 全パス → main マージ完了 |
+| 🟢 テスト | **✅ 663件 全通過** | バックエンド 600件 + フロントエンド 63件（0失敗、0エラー） |
 | 🟢 カバレッジ | **✅ 80%+** | CI fail-under=80% 準拠 |
-| 🟢 オープンPR | **0件** | PR #146・#148 マージ済み |
+| 🟢 セキュリティゲート | **✅ PR毎に自動スキャン** | pip-audit + npm audit（PR #149で CI security ジョブ追加） |
+| 🟢 オープンPR | **0件** | PR #149・#150 マージ済み |
 | 🟢 オープンIssue | **0件** | 全Issue解消済み |
-| 🟢 セキュリティ | **✅ CVE 0件** | JWT全ルーター + WebSocket保護済み |
+| 🟢 セキュリティ | **✅ CVE 0件** | JWT全ルーター + WebSocket保護済み + pip-audit クリーン |
 | 🟢 mypy strict CI | **✅ CI組み込み完了** | Lint Checkに mypy実行ステップ追加（PR #135） |
 | 🟢 mypy strict | **✅ 0エラー** | 81ファイル完全準拠（tests/e2e除外、redis overrides追加） |
 | 🟢 GitHub Projects | **✅ 安定** | 全Issue解消、main ブランチのみ |
@@ -519,14 +522,14 @@ graph LR
 
 | 指標 | 値 | 状態 |
 |:-----|:---|:----:|
-| テスト数 | **600 passed** / 0 failed (e2e除外) | ✅ |
+| テスト数 | **663 passed** / 0 failed（backend 600 + frontend 63） | ✅ |
 | E2Eテスト | 39 tests (Playwright、live server用、mypy除外設定済) | ✅ |
 | カバレッジ | 80%+ (CI fail-under=80% 準拠) | ✅ |
-| Merged PRs | **135** (feature/fix + dependabot) | ✅ |
+| Merged PRs | **150** (feature/fix + dependabot) | ✅ |
 | Open PRs | **0** | ✅ |
 | GitHub Issues | **0** open（全Issue解消） | ✅ |
-| CI 品質ゲート | **mypy strict** CI組み込み完了（PR #135）| ✅ |
-| セキュリティ | 0 CVE / JWT全ルーター + WebSocket保護済み | ✅ |
+| CI 品質ゲート | **mypy strict + security scan** CI組み込み完了（PR #135 #149）| ✅ |
+| セキュリティ | 0 CVE / pip-audit クリーン + JWT全ルーター + WebSocket保護済み | ✅ |
 | mypy strict | **0エラー** / 81ファイル (全バックエンド) | ✅ |
 | TODO/FIXME | **0件** — コードベース完全クリーン | ✅ |
 | ブランチ | **main** のみ（クリーン状態） | ✅ |
