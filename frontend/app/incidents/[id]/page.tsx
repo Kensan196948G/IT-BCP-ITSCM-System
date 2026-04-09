@@ -10,105 +10,6 @@ import type {
   RTOStatus,
 } from "../../../lib/types";
 
-// ---------------------------------------------------------------------------
-// Mock data fallback
-// ---------------------------------------------------------------------------
-
-const mockDashboard: IncidentCommandDashboard = {
-  incident: {
-    id: "mock-1",
-    incident_id: "BCP-2026-001",
-    title: "DC Power Failure - East Region",
-    scenario_type: "dc_failure",
-    severity: "p1",
-    occurred_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-    detected_at: new Date(Date.now() - 2.9 * 60 * 60 * 1000).toISOString(),
-    status: "active",
-    affected_systems: ["Core Banking System", "File Server", "HR System"],
-  },
-  tasks: [
-    {
-      id: "t1",
-      incident_id: "mock-1",
-      task_title: "Activate backup power",
-      priority: "critical",
-      status: "completed",
-      assigned_team: "Facilities",
-    },
-    {
-      id: "t2",
-      incident_id: "mock-1",
-      task_title: "Failover core DB to DR site",
-      priority: "critical",
-      status: "in_progress",
-      assigned_team: "Database",
-      target_system: "Core Banking System",
-    },
-    {
-      id: "t3",
-      incident_id: "mock-1",
-      task_title: "Notify affected business units",
-      priority: "high",
-      status: "pending",
-      assigned_team: "Communications",
-    },
-    {
-      id: "t4",
-      incident_id: "mock-1",
-      task_title: "Verify network connectivity",
-      priority: "medium",
-      status: "blocked",
-      assigned_team: "Network",
-      notes: "Waiting for power restoration",
-    },
-  ],
-  task_statistics: {
-    total: 4,
-    pending: 1,
-    in_progress: 1,
-    completed: 1,
-    blocked: 1,
-    completion_rate: 25.0,
-  },
-  latest_report: {
-    id: "r1",
-    incident_id: "mock-1",
-    report_number: 2,
-    report_time: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-    reporter: "Incident Commander",
-    summary:
-      "Backup power activated. DB failover in progress. Network team blocked by power dependency.",
-    audience: "internal",
-  },
-  reports_count: 2,
-  rto_statuses: [
-    {
-      system_name: "Core Banking System",
-      status: "at_risk",
-      color: "#eab308",
-      elapsed_hours: 3.0,
-      remaining_hours: 1.0,
-      rto_target: 4.0,
-    },
-    {
-      system_name: "File Server",
-      status: "on_track",
-      color: "#22c55e",
-      elapsed_hours: 3.0,
-      remaining_hours: 5.0,
-      rto_target: 8.0,
-    },
-    {
-      system_name: "HR System",
-      status: "overdue",
-      color: "#dc2626",
-      elapsed_hours: 3.0,
-      remaining_hours: 0,
-      rto_target: 2.0,
-      overdue_hours: 1.0,
-    },
-  ],
-};
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -316,16 +217,13 @@ export default function IncidentCommandPage() {
     fetchData();
   }, [fetchData]);
 
-  const dashboard = error || !data ? mockDashboard : data;
-  const inc = dashboard.incident;
-
   const handleAutoGenerate = () => {
     setGenerating(true);
     incidents
       .autoGenerateReport(incidentId)
       .then(() => fetchData())
       .catch(() => {
-        /* fallback: ignore in mock mode */
+        /* silently ignore: fetchData will surface the error */
       })
       .finally(() => setGenerating(false));
   };
@@ -340,6 +238,28 @@ export default function IncidentCommandPage() {
       </div>
     );
   }
+
+  if (error || !data) {
+    return (
+      <div className="rounded-lg border border-red-200 bg-red-50 p-8 text-center">
+        <p className="text-sm font-medium text-red-700">
+          インシデントダッシュボードを取得できませんでした
+        </p>
+        <p className="mt-1 text-xs text-red-500">
+          {error?.message ?? "データが存在しないか、IDが無効です"}
+        </p>
+        <button
+          onClick={fetchData}
+          className="mt-4 rounded bg-red-600 px-4 py-2 text-xs text-white hover:bg-red-700"
+        >
+          再試行
+        </button>
+      </div>
+    );
+  }
+
+  const dashboard = data;
+  const inc = dashboard.incident;
 
   return (
     <div className="space-y-6">
@@ -361,11 +281,6 @@ export default function IncidentCommandPage() {
           <span className="ml-auto text-sm font-medium text-slate-600">
             Elapsed: {elapsedTime(inc.occurred_at)}
           </span>
-          {error && (
-            <span className="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-700">
-              Offline (mock data)
-            </span>
-          )}
         </div>
         <div className="mt-2 flex flex-wrap gap-4 text-xs text-slate-500">
           <span>ID: {inc.incident_id}</span>
