@@ -10,9 +10,9 @@
 
 <p align="center">
   <a href="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml"><img src="https://github.com/Kensan196948G/IT-BCP-ITSCM-System/actions/workflows/claudeos-ci.yml/badge.svg" alt="CI"></a>
-  <img src="https://img.shields.io/badge/tests-540_passed-brightgreen?style=flat-square" alt="Tests">
-  <img src="https://img.shields.io/badge/coverage-100%25-brightgreen?style=flat-square" alt="Coverage">
-  <img src="https://img.shields.io/badge/PRs-129_merged-blue?style=flat-square" alt="PRs">
+  <img src="https://img.shields.io/badge/tests-517_passed-brightgreen?style=flat-square" alt="Tests">
+  <img src="https://img.shields.io/badge/coverage-80%25%2B-brightgreen?style=flat-square" alt="Coverage">
+  <img src="https://img.shields.io/badge/PRs-132_merged-blue?style=flat-square" alt="PRs">
   <img src="https://img.shields.io/badge/Open_PRs-0-brightgreen?style=flat-square" alt="Open PRs">
   <img src="https://img.shields.io/badge/STABLE-✅-brightgreen?style=flat-square" alt="STABLE">
   <img src="https://img.shields.io/badge/security-0_CVE-brightgreen?style=flat-square&logo=shield" alt="Security">
@@ -275,9 +275,10 @@ IT-BCP-ITSCM-System/
 
 ```mermaid
 graph LR
-    A["📝 Push/PR"] --> B["🔍 Lint"]
-    B --> C["🧪 Test"]
-    C --> D["🏗️ Build"]
+    A["📝 Push/PR"] --> B["🔍 Lint\nflake8+black+ESLint"]
+    B --> T["🔷 Type Check\nmypy strict"]
+    T --> C["🧪 Test\npytest+Jest"]
+    C --> D["🏗️ Build\nnext build"]
     D --> E{"✅ STABLE?"}
     E -->|Yes| F["🚀 Deploy"]
     E -->|No| G["🔧 Auto Repair"]
@@ -285,6 +286,7 @@ graph LR
 
     style A fill:#e0f2fe
     style B fill:#fef3c7
+    style T fill:#e9d5ff
     style C fill:#fef3c7
     style D fill:#fef3c7
     style E fill:#dbeafe
@@ -295,6 +297,7 @@ graph LR
 | ステージ | ツール | 内容 |
 |:---------|:-------|:-----|
 | 🔍 Lint | ESLint + flake8 + black | コード品質チェック |
+| 🔷 Type | mypy strict | 型安全性チェック（pydantic 2.12.5対応）|
 | 🧪 Test | pytest + Jest | ユニット・結合テスト |
 | 🏗️ Build | next build | フロントエンドビルド |
 | ✅ STABLE | ClaudeOS判定 | N回連続CI成功で判定 |
@@ -425,35 +428,38 @@ graph LR
 
 ---
 
-## 🔧 最新 Improvement ループ成果（2026-04-08 15:55 JST）
+## 🔧 最新 Improvement ループ成果（2026-04-09 JST）
 
-| 改善項目 | 状態 | 詳細 |
-|:---------|:----:|:-----|
-| 🟢 型精度改善 PR #129 | **✅ Merged** | middleware: `RequestResponseEndpoint` + `Response` 導入、`type:ignore` 12箇所除去 |
-| 🟢 Redis 型修正 | **✅ Merged** | `Redis[str]` (decode_responses=True対応)、`from __future__ import annotations` 追加 |
-| 🟢 ブランチクリーンアップ | **✅ 完了** | 44本のstaleリモートブランチ削除 → main のみのクリーン状態 |
-| 🟢 コード品質 | **✅ クリーン** | TODO/FIXME/HACK/XXX = 0件、mypy strict 0エラー |
-| 🟢 README 更新 | **✅ 更新中** | バッジ・サマリー・テーブル・ダイアグラム更新 |
+| 改善項目 | PR/Issue | 状態 | 詳細 |
+|:---------|:--------:|:----:|:-----|
+| 🟢 CI品質ゲート強化 | Issue #134 | **🔨 開発中** | mypy を CI パイプラインに追加（claudeos-ci.yml更新） |
+| 🟡 pydantic互換性 | Issue #133 | **📋 追跡中** | requirements.txt: pydantic==2.12.5指定済み（CI側解決済み）|
+| 🟢 cache型安全性 | **PR #132** | **✅ Merged** | routers内の`type:ignore`をexplicitコンストラクタで除去 |
+| 🟢 型精度改善 | **PR #129** | **✅ Merged** | middleware: `RequestResponseEndpoint` + `Response` 導入 |
+| 🟢 ブランチクリーンアップ | — | **✅ 完了** | 44本のstaleブランチ削除 → main のみのクリーン状態 |
+| 🟢 コード品質 | — | **✅ クリーン** | TODO/FIXME/HACK/XXX = 0件、mypy strict 0エラー |
 
-## 🔍 最新 Monitor ループ状態（2026-04-08 15:55 JST）
+## 🔍 最新 Monitor ループ状態（2026-04-09 JST）
 
 | 確認項目 | 状態 | 詳細 |
 |:---------|:----:|:-----|
-| 🟢 CI (main) | **✅ 全成功** | PR #129 Lint/Test/Build 全パス → main マージ完了 |
-| 🟢 テスト | **✅ 540件 全通過** | 0失敗、0エラー |
-| 🟢 カバレッジ | **✅ 100%** | 全体100%（2535+ stmts） |
-| 🟢 オープンPR | **0件** | PR #129 マージ済み |
-| 🟢 オープンIssue | **0件** | 全Issue解消済み |
+| 🟢 CI (main) | **✅ 全成功** | PR #132 Lint/Test/Build 全パス → main マージ完了 |
+| 🟢 テスト | **✅ 517件 全通過** | 0失敗、0エラー（e2e除外） |
+| 🟢 カバレッジ | **✅ 80%+** | CI fail-under=80% 準拠 |
+| 🟢 オープンPR | **0件** | PR #132 マージ済み |
+| 🟡 オープンIssue | **2件** | #133（pydantic互換性）、#134（mypy CI追加）|
 | 🟢 セキュリティ | **✅ CVE 0件** | JWT全ルーター + WebSocket保護済み |
-| 🟢 mypy strict | **✅ 0エラー** | 67ファイル完全準拠（apps/ + tests/） |
-| 🟢 GitHub Projects | **Done: 全件** | Blocked/進行中: なし |
-| 🟢 ブランチ | **main のみ** | 44本のstaleブランチ削除完了 |
-| 🟢 STABLE判定 | **✅ STABLE** | CI 3連続 success・全テスト通過・CVEゼロ |
+| 🟢 mypy strict | **✅ 0エラー** | 81ファイル完全準拠（全バックエンド） |
+| 🟡 GitHub Projects | **開発中** | Issue #134 開発ブランチ作業中 |
+| 🟢 ブランチ | **fix/134-mypy-ci-gate** | Issue #134対応ブランチ |
+| 🟢 STABLE判定 | **✅ STABLE** | CI 成功・全テスト通過・CVEゼロ |
 
 ### 📌 技術負債トラッキング
 
 | Issue | タイトル | 重要度 | 方針 |
 |:-----:|:---------|:------:|:-----|
+| [#134](https://github.com/Kensan196948G/IT-BCP-ITSCM-System/issues/134) | mypy 型チェックを CI 品質ゲートに追加 | 🟡 P2 | 🔨 **開発中**（claudeos-ci.yml 更新） |
+| [#133](https://github.com/Kensan196948G/IT-BCP-ITSCM-System/issues/133) | pydantic 2.9.2 + mypy 非互換解消 | 🟡 P2 | 📋 **追跡中**（requirements.txt: 2.12.5 指定済み） |
 | ~~[#72](https://github.com/Kensan196948G/IT-BCP-ITSCM-System/issues/72)~~ | ~~Next.js 16 フルエコシステム移行~~ | ~~🟠 High~~ | ✅ **PR#86で解消済み**（Next.js 16.2.2 + React 19.2.4） |
 | ~~[#73](https://github.com/Kensan196948G/IT-BCP-ITSCM-System/issues/73)~~ | ~~FastAPI/starlette CVE-2025-54121~~ | ~~🟠 High~~ | ✅ **PR#85で解消済み**（FastAPI 0.120.4 + starlette 0.49.3） |
 
@@ -496,22 +502,22 @@ graph LR
 
 ---
 
-## 📊 最新 Monitor サマリー（2026-04-08 15:55 JST）
+## 📊 最新 Monitor サマリー（2026-04-09 JST）
 
 | 指標 | 値 | 状態 |
 |:-----|:---|:----:|
-| テスト数 | **540 passed** / 0 failed | ✅ |
+| テスト数 | **517 passed** / 0 failed (e2e除外) | ✅ |
 | E2Eテスト | 39 tests (Playwright、live server用) | ✅ |
-| カバレッジ | 100% (2535+ stmts) | ✅ |
-| Merged PRs | **129** (88 feature/fix + 41 dependabot) | ✅ |
+| カバレッジ | 80%+ (CI fail-under=80% 準拠) | ✅ |
+| Merged PRs | **132** (feature/fix + dependabot) | ✅ |
 | Open PRs | **0** | ✅ |
-| GitHub Issues | **0** open | ✅ |
-| Project #13 | Phase 4 完了・**mypy strict 完全対応済み** | ✅ |
+| GitHub Issues | **2** open（#133, #134 — 対応中） | 🔨 |
+| Project #13 | Phase 4 完了・**mypy CI統合作業中** | 🔨 |
 | セキュリティ | 0 CVE / JWT全ルーター + WebSocket保護済み | ✅ |
-| mypy strict | **0エラー** / 67ファイル (apps/ + tests/) | ✅ |
+| mypy strict | **0エラー** / 81ファイル (全バックエンド) | ✅ |
 | TODO/FIXME | **0件** — コードベース完全クリーン | ✅ |
-| ブランチ | **main のみ** — 44本のstaleブランチ削除済み | ✅ |
-| STABLE判定 | **✅ STABLE** (CI 3連続 success) | ✅ |
+| ブランチ | **fix/134-mypy-ci-gate** 作業中 | 🔨 |
+| STABLE判定 | **✅ STABLE** (CI 全 success) | ✅ |
 
 ### Phase 3 セキュリティ・キャッシュ・監査強化 進捗
 
