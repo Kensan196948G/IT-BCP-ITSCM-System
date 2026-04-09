@@ -9,90 +9,6 @@ import type {
   ISO20000Report,
 } from "../../lib/types";
 
-// ---- Mock data for fallback ----
-
-const mockReadiness: ReadinessReport = {
-  report_id: "RPT-001",
-  report_type: "BCP Readiness Report",
-  generated_at: new Date().toISOString(),
-  overall_score: 72.5,
-  total_systems: 6,
-  tested_systems: 4,
-  rto_met_systems: 3,
-  system_readiness: [
-    { system_name: "Core Banking", rto_target_hours: 4, rpo_target_hours: 1, last_test_rto_hours: 3.5, rto_achieved: true, tested: true, has_fallback: true, readiness_score: 100 },
-    { system_name: "Email System", rto_target_hours: 2, rpo_target_hours: 0.5, last_test_rto_hours: 1.8, rto_achieved: true, tested: true, has_fallback: true, readiness_score: 100 },
-    { system_name: "CRM", rto_target_hours: 8, rpo_target_hours: 4, last_test_rto_hours: 10, rto_achieved: false, tested: true, has_fallback: false, readiness_score: 40 },
-    { system_name: "HR System", rto_target_hours: 24, rpo_target_hours: 8, last_test_rto_hours: 20, rto_achieved: true, tested: true, has_fallback: false, readiness_score: 80 },
-    { system_name: "File Server", rto_target_hours: 2, rpo_target_hours: 1, rto_achieved: false, tested: false, has_fallback: true, readiness_score: 20 },
-    { system_name: "Wiki", rto_target_hours: 48, rpo_target_hours: 24, rto_achieved: false, tested: false, has_fallback: false, readiness_score: 0 },
-  ],
-  untested_systems: ["File Server", "Wiki"],
-  recommendations: [
-    "2件のシステムが未テストです。DR試験を計画してください。",
-    "一部システムのRTO目標が未達成です。復旧手順の見直しを推奨します。",
-  ],
-};
-
-const mockCompliance: RTOComplianceReport = {
-  report_id: "RPT-002",
-  report_type: "RTO/RPO Compliance Report",
-  generated_at: new Date().toISOString(),
-  compliance_rate: 75.0,
-  total_systems: 4,
-  compliant_systems: 3,
-  system_compliance: [
-    { system_name: "Core Banking", rto_target_hours: 4, rto_actual_hours: 3.5, deviation_hours: -0.5, compliant: true, trend: "improving" },
-    { system_name: "Email System", rto_target_hours: 2, rto_actual_hours: 1.8, deviation_hours: -0.2, compliant: true, trend: "improving" },
-    { system_name: "CRM", rto_target_hours: 8, rto_actual_hours: 10, deviation_hours: 2, compliant: false, trend: "deteriorating" },
-    { system_name: "HR System", rto_target_hours: 24, rto_actual_hours: 20, deviation_hours: -4, compliant: true, trend: "improving" },
-  ],
-  overdue_systems: ["CRM"],
-};
-
-const mockTrend: ExerciseTrendReport = {
-  report_id: "RPT-003",
-  report_type: "Exercise Trend Report",
-  generated_at: new Date().toISOString(),
-  total_exercises: 8,
-  yearly_trends: [
-    { year: 2024, exercise_count: 2, completed: 2, pass_count: 1, achievement_rate: 50.0 },
-    { year: 2025, exercise_count: 3, completed: 3, pass_count: 2, achievement_rate: 66.7 },
-    { year: 2026, exercise_count: 3, completed: 2, pass_count: 2, achievement_rate: 100.0 },
-  ],
-  common_issues: { "network": 3, "procedure": 2, "communication": 1 },
-  total_improvements: 12,
-  completed_improvements: 8,
-  improvement_completion_rate: 66.7,
-};
-
-const mockISO: ISO20000Report = {
-  report_id: "RPT-004",
-  report_type: "ISO20000 ITSCM Compliance Report",
-  generated_at: new Date().toISOString(),
-  compliance_rate: 75.0,
-  total_items: 8,
-  compliant_items: 6,
-  checklist_results: [
-    { id: "ITSCM-001", requirement: "ITサービス継続計画が文書化されていること", category: "計画", compliant: true, evidence: "6件のシステムが登録済み" },
-    { id: "ITSCM-002", requirement: "RTO/RPO目標が全対象システムに設定されていること", category: "目標設定", compliant: true, evidence: "6/6件設定済み" },
-    { id: "ITSCM-003", requirement: "年1回以上のBCP訓練が実施されていること", category: "訓練", compliant: true, evidence: "2回の訓練完了" },
-    { id: "ITSCM-004", requirement: "復旧手順が文書化・レビューされていること", category: "手順", compliant: true, evidence: "訓練記録あり" },
-    { id: "ITSCM-005", requirement: "BIA（ビジネスインパクト分析）が実施されていること", category: "分析", compliant: true, evidence: "システム登録済み" },
-    { id: "ITSCM-006", requirement: "緊急連絡体制が整備されていること", category: "連絡体制", compliant: true, evidence: "システム体制登録済み" },
-    { id: "ITSCM-007", requirement: "DR試験結果に基づく改善が実施されていること", category: "継続改善", compliant: false, evidence: "0件テスト済み" },
-    { id: "ITSCM-008", requirement: "代替手段・フォールバックが定義されていること", category: "代替手段", compliant: false, evidence: "0/6件定義済み" },
-  ],
-  non_compliant_items: [
-    { id: "ITSCM-007", requirement: "DR試験結果に基づく改善が実施されていること", category: "継続改善", compliant: false, evidence: "0件テスト済み" },
-    { id: "ITSCM-008", requirement: "代替手段・フォールバックが定義されていること", category: "代替手段", compliant: false, evidence: "0/6件定義済み" },
-  ],
-  next_audit_actions: [
-    "[ITSCM-007] DR試験結果に基づく改善が実施されていること - 対応が必要です",
-    "[ITSCM-008] 代替手段・フォールバックが定義されていること - 対応が必要です",
-  ],
-};
-
 // ---- Tab definitions ----
 
 const tabs = [
@@ -385,11 +301,11 @@ export default function ReportsPage() {
   const [trends, setTrends] = useState<ExerciseTrendReport | null>(null);
   const [iso, setIso] = useState<ISO20000Report | null>(null);
   const [loading, setLoading] = useState(true);
-  const [usingMock, setUsingMock] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
     setLoading(true);
-    setUsingMock(false);
+    setFetchError(null);
 
     const fetchers: Record<TabId, () => Promise<void>> = {
       readiness: async () => {
@@ -397,8 +313,8 @@ export default function ReportsPage() {
           const data = await dashboard.reports.readiness();
           setReadiness(data);
         } catch {
-          setReadiness(mockReadiness);
-          setUsingMock(true);
+          setReadiness(null);
+          setFetchError("BCPレディネスレポートを取得できませんでした");
         }
       },
       compliance: async () => {
@@ -406,8 +322,8 @@ export default function ReportsPage() {
           const data = await dashboard.reports.rtoCompliance();
           setCompliance(data);
         } catch {
-          setCompliance(mockCompliance);
-          setUsingMock(true);
+          setCompliance(null);
+          setFetchError("RTO/RPOコンプライアンスレポートを取得できませんでした");
         }
       },
       trends: async () => {
@@ -415,8 +331,8 @@ export default function ReportsPage() {
           const data = await dashboard.reports.exerciseTrends();
           setTrends(data);
         } catch {
-          setTrends(mockTrend);
-          setUsingMock(true);
+          setTrends(null);
+          setFetchError("訓練トレンドレポートを取得できませんでした");
         }
       },
       iso20000: async () => {
@@ -424,8 +340,8 @@ export default function ReportsPage() {
           const data = await dashboard.reports.iso20000();
           setIso(data);
         } catch {
-          setIso(mockISO);
-          setUsingMock(true);
+          setIso(null);
+          setFetchError("ISO20000準拠レポートを取得できませんでした");
         }
       },
     };
@@ -437,9 +353,9 @@ export default function ReportsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-slate-800">レポート</h2>
-        {usingMock && (
-          <span className="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-700">
-            オフラインモード（モックデータ表示中）
+        {fetchError && (
+          <span className="rounded bg-red-100 px-2 py-1 text-xs text-red-700">
+            {fetchError}
           </span>
         )}
       </div>
@@ -467,6 +383,16 @@ export default function ReportsPage() {
             <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
             <p className="text-sm text-slate-500">レポートを生成しています...</p>
           </div>
+        </div>
+      ) : fetchError && (
+        (activeTab === "readiness" && !readiness) ||
+        (activeTab === "compliance" && !compliance) ||
+        (activeTab === "trends" && !trends) ||
+        (activeTab === "iso20000" && !iso)
+      ) ? (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-8 text-center">
+          <p className="text-sm font-medium text-red-700">{fetchError}</p>
+          <p className="mt-1 text-xs text-red-500">ネットワーク接続を確認し、再度お試しください。</p>
         </div>
       ) : (
         <>

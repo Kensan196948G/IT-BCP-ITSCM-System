@@ -1,43 +1,8 @@
 "use client";
 
-import { useIncidents } from "../../lib/hooks";
+import { incidents } from "../../lib/api";
+import { useOfflineSync } from "../../lib/use-offline-sync";
 import type { ActiveIncident } from "../../lib/types";
-
-const mockIncidents: ActiveIncident[] = [
-  {
-    id: "1",
-    incident_id: "INC-2026-042",
-    title: "基幹DBレプリケーション遅延",
-    scenario_type: "db_failure",
-    severity: "p2",
-    occurred_at: "2026-03-27T06:30:00Z",
-    detected_at: "2026-03-27T06:35:00Z",
-    status: "active",
-    affected_systems: ["基幹業務システム"],
-  },
-  {
-    id: "2",
-    incident_id: "INC-2026-041",
-    title: "社外向けWebサーバ応答遅延",
-    scenario_type: "network_degradation",
-    severity: "p3",
-    occurred_at: "2026-03-26T14:00:00Z",
-    detected_at: "2026-03-26T14:10:00Z",
-    status: "recovering",
-    affected_systems: ["Webサーバ"],
-  },
-  {
-    id: "3",
-    incident_id: "INC-2026-039",
-    title: "東日本DCネットワーク断",
-    scenario_type: "dc_failure",
-    severity: "p1",
-    occurred_at: "2026-03-25T22:15:00Z",
-    detected_at: "2026-03-25T22:16:00Z",
-    status: "active",
-    affected_systems: ["基幹業務システム", "ファイルサーバ", "人事給与システム"],
-  },
-];
 
 const severityBadge: Record<string, string> = {
   p1: "bg-red-100 text-red-700",
@@ -77,10 +42,10 @@ function elapsedTime(occurredAt: string): string {
 }
 
 export default function IncidentsPage() {
-  const { data, loading, error } = useIncidents();
-
-  // API失敗時はモックデータにフォールバック
-  const incidentList = error || !data ? mockIncidents : data;
+  const { data, loading, error, isOnline, lastSyncTime } = useOfflineSync<ActiveIncident[]>(
+    "incidents",
+    () => incidents.list(),
+  );
 
   if (loading) {
     return (
@@ -93,49 +58,69 @@ export default function IncidentsPage() {
     );
   }
 
+  const offlineLabel = isOnline
+    ? "APIエラー — 再試行してください"
+    : lastSyncTime
+      ? `オフライン（最終同期: ${new Date(lastSyncTime).toLocaleString("ja-JP")}）`
+      : "オフライン（キャッシュなし）";
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-slate-800">インシデント管理</h2>
         {error && (
           <span className="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-700">
-            オフラインモード（モックデータ表示中）
+            {offlineLabel}
           </span>
         )}
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr className="border-b border-slate-200 bg-slate-50 text-slate-600">
-              <th className="px-4 py-3 font-medium">ID</th>
-              <th className="px-4 py-3 font-medium">タイトル</th>
-              <th className="px-4 py-3 font-medium">重要度</th>
-              <th className="px-4 py-3 font-medium">経過時間</th>
-              <th className="px-4 py-3 font-medium">ステータス</th>
-              <th className="px-4 py-3 font-medium">影響システム</th>
-            </tr>
-          </thead>
-          <tbody>
-            {incidentList.map((inc) => (
-              <tr key={inc.id} className="border-b border-slate-50 hover:bg-slate-50">
-                <td className="px-4 py-3 font-mono text-xs text-slate-600">{inc.incident_id}</td>
-                <td className="px-4 py-3 font-medium text-slate-800">{inc.title}</td>
-                <td className="px-4 py-3">
-                  <span className={`rounded px-2 py-0.5 text-xs font-semibold ${severityBadge[inc.severity] || "bg-slate-100 text-slate-500"}`}>
-                    {severityLabel[inc.severity] || inc.severity}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-slate-600">{elapsedTime(inc.occurred_at)}</td>
-                <td className="px-4 py-3 text-slate-600">{statusLabel[inc.status] || inc.status}</td>
-                <td className="px-4 py-3 text-slate-600">
-                  {inc.affected_systems ? inc.affected_systems.join(", ") : "-"}
-                </td>
+      {error && !data ? (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center text-sm text-red-600">
+          インシデントデータを取得できませんでした。ネットワーク接続を確認してください。
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-slate-200 bg-slate-50 text-slate-600">
+                <th className="px-4 py-3 font-medium">ID</th>
+                <th className="px-4 py-3 font-medium">タイトル</th>
+                <th className="px-4 py-3 font-medium">重要度</th>
+                <th className="px-4 py-3 font-medium">経過時間</th>
+                <th className="px-4 py-3 font-medium">ステータス</th>
+                <th className="px-4 py-3 font-medium">影響システム</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {data && data.length > 0 ? (
+                data.map((inc) => (
+                  <tr key={inc.id} className="border-b border-slate-50 hover:bg-slate-50">
+                    <td className="px-4 py-3 font-mono text-xs text-slate-600">{inc.incident_id}</td>
+                    <td className="px-4 py-3 font-medium text-slate-800">{inc.title}</td>
+                    <td className="px-4 py-3">
+                      <span className={`rounded px-2 py-0.5 text-xs font-semibold ${severityBadge[inc.severity] || "bg-slate-100 text-slate-500"}`}>
+                        {severityLabel[inc.severity] || inc.severity}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-slate-600">{elapsedTime(inc.occurred_at)}</td>
+                    <td className="px-4 py-3 text-slate-600">{statusLabel[inc.status] || inc.status}</td>
+                    <td className="px-4 py-3 text-slate-600">
+                      {inc.affected_systems ? inc.affected_systems.join(", ") : "-"}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={6} className="px-4 py-8 text-center text-sm text-slate-400">
+                    アクティブなインシデントはありません
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
